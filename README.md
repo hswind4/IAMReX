@@ -86,9 +86,9 @@ Our codes rely on the following packages:
 
 1. AMReX:`git clone https://github.com/ruohai0925/amrex`
 2. AMReX-Hydro:`git clone https://github.com/ruohai0925/AMReX-Hydro`
-3. This repo:`git clone https://github.com/ruohai0925/IAMR/tree/development`
+3. This repo:`git clone https://github.com/ruohai0925/IAMReX/tree/development`
 
-After cloning, one will have three folder in your current directory:`AMReX`,`AMReX-Hydro`,`IAMR`.
+After cloning, one will have three folder in your current directory:`AMReX`,`AMReX-Hydro`,`IAMReX`.
 
 ### Compile
 
@@ -99,12 +99,12 @@ For example, if we want to compile in the `FlowPastSphere` , refer to the follow
 1. `cd` to the FlowPastSphere directory
 
     ```shell
-    cd IAMR/Tutorials/FlowPastSphere
+    cd IAMReX/Tutorials/FlowPastSphere
     ```
 
 2. Modify compilation parameters in `GNUmakefile`.
 
-   The compilation parameters depend on your computing platform. If you use `MPI` to run your program, then set `USE_MPI = TRUE`. If you are running the program with `Nvidia GPU(CUDA)`, then set `USE_CUDA = TRUE`. When using GPU runtime, please make sure your CUDA environment is ok. For the compilation parameters in the file, you can find the relevant information in [options](https://amrex-fluids.github.io/IAMR/Getting_Started.html#building-the-code).
+   The compilation parameters depend on your computing platform. If you use `MPI` to run your program, then set `USE_MPI = TRUE`. If you are running the program with `Nvidia GPU(CUDA)`, then set `USE_CUDA = TRUE`. When using GPU runtime, please make sure your CUDA environment is ok.
    
 3. Compile
 
