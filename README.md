@@ -20,7 +20,7 @@
 
 ## Overview
 
-This IAMReX repo aims at simulating the multiphase incompressible flows. The Navier-Stokes euqations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using either the level set (LS) method or the conservative level set (CLS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM). This code aims at simulating the multiphase flow and fluid structure interaction (FSI) problems on both CPUs and GPUs with/without subcycling.
+This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes euqations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using either the level set (LS) method or the conservative level set (CLS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
 
 
 
