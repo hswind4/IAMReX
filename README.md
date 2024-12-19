@@ -179,6 +179,19 @@ To cite IAMReX, please use
     url = {https://doi.org/10.1063/5.0236509},
     eprint = {https://pubs.aip.org/aip/pof/article-pdf/doi/10.1063/5.0236509/20247663/113335\_1\_5.0236509.pdf},
 }
+
+@misc{10.48550/arXiv.2405.07148,
+    author = {Liu, Dewen (刘德文) and He, Shuai (贺帅) and Cheng, Haoran (成浩然) and Zeng, Yadong (曾亚东)},
+    title = {Investigate the efficiency of incompressible flow simulations on CPUs and GPUs with BSAMR}, 
+    year = {2024},
+    month = 5,
+    eprint = {2405.07148},
+    archivePrefix = {arXiv},
+    primaryClass = {physics.flu-dyn},
+    doi = {10.48550/arXiv.2405.07148},
+    url = {https://arxiv.org/abs/2405.07148}, 
+}
+
 ```
 
 ## Acknowledgements
