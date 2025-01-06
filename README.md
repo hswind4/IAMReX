@@ -180,16 +180,16 @@ To cite IAMReX, please use
     eprint = {https://pubs.aip.org/aip/pof/article-pdf/doi/10.1063/5.0236509/20247663/113335\_1\_5.0236509.pdf},
 }
 
-@misc{10.48550/arXiv.2405.07148,
-    author = {Liu, Dewen (刘德文) and He, Shuai (贺帅) and Cheng, Haoran (成浩然) and Zeng, Yadong (曾亚东)},
-    title = {Investigate the efficiency of incompressible flow simulations on CPUs and GPUs with BSAMR}, 
-    year = {2024},
-    month = 5,
-    eprint = {2405.07148},
-    archivePrefix = {arXiv},
-    primaryClass = {physics.flu-dyn},
-    doi = {10.48550/arXiv.2405.07148},
-    url = {https://arxiv.org/abs/2405.07148}, 
+@inbook{doi:10.2514/6.2025-1865,
+author = {Dewen Liu and Shuai He and Haoran Cheng and Yadong Zeng},
+title = {Investigate the Efficiency of Incompressible Flow Simulations on CPUs and GPUs With BSAMR},
+booktitle = {AIAA SCITECH 2025 Forum},
+chapter = {},
+pages = {},
+doi = {10.2514/6.2025-1865},
+URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2025-1865},
+eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2025-1865},
+    abstract = { Adaptive mesh refinement (AMR) is a classical technique about local refinement in space where needed, thus effectively reducing computational costs for HPC-based physics simulations. Although AMR has been used for many years, little reproducible research discusses the impact of software-based parameters on block-structured AMR (BSAMR) efficiency and how to choose them. This article primarily does parametric studies to investigate the computational efficiency of incompressible flows on a block-structured adaptive mesh. The parameters include refining block size, refining frequency, maximum level, and cycling method. A new projection skipping (PS) method is proposed, which brings insights about when and where the projections on coarser levels are safe to be omitted. We conduct extensive tests on different CPUs/GPUs for various 2D/3D incompressible flow cases, including bubble, RT instability, Taylor Green vortex, etc. Several valuable empirical conclusions are obtained to help guide simulations with BSAMR. Codes and all profiling data are available on GitHub. }
 }
 
 ```
