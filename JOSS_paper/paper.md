@@ -65,7 +65,7 @@ affiliations:
  - name: Department of Computer Science, University of Texas at Austin, Austin, 78712, USA
    index: 11
 
-date: 13 November 2024
+date: 17 January 2025
 bibliography: paper.bib
 
 # # Optional fields if submitting to a AAS journal too, see this blog post:
@@ -80,9 +80,11 @@ IAMReX is an adaptive C++ solver designed for multiphase flow and fluid-particle
 
 The original goal of IAMReX is to extend the capability of IAMR codes [@almgren1998conservative], which only uses a density-based solver to capture the diffused interface of the two-phase flow. IAMReX offers the Level Set (LS) method and the reinitialization techniques for accurately capturing the two-phase interface [@zeng2022parallel], which increases the robustness of simulations with high Reynolds number [@zeng2023consistent]. For fluid-particle interaction problems, IAMReX employs the multidirect forcing immersed boundary method [@li2024open]. The associated Lagrangian markers used to resolve fluid-particle interface only exist on the finest-level grid, which greatly reduces memory cost. Both the subcycling and non-subcycling time advancement methods are implemented, and these methods help to decouple the time advancement at different levels. In addition, IAMReX is a publicly accessible platform designed specifically for developing massively parallel block-structured adaptive mesh refinement (BSAMR) applications. The code now supports hybrid parallelization using either pure MPI or MPI & OpenMP for multicore machines with the help of the AMReX framework [@zhang2019amrex].
 
-IAMReX is suitable for modeling multiphase flow problems and fluid-structure interaction problems. Its Level Set-based interface capturing technique can be beneficial for researchers studying phenomena such as wind over waves, breaking waves, and simulating the formation and disappearance of bubbles and droplets. Additionally, the immersed boundary method along with the collision models can parallelly resolve large-scale particles and capture their motions. Researchers working on studies of biological particle aggregation, sandstorms, wind erosion of ground surfaces, and seawater erosion of riverbeds are also among the target audience for this software.
-
 The IAMReX code has undergone considerable development since 2023 and gained a few new contributors in the past two years. Although the projection-based flow solver is inherited from IAMR, IAMReX has added over 3,000 lines of new code, introduced 10 more new test cases, and contributed approximately 60 new commits on GitHub. The versatility, accuracy, and efficiency of the present IAMReX framework are demonstrated by simulating two-phase flow and fluid-particle interaction problems with various types of kinematic constraints. We carefully designed the document such that users can easily compile and run cases. Input files, profiling scripts, and raw postprocessing data are also available for reproducing all results.
+
+# Statement of need
+
+IAMReX is suitable for modeling multiphase flow problems and fluid-structure interaction problems. Its Level Set-based interface capturing technique can be beneficial for researchers studying phenomena such as wind over waves, breaking waves, and simulating the formation and disappearance of bubbles and droplets. Additionally, the immersed boundary method along with the collision models can parallelly resolve large-scale particles and capture their motions. Researchers working on studies of biological particle aggregation, sandstorms, wind erosion of ground surfaces, and seawater erosion of riverbeds are also among the target audience for this software.
 
 # Acknowledgements
 
