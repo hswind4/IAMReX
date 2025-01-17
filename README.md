@@ -20,7 +20,7 @@
 
 ## Overview
 
-This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes euqations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using either the level set (LS) method or the conservative level set (CLS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
+This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes euqations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using the level set (LS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
 
 
 
@@ -189,7 +189,6 @@ pages = {},
 doi = {10.2514/6.2025-1865},
 URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2025-1865},
 eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2025-1865},
-    abstract = { Adaptive mesh refinement (AMR) is a classical technique about local refinement in space where needed, thus effectively reducing computational costs for HPC-based physics simulations. Although AMR has been used for many years, little reproducible research discusses the impact of software-based parameters on block-structured AMR (BSAMR) efficiency and how to choose them. This article primarily does parametric studies to investigate the computational efficiency of incompressible flows on a block-structured adaptive mesh. The parameters include refining block size, refining frequency, maximum level, and cycling method. A new projection skipping (PS) method is proposed, which brings insights about when and where the projections on coarser levels are safe to be omitted. We conduct extensive tests on different CPUs/GPUs for various 2D/3D incompressible flow cases, including bubble, RT instability, Taylor Green vortex, etc. Several valuable empirical conclusions are obtained to help guide simulations with BSAMR. Codes and all profiling data are available on GitHub. }
 }
 
 ```
