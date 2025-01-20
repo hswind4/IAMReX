@@ -21,8 +21,12 @@ jobs:
         #   path: /home/runner/work/repositories/IAMReX
       - name: List and pwd
         run: |
-          cd /home/runner/work/repositories/IAMReX
-          ls 
+          ls /home/runner/work
+          echo "------------"
+          ls /home/runner/work/repositories/
+          echo "------------"
+          ls /home/runner/work/repositories/amrex
+           
       - name: Run IAMReX tests
         run: |
           python Test_IAMReX/test_IAMReX.py
