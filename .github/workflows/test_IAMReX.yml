@@ -1,0 +1,28 @@
+name: test_IAMReX
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # 每5分钟运行一次
+  push:
+jobs:
+  test-IAMReX:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone AMReX repository
+        run: |
+          git clone https://github.com/AMReX-Codes/amrex.git 
+      - name: Clone AMReX-Hydro repository
+        run: |
+          git clone https://github.com/AMReX-Fluids/AMReX-Hydro.git 
+
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          path: IAMReX  
+      
+      - name: Run IAMReX tests
+        run: |
+          python Test_IAMReX/IAMReX_tests.py
+      - name: Finished.
+        run: |
+          echo "Tests completed!"
