@@ -10,7 +10,6 @@ jobs:
     steps:
       - name: Clone AMReX and AMReX-Hydro repositories
         run: |
-          cd /home/runner/work
           git clone https://github.com/AMReX-Codes/amrex.git
           git clone https://github.com/AMReX-Fluids/AMReX-Hydro.git
 
