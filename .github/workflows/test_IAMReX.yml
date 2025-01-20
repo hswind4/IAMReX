@@ -8,11 +8,6 @@ jobs:
   test-IAMReX:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone AMReX and AMReX-Hydro repositories
-        run: |
-          git clone https://github.com/AMReX-Codes/amrex.git
-          git clone https://github.com/AMReX-Fluids/AMReX-Hydro.git
-
       - name: Check out repository
         uses: actions/checkout@v3
       - name: List and pwd
@@ -20,9 +15,15 @@ jobs:
           ls /home/runner/work
           echo "------------"
           ls /home/runner/work/IAMReX
-          echo "------------"           
+          echo "------------"  
+      - name: Clone AMReX and AMReX-Hydro repositories
+        run: |
+          cd /home/runner/work/IAMReX
+          git clone https://github.com/AMReX-Codes/amrex.git
+          git clone https://github.com/AMReX-Fluids/AMReX-Hydro.git         
       - name: Run IAMReX tests
         run: |
+          cd /home/runner/work/IAMReX/IAMReX
           python Test_IAMReX/test_IAMReX.py
       - name: Finished.
         run: |
