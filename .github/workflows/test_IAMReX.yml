@@ -20,10 +20,8 @@ jobs:
         run: |
           ls /home/runner/work
           echo "------------"
-          ls /home/runner/work/repositories/
-          echo "------------"
-          ls /home/runner/work/repositories/amrex
-           
+          ls /home/runner/work/IAMReX
+          echo "------------"           
       - name: Run IAMReX tests
         run: |
           python Test_IAMReX/test_IAMReX.py
