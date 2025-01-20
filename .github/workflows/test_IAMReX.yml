@@ -17,8 +17,8 @@ jobs:
 
       - name: Check out repository
         uses: actions/checkout@v3
-        with:
-          path: /home/runner/work/repositories/IAMReX
+        # with:
+        #   path: /home/runner/work/repositories/IAMReX
       - name: List and pwd
         run: |
           cd /home/runner/work/repositories/IAMReX
