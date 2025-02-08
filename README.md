@@ -181,14 +181,14 @@ To cite IAMReX, please use
 }
 
 @inbook{doi:10.2514/6.2025-1865,
-author = {Dewen Liu and Shuai He and Haoran Cheng and Yadong Zeng},
-title = {Investigate the Efficiency of Incompressible Flow Simulations on CPUs and GPUs With BSAMR},
-booktitle = {AIAA SCITECH 2025 Forum},
-chapter = {},
-pages = {},
-doi = {10.2514/6.2025-1865},
-URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2025-1865},
-eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2025-1865},
+    author = {Dewen Liu and Shuai He and Haoran Cheng and Yadong Zeng},
+    title = {Investigate the Efficiency of Incompressible Flow Simulations on CPUs and GPUs With BSAMR},
+    booktitle = {AIAA SCITECH 2025 Forum},
+    chapter = {},
+    pages = {},
+    doi = {10.2514/6.2025-1865},
+    URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2025-1865},
+    eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2025-1865},
 }
 
 ```

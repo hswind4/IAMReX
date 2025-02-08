@@ -602,7 +602,7 @@ NavierStokes::advance (Real time,
 #endif
     }
     else if (isolver==2) { // To be implemented
-        dt_test = advance_staggered_twophase_clsvof(time,dt,iteration,ncycle);
+        dt_test = advance_semistaggered_twophase_phasefield(time,dt,iteration,ncycle);
     }
     else{
         amrex::Abort("Wrong isolver");
@@ -2749,17 +2749,216 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
 #endif
 
 //
-// clsvof
+// phase field method
 // 
 Real
-NavierStokes::advance_staggered_twophase_clsvof (Real time,
+NavierStokes::advance_semistaggered_twophase_phasefield (Real time,
                        Real dt,
                        int  iteration,
                        int  ncycle)
 {
-    BL_PROFILE("NavierStokes::advance_staggered_twophase_clsvof()");
+    BL_PROFILE("NavierStokes::advance_semistaggered_twophase_phasefield()");
 
+    //
+    // Calculate the time N viscosity and diffusivity
+    //   Note: The viscosity and diffusivity at time N+1 are
+    //         initialized here to the time N values just to
+    //         have something reasonable.
+    //
+    const Real prev_time = state[State_Type].prevTime();
+    const int num_diff = NUM_STATE-AMREX_SPACEDIM-1;
+
+    calcViscosity(prev_time,dt,iteration,ncycle);
+    calcDiffusivity(prev_time);
+    MultiFab::Copy(*viscnp1_cc, *viscn_cc, 0, 0, 1, viscn_cc->nGrow());
+    MultiFab::Copy(*diffnp1_cc, *diffn_cc, 0, 0, num_diff, diffn_cc->nGrow());
+
+    // Add this AFTER advance_setup()
+    if (verbose)
+    {
+        Print() << "NavierStokes::advance_semistaggered_twophase_phasefield(): before velocity update:"
+                << std::endl;
+        printMaxValues(false);
+    }
+    //
+    // Compute traced states for normal comp of velocity at half time level.
+    // Returns best estimate for new timestep.
+    //
     Real dt_test = predict_velocity(dt);
+    //
+    // Do MAC projection and update edge velocities.
+    //
+    if (do_mac_proj)
+    {
+        // To enforce div constraint on coarse-fine boundary, need 1 ghost cell
+        int ng_rhs = 1;
+
+        MultiFab mac_rhs(grids,dmap,1,ng_rhs,MFInfo(),Factory());
+        create_mac_rhs(mac_rhs,ng_rhs,time,dt);
+        MultiFab& S_old = get_old_data(State_Type);
+        mac_project(time,dt,S_old,&mac_rhs,umac_n_grow,true);
+
+    } else {
+        // Use interpolation from coarse to fill grow cells.
+        create_umac_grown(umac_n_grow, nullptr);
+    }
+    //
+    // Advect velocities.
+    //
+    if (do_mom_diff == 0)
+        velocity_advection(dt);
+    //
+    // Advect scalars.
+    //
+    const int first_scalar = Density;
+    const int last_scalar  = first_scalar + NUM_SCALARS - 1;
+    scalar_advection(dt,first_scalar,last_scalar);
+    //
+    // pm related
+    // note: in the above scalar_advection function, we still advect rho.
+    // 
+    if (do_phi) {
+
+        // SOLVE AND UPDATE THE PHASE FIELD EQUATION HERE 
+        // BY REPLACING THE FOLLOWING LEVEL SET METHOD! - by ZDSJTU
+
+        amrex::Print() << "After scalar_advection " << std::endl;
+        // const Real  prev_time = state[State_Type].prevTime();
+        // MultiFab& S_old = get_old_data(State_Type);
+        // int nScomp = S_old.nComp();
+        // fill_allgts(S_old,State_Type,phicomp,1,prev_time);
+        // MultiFab::Copy(phi_ptime, S_old, phicomp, 0, 1, S_old.nGrow());
+
+        amrex::Print()<< "scalar_update phi " << std::endl;
+        amrex::Print()<< "phicomp " << phicomp << std::endl;
+        scalar_update(dt,phicomp,phicomp);
+
+        // amrex::Print()<< std::endl;
+        // amrex::Print()<< "6 " << std::endl;
+
+        const Real cur_time = state[State_Type].curTime();
+        MultiFab& S_new = get_new_data(State_Type);
+        fill_allgts(S_new,State_Type,phicomp,1,cur_time);
+        MultiFab::Copy(phi_ctime, S_new, phicomp, 0, 1, S_new.nGrow());
+
+        // amrex::Print()<< "7 " << std::endl;
+
+        // reinitialization
+        if (do_reinit == 1 && (parent->levelSteps(0)% lev0step_of_reinit == 0) ){
+            amrex::Print() << "parent->levelSteps(0) " << parent->levelSteps(0) << std::endl;
+            reinit();
+        }
+
+        if (do_mom_diff == 0) {
+            // update the rho_ctime and density in S_new
+            phi_to_heavi(geom, epsilon, phi_ctime, heaviside); 
+            heavi_to_rhoormu(heaviside, rho_w, rho_a, rho_ctime);
+            MultiFab::Copy(S_new, rho_ctime, 0, Density, 1, rho_ctime.nGrow());
+            // update phi_half
+            MultiFab& phi_half_temp = get_phi_half_time();
+            // update rho_half
+            phi_to_heavi(geom, epsilon, phi_half_temp, heaviside);
+            heavi_to_rhoormu(heaviside, rho_w, rho_a, rho_half);
+
+            // update mu_half
+            MultiFab outmf_mu_half(grids, dmap, 1, 1, MFInfo(), Factory());
+            heavi_to_rhoormu(heaviside, mu_w, mu_a, outmf_mu_half);
+            MultiFab::Copy(*viscn_cc,   outmf_mu_half, 0, 0, 1, 1);
+            MultiFab::Copy(*viscnp1_cc, outmf_mu_half, 0, 0, 1, 1);
+        }
+        else {
+            amrex::Abort("Only do_mom_diff == 0 is considered now.");
+        }
+    }
+    else {
+        //
+        // Update Rho.
+        //
+        amrex::Abort("Rho is not updated by themselves.");
+    }
+
+    //
+    // Advect momenta after rho^(n+1) has been created.
+    //
+    if (do_mom_diff == 1)
+        velocity_advection(dt);
+    //
+    // pm related
+    // 
+    if (do_phi) {
+        //
+        // Add the advective and other terms to get scalars at t^{n+1} except 
+        // the level set function.
+        scalar_update(dt,first_scalar+1,phicomp-1);
+    }
+    //
+    // S appears in rhs of the velocity update, so we better do it now.
+    //
+    if (have_divu)
+    {
+        calc_divu(time+dt,dt,get_new_data(Divu_Type));
+        if (have_dsdt)
+        {
+            calc_dsdt(time,dt,get_new_data(Dsdt_Type));
+            if (initial_step)
+                MultiFab::Copy(get_old_data(Dsdt_Type),
+                            get_new_data(Dsdt_Type),0,0,1,0);
+        }
+    }
+    //
+    // Add the advective and other terms to get velocity at t^{n+1}.
+    //
+    velocity_update(dt);
+
+    //
+    // Increment rho average.
+    //
+    if (!initial_step)
+    {
+        if (level > 0)
+            incrRhoAvg((iteration==ncycle ? 0.5 : 1.0) / Real(ncycle));
+
+        if (verbose)
+        {
+            Print() << "NavierStokes::advance_semistaggered_twophase_ls(): before nodal projection " << std::endl;
+            printMaxVel();
+            // New P, Gp get updated in the projector (below). Check old here.
+            printMaxGp(false);
+        }
+
+        //
+        // Do a level project to update the pressure and velocity fields.
+        //
+        if (projector) {
+            const int finest_level = parent->finestLevel();
+            int solve_coarse_level = iteration % 2; 
+            if (verbose)
+            {
+                // Print() << "solve_coarse_level " << solve_coarse_level << std::endl;
+                // Print() << "skip_level_projector " << skip_level_projector << std::endl;
+                // Print() << "level " << level << std::endl;
+                // Print() << "finest_level " << finest_level << std::endl;
+            }
+            if (skip_level_projector==0 || level==finest_level || solve_coarse_level) {
+                level_projector(dt,time,iteration);
+            }
+            else {
+                MultiFab& P_old = get_old_data(Press_Type);
+                MultiFab& P_new = get_new_data(Press_Type);
+                // Set P_new to be P_old
+                MultiFab::Copy(P_new,P_old,0,0,1,P_old.nGrow());
+            }
+        }
+        if (level > 0 && iteration == 1)
+        p_avg.setVal(0);
+    }
+
+#ifdef AMREX_PARTICLES
+    if (theNSPC() != 0 and NavierStokes::initial_step != true)
+    {
+        theNSPC()->AdvectWithUmac(u_mac, level, dt);
+    }
+#endif
 
     return dt_test;  // Return estimate of best new timestep.
 }

@@ -115,7 +115,7 @@ public:
                          int  ncycle);
 #endif
 
-    amrex::Real advance_staggered_twophase_clsvof (amrex::Real time,
+    amrex::Real advance_semistaggered_twophase_phasefield (amrex::Real time,
                          amrex::Real dt,
                          int  iteration,
                          int  ncycle);
