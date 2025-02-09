@@ -16,6 +16,10 @@ jobs:
           echo "------------"
           ls /home/runner/work/IAMReX
           echo "------------"  
+      - name: Install MPI
+        run: |
+          sudo apt update
+          sudo apt install -y openmpi-bin openmpi-common libopenmpi-dev
       - name: Clone AMReX and AMReX-Hydro repositories
         run: |
           cd /home/runner/work/IAMReX
