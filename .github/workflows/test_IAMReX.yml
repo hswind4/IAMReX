@@ -1,5 +1,5 @@
 name: test_IAMReX
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+run-name:  IAMReX/test_IAMReX.py is running by ${{ github.actor }} 🚀
 on:
   schedule:
     - cron: "*/5 * * * *"  # 每5分钟运行一次

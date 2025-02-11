@@ -126,22 +126,22 @@ def main():
     test_RSV(working_dir, False)
     
     
-    # DraftingKissingTumbling  // 运行太耗时
+    # DraftingKissingTumbling  // too much time 
     # working_dir = os.path.join(script_dir, "../Tutorials/DraftingKissingTumbling")
     # print("Test Working Directory:", os.path.abspath(working_dir))
     # test_DraftingKissingTumbling(working_dir, True)
 
-    # FallingSphere // 运行太耗时
+    # FallingSphere // too much time 
     # working_dir = os.path.join(script_dir, "../Tutorials/FallingSphere")
     # print("Test Working Directory:", os.path.abspath(working_dir))
     # test_FallingSphere(working_dir, print_output)
 
-    # FlowPastCylinder // 代码运行有错误
+    # FlowPastCylinder // mistake
     # working_dir = os.path.join(script_dir, "../Tutorials/FlowPastCylinder")
     # print("Test Working Directory:", os.path.abspath(working_dir))
     # test_FlowPastCylinder(working_dir, True)
 
-    # FlowPastSphere // 运行太耗时
+    # FlowPastSphere // too much time 
     # working_dir = os.path.join(script_dir, "../Tutorials/FlowPastSphere")
     # print("Test Working Directory:", os.path.abspath(working_dir))
     # test_FlowPastSphere(working_dir, True)
