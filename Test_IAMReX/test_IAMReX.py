@@ -110,20 +110,20 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))  
     print("Script Directory:", script_dir)
 
-    # # LidDrivenCavity
-    # working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavity")
-    # print("Test Working Directory:", os.path.abspath(working_dir))
-    # test_lidDrivenCanvity(working_dir, print_output)
+    # LidDrivenCavity
+    working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavity")
+    print("Test Working Directory:", os.path.abspath(working_dir))
+    test_lidDrivenCanvity(working_dir, print_output)
 
-    # # LidDrivenCavitySphere
-    # working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavitySphere")
-    # print("Test Working Directory:", os.path.abspath(working_dir))
-    # test_LidDrivenCavitySphere(working_dir, print_output)
+    # LidDrivenCavitySphere
+    working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavitySphere")
+    print("Test Working Directory:", os.path.abspath(working_dir))
+    test_LidDrivenCavitySphere(working_dir, print_output)
 
-    # # RSV
-    # working_dir = os.path.join(script_dir, "../Tutorials/RSV")
-    # print("Test Working Directory:", os.path.abspath(working_dir))
-    # test_RSV(working_dir, False)
+    # RSV
+    working_dir = os.path.join(script_dir, "../Tutorials/RSV")
+    print("Test Working Directory:", os.path.abspath(working_dir))
+    test_RSV(working_dir, False)
     
     
     # DraftingKissingTumbling  // 运行太耗时

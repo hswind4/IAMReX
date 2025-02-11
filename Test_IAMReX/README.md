@@ -23,7 +23,7 @@ If you want to add a new test, here are only two thing you need to do.
     ```python
     def test_RayleighTaylor(working_dir, print_output):
         subprocess.run(
-        "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE && mpiexec -np 8 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor", 
+        "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE && mpiexec -np 2 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor", 
         shell=True, 
         check=True, 
         cwd=working_dir,
@@ -42,5 +42,9 @@ If you want to add a new test, here are only two thing you need to do.
     ```
 
 
+
+NOTE: 
+
+For github action, mpi is only supported 2 cores, GPU is not supported.
 
 
