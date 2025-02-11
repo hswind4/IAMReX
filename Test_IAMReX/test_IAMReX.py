@@ -80,7 +80,7 @@ def test_FlowPastSphere(working_dir, print_output):
 
 def test_RayleighTaylor(working_dir, print_output):
     subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE && mpirun -np 1 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor", 
+    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE && mpiexec -np 1 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor", 
     shell=True, 
     check=True, 
     cwd=working_dir,
