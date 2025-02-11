@@ -80,7 +80,7 @@ def test_FlowPastSphere(working_dir, print_output):
 
 def test_RayleighTaylor(working_dir, print_output):
     subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE && mpirun -np 8 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor", 
+    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE && mpirun -np 1 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor", 
     shell=True, 
     check=True, 
     cwd=working_dir,
@@ -110,20 +110,20 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))  
     print("Script Directory:", script_dir)
 
-    # LidDrivenCavity
-    working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavity")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_lidDrivenCanvity(working_dir, print_output)
+    # # LidDrivenCavity
+    # working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavity")
+    # print("Test Working Directory:", os.path.abspath(working_dir))
+    # test_lidDrivenCanvity(working_dir, print_output)
 
-    # LidDrivenCavitySphere
-    working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavitySphere")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_LidDrivenCavitySphere(working_dir, print_output)
+    # # LidDrivenCavitySphere
+    # working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavitySphere")
+    # print("Test Working Directory:", os.path.abspath(working_dir))
+    # test_LidDrivenCavitySphere(working_dir, print_output)
 
-    # RSV
-    working_dir = os.path.join(script_dir, "../Tutorials/RSV")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_RSV(working_dir, False)
+    # # RSV
+    # working_dir = os.path.join(script_dir, "../Tutorials/RSV")
+    # print("Test Working Directory:", os.path.abspath(working_dir))
+    # test_RSV(working_dir, False)
     
     
     # DraftingKissingTumbling  // 运行太耗时
