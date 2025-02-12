@@ -36,7 +36,8 @@ def test_RSV(working_dir, print_output):
     
 def test_DraftingKissingTumbling(working_dir, print_output):
     subprocess.run(
-    "make -j8 && ./amr3d.gnu.DEBUG.MPI.ex inputs.3d.DKT", 
+    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
+    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.DKT max_step=1 amr.n_cell=16 8 8",     
     shell=True, 
     check=True, 
     cwd=working_dir,
@@ -47,7 +48,8 @@ def test_DraftingKissingTumbling(working_dir, print_output):
 
 def test_FallingSphere(working_dir, print_output):
     subprocess.run(
-    "make -j8 && ./amr3d.gnu.DEBUG.MPI.ex inputs.3d.FallingSphere", 
+    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
+    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.FallingSphere max_step=1 amr.n_cell=16 8 8",  
     shell=True, 
     check=True, 
     cwd=working_dir,
@@ -58,7 +60,8 @@ def test_FallingSphere(working_dir, print_output):
     
 def test_FlowPastCylinder(working_dir, print_output):
     subprocess.run(
-    "make -j8 && ./amr3d.gnu.MPI.ex inputs.2d.flow_past_cylinder-x", 
+    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
+    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.flow_past_cylinder-x max_step=1",  
     shell=True, 
     check=True, 
     cwd=working_dir,
@@ -69,7 +72,8 @@ def test_FlowPastCylinder(working_dir, print_output):
 
 def test_FlowPastSphere(working_dir, print_output):
     subprocess.run(
-    "make -j8 && ./amr3d.gnu.DEBUG.MPI.ex inputs.3d.flow_past_sphere", 
+    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
+    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.flow_past_sphere max_step=1 amr.n_cell=16 8 8",  
     shell=True, 
     check=True, 
     cwd=working_dir,
@@ -92,7 +96,7 @@ def test_RayleighTaylor(working_dir, print_output):
 def test_RayleighTaylor_LS(working_dir, print_output):
     subprocess.run(
     "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
-    "mpiexec -np 2 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor_rt", 
+    "mpiexec -np 2 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor_rt ", 
     shell=True, 
     check=True, 
     cwd=working_dir,
@@ -126,25 +130,25 @@ def main():
     test_RSV(working_dir, False)
     
     
-    # DraftingKissingTumbling  // too much time 
-    # working_dir = os.path.join(script_dir, "../Tutorials/DraftingKissingTumbling")
-    # print("Test Working Directory:", os.path.abspath(working_dir))
-    # test_DraftingKissingTumbling(working_dir, True)
+    # DraftingKissingTumbling  
+    working_dir = os.path.join(script_dir, "../Tutorials/DraftingKissingTumbling")
+    print("Test Working Directory:", os.path.abspath(working_dir))
+    test_DraftingKissingTumbling(working_dir, print_output)
 
-    # FallingSphere // too much time 
-    # working_dir = os.path.join(script_dir, "../Tutorials/FallingSphere")
-    # print("Test Working Directory:", os.path.abspath(working_dir))
-    # test_FallingSphere(working_dir, print_output)
+    # FallingSphere 
+    working_dir = os.path.join(script_dir, "../Tutorials/FallingSphere")
+    print("Test Working Directory:", os.path.abspath(working_dir))
+    test_FallingSphere(working_dir, print_output)
 
-    # FlowPastCylinder // mistake
-    # working_dir = os.path.join(script_dir, "../Tutorials/FlowPastCylinder")
-    # print("Test Working Directory:", os.path.abspath(working_dir))
-    # test_FlowPastCylinder(working_dir, True)
+    # FlowPastCylinder
+    working_dir = os.path.join(script_dir, "../Tutorials/FlowPastCylinder")
+    print("Test Working Directory:", os.path.abspath(working_dir))
+    test_FlowPastCylinder(working_dir, print_output)
 
-    # FlowPastSphere // too much time 
-    # working_dir = os.path.join(script_dir, "../Tutorials/FlowPastSphere")
-    # print("Test Working Directory:", os.path.abspath(working_dir))
-    # test_FlowPastSphere(working_dir, True)
+    # FlowPastSphere 
+    working_dir = os.path.join(script_dir, "../Tutorials/FlowPastSphere")
+    print("Test Working Directory:", os.path.abspath(working_dir))
+    test_FlowPastSphere(working_dir, print_output)
 
     # RayleighTaylor
     working_dir = os.path.join(script_dir, "../Tutorials/RayleighTaylor")
