@@ -214,7 +214,7 @@ public:
     void fill_allgts (amrex::MultiFab& mf, int type, int scomp, int ncomp, amrex::Real time);
     void reinit ();
     void reinitialization_sussman (amrex::Real dt, int loop_iter);
-    void reinitialization_consls (amrex::Real dt, int loop_iter, int epsG, int epsG2);
+    void reinitialization_consls (amrex::Real dt, int loop_iter, amrex::Real epsG, amrex::Real epsG2);
     void phi_to_sgn0 (amrex::MultiFab& phi);
     amrex::MultiFab& get_phi_half_time ();
     void rk_first_reinit (amrex::MultiFab& phi_ctime,

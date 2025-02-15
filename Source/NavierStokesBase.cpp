@@ -5424,7 +5424,7 @@ NavierStokesBase::reinit()
 
 void
 NavierStokesBase::reinitialization_consls (Real dt,
-                       int  loop_iter, int epsG, int epsG2)
+                       int  loop_iter, Real epsG, Real epsG2)
 {
     
     if (verbose) amrex::Print() << "In the NavierStokesBase::reinitialization_consls() " << std::endl;
