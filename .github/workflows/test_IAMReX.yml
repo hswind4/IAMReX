@@ -1,8 +1,8 @@
 name: test_IAMReX
 run-name:  IAMReX/test_IAMReX.py is running by ${{ github.actor }} 🚀
 on:
-  schedule:
-    - cron: "*/5 * * * *"  # 每5分钟运行一次
+  # schedule:
+  #   - cron: "*/5 * * * *"
   push:
 jobs:
   test-IAMReX:
