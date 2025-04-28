@@ -7,7 +7,7 @@ This section walks you through a brief introduction to using IAMReX.
 
 Downloading the code
 --------------------
-IAMReX is built on top of the AMReX framework.  In order to run
+IAMReX is built on top of the AMReX framework. In order to run
 IAMReX, you must download separate git modules for IAMReX, AMReX
 and AMReX-Hydro.
 
