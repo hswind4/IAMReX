@@ -24,7 +24,8 @@ jobs:
 
       - name: Install and Build
         run: |
-          echo "Build the Sphinx documentation for IAMR."
+          echo "Build the Sphinx documentation for IAMReX."
+          cd Docs/IAMReX_documentation/
           make html
 
       - name: Deploy
