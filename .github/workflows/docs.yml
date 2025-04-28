@@ -1,5 +1,9 @@
-name: Build and Deploy
-on: [push, pull_request]
+name: IAMReX
+on:
+  push:
+    paths: 
+      - 'Docs/IAMReX_documentation/source/**'
+      - '.github/workflows/docs.yml'
 
 concurrency:
   group: ${{ github.head_ref }}-docs
@@ -14,23 +18,21 @@ jobs:
 
       - name: Dependencies
         run: |
-          .github/workflows/dependencies/documentation.sh
           echo "Installing python packages for docs..."
           python3 -m pip install --upgrade pip
           python3 -m pip install sphinx sphinx_rtd_theme breathe sphinxcontrib.bibtex docutils
 
       - name: Install and Build
         run: |
-          cd Docs/sphinx_documentation
           echo "Build the Sphinx documentation for IAMR."
           make html
 
       - name: Deploy
-        if: github.event_name == 'push' && github.repository == 'AMReX-Fluids/IAMR' && github.ref == 'refs/heads/development'
+        if: github.event_name == 'push' && github.repository == 'ruohai0925/IAMReX' && github.ref == 'refs/heads/development'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          ssh-key: ${{ secrets.DEPLOY_KEY }} # repo secrets env
           branch: gh-pages # The branch the action should deploy to.
-          folder: Docs/sphinx_documentation/build/html # The folder the action should deploy.
-          target-folder: docs_html # The folder the action should deploy to.
+          folder: build/html # The folder the action should deploy.
+          target-folder: docs # The folder the action should deploy to.
           clean: false # Do not remove existing files from the deploy target.
