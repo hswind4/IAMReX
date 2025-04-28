@@ -1,0 +1,38 @@
+name: Build and Deploy
+on:
+  push:
+    paths: 
+      - 'Docs/IAMReX_documentation/source/**'
+      - '.github/workflows/docs.yaml'
+
+concurrency:
+  group: ${{ github.head_ref }}-docs
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependencies
+        run: |
+          echo "Installing python packages for docs..."
+          python3 -m pip install --upgrade pip
+          python3 -m pip install sphinx sphinx_rtd_theme breathe sphinxcontrib.bibtex docutils
+
+      - name: Install and Build
+        run: |
+          echo "Build the Sphinx documentation for IAMR."
+          make html
+
+      - name: Deploy
+        if: github.event_name == 'push' && github.repository == 'ruohai0925/IAMReX' && github.ref == 'refs/heads/development'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }} # repo secrets env
+          branch: gh-pages # The branch the action should deploy to.
+          folder: build/html # The folder the action should deploy.
+          target-folder: docs # The folder the action should deploy to.
+          clean: false # Do not remove existing files from the deploy target.
