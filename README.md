@@ -160,6 +160,24 @@ gfortran -o fixBed DomainFill.F90
 ./fixBed
 ```
 
+## Get Help
+
+You can also view questions
+and ask your own on our [GitHub Discussions](https://github.com/ruohai0925/IAMReX/discussions) page.
+To obtain additional help, simply post an issue.
+
+## Contribute
+
+We are always happy to have users contribute to the IAMReX source code. To
+contribute, issue a pull request against the development branch.
+Any level of changes are welcomed: documentation, bug fixes, new test problems,
+new solvers, etc. For more details on how to contribute to IAMReX, please see
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+💡 If you're using IAMReX in your own GitHub projects, consider adding `IAMReX`
+as a [repository topic](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/classifying-your-repository-with-topics)!
+This helps others discover related work and strengthens the IAMReX ecosystem.
+
 ## Citation
 
 To cite IAMReX, please use
