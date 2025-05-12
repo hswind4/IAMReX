@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2022 - 2025 Yadong Zeng<ruohai372@gmail.com> & ZhuXu Li<1246206018@qq.com>
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
 #ifndef COLLISION_H
 #define COLLISION_H
 

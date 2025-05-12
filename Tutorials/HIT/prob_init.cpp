@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include <NavierStokes.H>
 #include <AMReX_ParmParse.H>
 #include <iamr_constants.H>

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers; 2022 - 2025 Yadong Zeng<ruohai372@gmail.com>
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef IAMR_MacProj_H_
 #define IAMR_MacProj_H_

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef IAMR_Diffusion_H_
 #define IAMR_Diffusion_H_

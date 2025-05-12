@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 - 2025 Yadong Zeng<ruohai372@gmail.com> & Dewen Liu<1803368907@qq.com>
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 #AMREX_HOME defines the directory in which we will find the BoxLib directory
 AMREX_HOME ?= ../../../amrex
 AMREX_HYDRO_HOME ?= ../../../AMReX-Hydro
