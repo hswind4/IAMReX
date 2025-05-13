@@ -23,7 +23,7 @@ dis = math.sqrt(2)/2
 rhs = [-dis, 0, -dis, 0, dis, 0, -dis, 0, -dis]
 print(rhs)
 
-# Let us say wanna use the least square method to solver matrix * x = rhs, in whcih x is a 6 by 1 array.
+# Let us say wanna use the least square method to solver matrix * x = rhs, in which x is a 6 by 1 array.
 
 # Solve using least squares
 x, residuals, rank, s = np.linalg.lstsq(matrix, rhs, rcond=None)

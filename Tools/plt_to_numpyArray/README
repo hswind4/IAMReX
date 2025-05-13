@@ -7,7 +7,7 @@ matplotlib>=3.5.1
 Users can run pip3 install -r requirements.txt to install necessary packages.
 
 Usage of plt_to_numpyArray.py:
-First users may modify experiments_path to the path of the directoy containing experiment file.
+First users may modify experiments_path to the path of the directory containing experiment file.
 In current example, it's /Users/haorancheng/Desktop/data_etl/Data/ which contains experiment000019.
 
 Second, users may modify simulations_path to the path of the directory containing plt data specified 
@@ -20,6 +20,6 @@ Users can modify command 'python3 plt_to_numpyArray.py -v experiment000019 y_vel
 2. Specify which Physical variable to be transformed and potentially visualized. For example, change the
 command to 'python3 plt_to_numpyArray.py experiment000019 x_velocity y_velocity 3 yes' to process both x_velocity
 and y_velocity.
-3. Choose to visualize chosen variable or not. Command line cna be changed to 
+3. Choose to visualize chosen variable or not. Command line can be changed to 
 'python3 plt_to_numpyArray.py experiment000019 y_velocity 3 no' to turn off visualization.
 4. Choose not to print out numpy array shape and level number by deleting '-v'.

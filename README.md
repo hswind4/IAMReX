@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./README_figures/IAMReX.png" alt="tittle" width="300">
+<img src="./README_figures/IAMReX.png" alt="title" width="300">
 <p align="center">
   <a href="https://arxiv.org/abs/2408.14140">
   <img src="https://img.shields.io/badge/arXiv-2408.14140-blue" alt="arxiv">
@@ -20,7 +20,7 @@
 
 ## Overview
 
-This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes euqations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using the level set (LS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
+This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes equations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using the level set (LS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
 
 
 

@@ -10,7 +10,7 @@ def test_lidDrivenCanvity(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("Test_lidDrivenCanvity succceed")
+    print("Test_lidDrivenCanvity succeed")
 
 def test_LidDrivenCavitySphere(working_dir, print_output):
     subprocess.run(
@@ -21,7 +21,7 @@ def test_LidDrivenCavitySphere(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("Test LidDrivenCavitySphere succceed")
+    print("Test LidDrivenCavitySphere succeed")
     
 def test_RSV(working_dir, print_output):
     subprocess.run(
@@ -32,7 +32,7 @@ def test_RSV(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("Test RSV succceed")
+    print("Test RSV succeed")
     
 def test_DraftingKissingTumbling(working_dir, print_output):
     subprocess.run(
@@ -44,7 +44,7 @@ def test_DraftingKissingTumbling(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("test_DraftingKissingTumbling succceed")
+    print("test_DraftingKissingTumbling succeed")
 
 def test_FallingSphere(working_dir, print_output):
     subprocess.run(
@@ -56,7 +56,7 @@ def test_FallingSphere(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("test_FallingSphere succceed")
+    print("test_FallingSphere succeed")
     
 def test_FlowPastCylinder(working_dir, print_output):
     subprocess.run(
@@ -68,7 +68,7 @@ def test_FlowPastCylinder(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("test_FlowPastCylinder succceed")
+    print("test_FlowPastCylinder succeed")
 
 def test_FlowPastSphere(working_dir, print_output):
     subprocess.run(
@@ -80,7 +80,7 @@ def test_FlowPastSphere(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("test_FlowPastSphere succceed")
+    print("test_FlowPastSphere succeed")
 
 def test_RayleighTaylor(working_dir, print_output):
     subprocess.run(
@@ -91,7 +91,7 @@ def test_RayleighTaylor(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("test_RayleighTaylor succceed")
+    print("test_RayleighTaylor succeed")
 
 def test_RayleighTaylor_LS(working_dir, print_output):
     subprocess.run(
@@ -103,12 +103,12 @@ def test_RayleighTaylor_LS(working_dir, print_output):
     stdout=None if print_output else subprocess.DEVNULL,
     stderr=None if print_output else subprocess.DEVNULL
     )
-    print("test_RayleighTaylor_LS succceed")
+    print("test_RayleighTaylor_LS succeed")
 
 
 
 def main():
-    # if print_output = fasle，the information of compile and running doesn't display in termianl 
+    # if print_output = false，the information of compile and running doesn't display in terminal 
     print_output =False 
 
     script_dir = os.path.dirname(os.path.abspath(__file__))  

@@ -5483,7 +5483,7 @@ NavierStokesBase::reinitialization_sussman (Real dt,
     if (verbose) amrex::Print() << "In the NavierStokesBase::reinitialization_sussman() " << std::endl;
     if (verbose) amrex::Print() << "loop_iter " << loop_iter << std::endl;
 
-    // Step 1: get sgn, similiar to heaviside
+    // Step 1: get sgn, similar to heaviside
     if (loop_iter==1) {
         phi_to_sgn0(phi_original);
     }

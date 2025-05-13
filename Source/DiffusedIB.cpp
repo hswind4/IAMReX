@@ -1207,7 +1207,7 @@ void Particles::Initialize()
             ParticleProperties::_x.shrink_to_fit();
             ParticleProperties::_y.shrink_to_fit();
             ParticleProperties::_z.shrink_to_fit();
-            amrex::Print() << "             intial Particle by file : " << particle_init_file
+            amrex::Print() << "             initial Particle by file : " << particle_init_file
                            << "             particle's size : " << ParticleProperties::_x.size() << "\n";
         }
 
