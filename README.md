@@ -160,8 +160,8 @@ gfortran -o fixBed DomainFill.F90
 ./fixBed
 ```
 
-## Comparison
-IAMReX made great efforts to simulate more complex multiphase flows at higher resolution. One effort is to combine the AMR technique with the multidirect forcing immersed boundary method to resolve particles only in the local finest-level grid. It significantly reduces the grid requirements for particle-resolved simulation compared with commonly used uniform grid solvers [Incompact3d](https://github.com/xcompact3d/Incompact3d),[CaNS](https://github.com/CaNS-World/CaNS) and [CP3d](https://github.com/GongZheng-Justin/CP3d). Additionally, IAMReX develops a subcycling technique to alleviate the time step constraint on coarser levels. It minimizes the total time step needed by time advancement compared with the non-subcycling technique utilized in AMR-related packages [IBAMR](https://github.com/IBAMR/IBAMR.git), [basilisk](http://basilisk.fr/), and [incflo](https://github.com/AMReX-Fluids/incflo.git).
+## State of the field
+We made great efforts to simulate more complex multiphase flows at higher resolution using IAMReX. One effort is to combine the AMR technique with the multidirect forcing immersed boundary method to resolve particles only on the finest-level grid. It significantly reduces the grid requirements for particle-resolved simulation compared with commonly used uniform grid solvers [Incompact3d](https://github.com/xcompact3d/Incompact3d), [CaNS](https://github.com/CaNS-World/CaNS), and [CP3d](https://github.com/GongZheng-Justin/CP3d). Additionally, we utilized a subcycling technique to alleviate the time step constraint on coarser levels. It minimizes the total time step needed by time advancement compared with the non-subcycling technique used in other AMR-related packages, such as [IBAMR](https://github.com/IBAMR/IBAMR.git), [basilisk](http://basilisk.fr/), and [incflo](https://github.com/AMReX-Fluids/incflo.git).
 
 ## Citation
 
@@ -187,8 +187,6 @@ To cite IAMReX, please use
     author = {Dewen Liu and Shuai He and Haoran Cheng and Yadong Zeng},
     title = {Investigate the Efficiency of Incompressible Flow Simulations on CPUs and GPUs With BSAMR},
     booktitle = {AIAA SCITECH 2025 Forum},
-    chapter = {},
-    pages = {},
     doi = {10.2514/6.2025-1865},
     URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2025-1865},
     eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2025-1865},
