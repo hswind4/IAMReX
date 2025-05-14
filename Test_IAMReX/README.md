@@ -13,7 +13,7 @@ python3 test_IAMReX.py
 # Here are the running results, which indicate that the case has been built and run successfully.
 Script Directory: xxx/IAMReX/Test_IAMReX
 Test Working Directory: xxx/IAMReX/Tutorials/RayleighTaylor_LS
-test_RayleighTaylor_LS succceed
+test_RayleighTaylor_LS succeed
 ```
 
 If you want to add a new test, here are only two thing you need to do. 
@@ -30,7 +30,7 @@ If you want to add a new test, here are only two thing you need to do.
         stdout=None if print_output else subprocess.DEVNULL,
         stderr=None if print_output else subprocess.DEVNULL
         )
-        print("test_RayleighTaylor succceed")
+        print("test_RayleighTaylor succeed")
     ```
 2. Add it to the main() .
     ```python

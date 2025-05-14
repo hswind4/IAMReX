@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./README_figures/IAMReX.png" alt="tittle" width="300">
+<img src="./README_figures/IAMReX.png" alt="title" width="300">
 <p align="center">
   <a href="https://arxiv.org/abs/2408.14140">
   <img src="https://img.shields.io/badge/arXiv-2408.14140-blue" alt="arxiv">
@@ -20,7 +20,7 @@
 
 ## Overview
 
-This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes euqations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using the level set (LS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
+This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes equations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using the level set (LS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
 
 
 
@@ -162,6 +162,24 @@ gfortran -o fixBed DomainFill.F90
 
 ## State of the field
 We made great efforts to simulate more complex multiphase flows at higher resolution using IAMReX. One effort is to combine the AMR technique with the multidirect forcing immersed boundary method to resolve particles only on the finest-level grid. It significantly reduces the grid requirements for particle-resolved simulation compared with commonly used uniform grid solvers [Incompact3d](https://github.com/xcompact3d/Incompact3d), [CaNS](https://github.com/CaNS-World/CaNS), and [CP3d](https://github.com/GongZheng-Justin/CP3d). Additionally, we utilized a subcycling technique to alleviate the time step constraint on coarser levels. It minimizes the total time step needed by time advancement compared with the non-subcycling technique used in other AMR-related packages, such as [IBAMR](https://github.com/IBAMR/IBAMR.git), [basilisk](http://basilisk.fr/), and [incflo](https://github.com/AMReX-Fluids/incflo.git).
+
+## Get Help
+
+You can also view questions
+and ask your own on our [GitHub Discussions](https://github.com/ruohai0925/IAMReX/issues) page.
+To obtain additional help, simply post an issue.
+
+## Contribute
+
+We are always happy to have users contribute to the IAMReX source code. To
+contribute, issue a pull request against the development branch.
+Any level of changes are welcomed: documentation, bug fixes, new test problems,
+new solvers, etc. For more details on how to contribute to IAMReX, please see
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+💡 If you're using IAMReX in your own GitHub projects, consider adding `IAMReX`
+as a [repository topic](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/classifying-your-repository-with-topics)!
+This helps others discover related work and strengthens the IAMReX ecosystem.
 
 ## Citation
 
