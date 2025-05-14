@@ -91,6 +91,6 @@ We made great efforts to simulate more complex multiphase flows at higher resolu
 
 # Acknowledgements
 
-C.L., X.L., Y.Z., and Z.Z. are grateful to Ann Almgren, John Bell, Andy Nonaka, Candace Gilet, Andrew Myers, Axel Huebl, and Weiqun Zhang in the Lawrence Berkeley National Laboratory (LBNL) for their discussions related to AMReX and IAMR. We sincerely thank all the developers who have contributed to the original IAMR repository, although this paper focus on the newly added features and does not include the names of all contributors. Y.Z. and Z.Z. also thank Prof. Lian Shen, Prof. Ruifeng Hu, and Prof. Xiaojing Zheng during their Ph.D. studies.
+C.L., X.L., Y.Z., and Z.Z. are grateful to Ann Almgren, John Bell, Andy Nonaka, Candace Gilet, Andrew Myers, Axel Huebl, Marc Day, and Weiqun Zhang in the Lawrence Berkeley National Laboratory (LBNL) for their discussions related to AMReX and IAMR. We sincerely thank all the developers who have contributed to the original IAMR repository, although this paper focus on the newly added features and does not include the names of all contributors. Y.Z. and Z.Z. also thank Prof. Lian Shen, Prof. Ruifeng Hu, and Prof. Xiaojing Zheng during their Ph.D. studies.
 
 # References
