@@ -262,6 +262,6 @@ to be documented where appropriate. For example:
 Additional information regarding Doxygen comment formatting can be found
 in the [Doxygen Manual](https://www.doxygen.nl/manual/).
 
-### Citation
+### Describe
 
 The current CONTRIBUTING.md file is modified based on the [CONTRIBUTING.md](https://github.com/AMReX-Codes/amrex/blob/development/CONTRIBUTING.md). in the amrex project.
