@@ -264,4 +264,4 @@ in the [Doxygen Manual](https://www.doxygen.nl/manual/).
 
 ### Citation
 
-The current CONTRIBUTING.md file is modified based on the [CONTRIBUTING.md](https://github.com/AMReX-Codes/amrex/blob/development/CONTRIBUTING.md). in the Amrex project.
+The current CONTRIBUTING.md file is modified based on the [CONTRIBUTING.md](https://github.com/AMReX-Codes/amrex/blob/development/CONTRIBUTING.md). in the amrex project.
