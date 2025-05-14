@@ -5,9 +5,6 @@ Development generally follows the following ideas:
   * New features are merged into to the `development` branch using
     Pull Requests (PRs).
 
-    Nightly regression testing is used to ensure that no answers
-    change (or if they do, that the changes were expected).
-
   * Bug fixes, questions and contributions of new features are welcome!
 
        * Bugs should be reported through GitHub Issues.
@@ -29,10 +26,6 @@ Development generally follows the following ideas:
             distribute, and sublicense such enhancements or derivative works
             thereof, in binary and source code form.
 
-  * On the first workday of each month, we make a tagged release.  The merge window into
-    `development` is closed a few days before the release day.  While the merge window is closed,
-    only bug fixes should be merged into `development`.  Once the release is done, the merge window
-    reopens.
 
 ## Git workflow
 
@@ -53,9 +46,6 @@ your fork.
 First, let us setup your local git repo. To make your own fork of the main
 repository, press the fork button on the [IAMReX Github page](https://github.com/ruohai0925/IAMReX).
 
-> Note: If you already had a fork of IAMReX prior to 4/17/2020, we recommend deleting it and re-forking.
-> This is due to a history re-write on the main repository. Note that you will lose any branches
-> on your fork that haven't been merged into main development yet.
 
 Then, clone IAMReX on your local computer. If you plan on doing a lot of IAMReX development,
 we recommend configuring your clone to use ssh access so you won't have to enter your Github
@@ -271,3 +261,7 @@ to be documented where appropriate. For example:
 ```
 Additional information regarding Doxygen comment formatting can be found
 in the [Doxygen Manual](https://www.doxygen.nl/manual/).
+
+### Citation
+
+The current CONTRIBUTING.md file is modified based on the [CONTRIBUTING.md](https://github.com/AMReX-Codes/amrex/blob/development/CONTRIBUTING.md). in the Amrex project.
