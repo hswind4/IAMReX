@@ -163,7 +163,7 @@ gfortran -o fixBed DomainFill.F90
 ## Get Help
 
 You can also view questions
-and ask your own on our [GitHub Discussions](https://github.com/ruohai0925/IAMReX/discussions) page.
+and ask your own on our [GitHub Discussions](https://github.com/ruohai0925/IAMReX/issues) page.
 To obtain additional help, simply post an issue.
 
 ## Contribute
