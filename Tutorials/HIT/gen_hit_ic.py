@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-
-# SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
 #
 # Generate a table of the velocity fluctuations for the homogeneous
 # isotropic turbulence case at a specific k0 (default to 4)

@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
-
-SPDX-License-Identifier: BSD-3-Clause
--->
-
 These tutorials provide problem setups to help familiarize you with running
 IAMR. Below we provide a quick overview. For more information,
 please see IAMR's documentation at https://amrex-fluids.github.io/IAMR/

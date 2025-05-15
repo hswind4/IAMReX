@@ -1,6 +1,3 @@
-// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
-//
-// SPDX-License-Identifier: BSD-3-Clause
 
 #include <NavierStokesBase.H>
 #ifdef AMREX_USE_TURBULENT_FORCING

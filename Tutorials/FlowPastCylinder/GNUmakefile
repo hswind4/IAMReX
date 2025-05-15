@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
 #AMREX_HOME defines the directory in which we will find the AMReX directory
 AMREX_HOME       ?= ../../../amrex
 AMREX_HYDRO_HOME ?= ../../../AMReX-Hydro

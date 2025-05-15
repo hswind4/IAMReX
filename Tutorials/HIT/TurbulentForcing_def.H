@@ -1,9 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
 #include <TurbulentForcing_params.H>
 #include <depRand.H>
 #include <AMReX_ParmParse.H>
