@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2022 - 2025 Yadong Zeng<zdsjtu@gmail.com> & Dewen Liu<1803368907@qq.com>
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 # break the cases into different key-value pairs
 declare -A Cases
 Cases[Bubble]=inputs.2d.bubble

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include <NS_util.H>
 
 #include <limits>

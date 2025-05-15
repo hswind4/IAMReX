@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 - 2025 Yadong Zeng<zdsjtu@gmail.com>
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef NS_KERNELS_H
 #define NS_KERNELS_H

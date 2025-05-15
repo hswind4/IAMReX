@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+//
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include <AMReX_BC_TYPES.H>
 #include <AMReX_FluxRegister.H>
