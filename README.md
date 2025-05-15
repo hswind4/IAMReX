@@ -166,7 +166,7 @@ We made great efforts to simulate more complex multiphase flows at higher resolu
 ## Get Help
 
 You can also view questions
-and ask your own on our [GitHub Discussions](https://github.com/ruohai0925/IAMReX/issues) page.
+and ask your own on our [GitHub Discussions](https://github.com/ruohai0925/IAMReX/discussions) page.
 To obtain additional help, simply post an issue.
 
 ## Contribute
