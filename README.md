@@ -220,4 +220,4 @@ We are grateful to Ann Almgren, Andy Nonaka, Andrew Myers, Axel Huebl, Marc Day,
 
 ## Contact
 
-If you have any question or wanna contribute to the code, please don't hesitate to contact us.
+If you have any question or wanna contribute to the code, please don't hesitate to contact us via the [GitHub Issues](https://github.com/ruohai0925/IAMReX/issues) or zdsjtu@gmail.com.
