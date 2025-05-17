@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 2022 Old Repo Developers <jane@example.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <unistd.h>
 #include <AMReX_Geometry.H>
 #include <AMReX_Extrapolater.H>

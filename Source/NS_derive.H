@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 2022 Old Repo Developers <jane@example.com>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 #ifndef NS_DERIVE_CPP_H
 #define NS_DERIVE_CPP_H

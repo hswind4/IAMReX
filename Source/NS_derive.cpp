@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 2022 Old Repo Developers <jane@example.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <NavierStokesBase.H>
 #include "NS_derive.H"
 #ifdef AMREX_USE_EB

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 2022 Old Repo Developers <jane@example.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <AMReX_Math.H>
 #include <AMReX_Print.H>
