@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2025 zeng <xxx@example.com>
+ */
+
 #ifndef DIFFUSEDIB_H
 #define DIFFUSEDIB_H
 
