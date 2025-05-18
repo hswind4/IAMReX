@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #include <FluxBoxes.H>
 
 using namespace amrex;

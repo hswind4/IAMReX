@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers; 2022 - 2025 Yadong Zeng<zdsjtu@gmail.com>
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
 
 #include <AMReX_Geometry.H>
 #include <AMReX_ParmParse.H>

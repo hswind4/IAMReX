@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #include <TurbulentForcing_params.H>
 #include <depRand.H>
 #include <AMReX_ParmParse.H>

@@ -1,3 +1,7 @@
+! SPDX-FileCopyrightText: 2022 - 2025 Yadong Zeng<zdsjtu@gmail.com> & ZhuXu Li<1246206018@qq.com>
+!
+! SPDX-License-Identifier: BSD-3-Clause
+
 PROGRAM SANDBED
 real*8,parameter:: Pi = 3.141592653589793238462643383279502884
 ! how many particle

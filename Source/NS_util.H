@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #ifndef NS_util_H
 #define NS_util_H
 

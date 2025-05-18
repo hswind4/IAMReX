@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
 
 #ifndef _depRand_H_
 #define _depRand_H_

@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #ifndef NSB_K_H_
 #define NSB_K_H_
 

@@ -1,3 +1,6 @@
+c SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+c
+c SPDX-License-Identifier: LicenseRef-OpenSource
 
 #undef  BL_LANG_CC
 #ifndef BL_LANG_FORT

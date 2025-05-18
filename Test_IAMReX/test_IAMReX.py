@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Shuai He<hswind53@gmail.com>
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 import os
 import subprocess
 

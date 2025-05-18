@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers; 2022 - 2025 Yadong Zeng<zdsjtu@gmail.com>
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #ifndef PROB_INIT_H_
 #define PROB_INIT_H_
 

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
 
 #ifndef IAMR_SYNCREGISTER_H_
 #define IAMR_SYNCREGISTER_H_

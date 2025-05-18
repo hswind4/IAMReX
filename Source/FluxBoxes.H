@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #ifndef IAMR_FLUXBOXES_H_
 #define IAMR_FLUXBOXES_H_
 

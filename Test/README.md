@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+
+SPDX-License-Identifier: LicenseRef-OpenSource
+-->
+
 # IAMR Regression Tests
 
 Regression tests for IAMR are managed using the regression testing

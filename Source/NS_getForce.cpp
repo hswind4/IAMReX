@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
 
 #include <NavierStokesBase.H>
 #include <AMReX_BLFort.H>

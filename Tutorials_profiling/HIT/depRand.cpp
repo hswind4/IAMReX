@@ -24,7 +24,11 @@ using namespace amrex;
 /* For the verification of the code, its output sequence file      */
 /* mt19937-1.out is attached (2001/4/2)                           */
 
-/* Copyright (C) 1997, 1999 Makoto Matsumoto and Takuji Nishimura. */
+// Copyright (C) 1997, 1999 Makoto Matsumoto and Takuji Nishimura.
+// SPDX-FileCopyrightText: 2022 Old IAMR Repo Developers
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 /* Any feedback is very welcome. For any question, comments,       */
 /* see http://www.math.keio.ac.jp/matumoto/emt.html or email       */
 /* matumoto@math.keio.ac.jp                                        */
