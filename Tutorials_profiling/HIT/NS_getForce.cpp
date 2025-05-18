@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
 
 #include <NavierStokesBase.H>
 #ifdef AMREX_USE_TURBULENT_FORCING

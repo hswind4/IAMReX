@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #include "Utilities.H"
 
 // -----------------------------------------------------------

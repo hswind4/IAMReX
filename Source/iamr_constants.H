@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2020 - 2023 Berkeley Lab
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #ifndef IAMR_CONSTANTS_H_
 #define IAMR_CONSTANTS_H_
 

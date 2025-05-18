@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #include <NavierStokes.H>
 #include <AMReX_ParmParse.H>
 #include <iamr_constants.H>

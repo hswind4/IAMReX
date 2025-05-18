@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2010 - 2023 Berkeley Lab; 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ * Modified from IAMR, originally developed at Lawrence Berkeley National Lab.
+ * Original source: https://github.com/AMReX-Fluids/IAMR
+ */
+
 #include <RegType.H>
 #include <AMReX_BC_TYPES.H>
 

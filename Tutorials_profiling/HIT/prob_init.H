@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2021 - 2023 Berkeley Lab
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #ifndef PROB_INIT_H_
 #define PROB_INIT_H_
 

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2019 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #include <NS_util.H>
 
 #include <limits>

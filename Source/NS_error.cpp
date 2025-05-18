@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2012 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
 
 #include <NavierStokes.H>
 #include <AMReX_ErrorList.H>

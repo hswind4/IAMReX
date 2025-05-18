@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2022 - 2023 Berkeley Lab
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #ifndef _TurbulentForcing_params_H_
 #define _TurbulentForcing_params_H_
 

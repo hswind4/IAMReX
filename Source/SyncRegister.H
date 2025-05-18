@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 1997 - 2023 Berkeley Lab
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
 
 #ifndef IAMR_SYNCREGISTER_H_
 #define IAMR_SYNCREGISTER_H_

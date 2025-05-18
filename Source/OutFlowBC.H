@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2000 - 2023 Berkeley Lab
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
 
 #ifndef IAMR_OUTFLOWBC_H_
 #define IAMR_OUTFLOWBC_H_

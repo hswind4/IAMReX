@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 1998 - 2023 Berkeley Lab
+# SPDX-FileCopyrightText: 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com> & Dewen Liu<1803368907@qq.com>
+#
+# SPDX-License-Identifier: LicenseRef-OpenSource
+# Modified from IAMR, originally developed at Lawrence Berkeley National Lab.
+# Original source: https://github.com/AMReX-Fluids/IAMR
+
 #AMREX_HOME defines the directory in which we will find the BoxLib directory
 AMREX_HOME ?= ../../../amrex
 AMREX_HYDRO_HOME ?= ../../../AMReX-Hydro

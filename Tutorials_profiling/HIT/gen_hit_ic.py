@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+# SPDX-FileCopyrightText: 2021 - 2023 Berkeley Lab
+#
+# SPDX-License-Identifier: LicenseRef-OpenSource
+
 #
 # Generate a table of the velocity fluctuations for the homogeneous
 # isotropic turbulence case at a specific k0 (default to 4)

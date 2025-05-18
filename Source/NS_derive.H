@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2020 - 2023 Berkeley Lab
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
 
 #ifndef NS_DERIVE_CPP_H
 #define NS_DERIVE_CPP_H
