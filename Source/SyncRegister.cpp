@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 1997 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
 
 #include <AMReX_BC_TYPES.H>
 #include <AMReX_FluxRegister.H>

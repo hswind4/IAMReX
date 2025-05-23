@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 1999 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
 
 #include <new>
 #include <iostream>

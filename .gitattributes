@@ -2,3 +2,5 @@
 *.tex linguist-documentation
 
 *.H linguist-language=C++
+# Force use of LF
+* text=auto eol=lf

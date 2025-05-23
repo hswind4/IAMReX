@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2016 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #include <FluxBoxes.H>
 
 using namespace amrex;

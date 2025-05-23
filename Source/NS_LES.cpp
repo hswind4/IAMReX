@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include <NavierStokesBase.H>
 #include <AMReX_VisMF.H>
 

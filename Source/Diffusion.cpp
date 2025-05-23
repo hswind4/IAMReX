@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 1997 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #include <Diffusion.H>
 #include <NavierStokesBase.H>
 #include <iamr_constants.H>

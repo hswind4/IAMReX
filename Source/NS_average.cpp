@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
+
 #include <NavierStokesBase.H>
 
 using namespace amrex;

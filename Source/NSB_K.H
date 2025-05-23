@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2020 - 2023 Berkeley Lab
+ *
+ * SPDX-License-Identifier: LicenseRef-OpenSource
+ */
+
 #ifndef NSB_K_H_
 #define NSB_K_H_
 

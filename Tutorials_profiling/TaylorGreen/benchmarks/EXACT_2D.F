@@ -1,3 +1,6 @@
+c SPDX-FileCopyrightText: 1999 - 2023 Berkeley Lab
+c
+c SPDX-License-Identifier: LicenseRef-OpenSource
 
 #undef  BL_LANG_CC
 #ifndef BL_LANG_FORT

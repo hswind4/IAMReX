@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2012 - 2023 Berkeley Lab
+//
+// SPDX-License-Identifier: LicenseRef-OpenSource
 
 #include <NavierStokesBase.H>
 #include <AMReX_BLFort.H>
