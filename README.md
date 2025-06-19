@@ -11,7 +11,6 @@
 [Features](#Features) -
 [Examples](#Examples) -
 [Install](#Install) -
-[Tools](#Tools) -
 [Acknowledgements](#Acknowledgements) -
 [Contact](#Contact)
 
@@ -22,14 +21,11 @@
 
 This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes equations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using the level set (LS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
 
-
-
 ## Features
 
 - LS method and reinitialization schemes
 - Multidirect forcing Immersed Boundary Method
 - Particle Collision Algorithms with Discrete Element Method
-
 
 
 ## Examples
@@ -77,90 +73,12 @@ This IAMReX repo extends the capability of original [IAMR](https://github.com/AM
 </div>
 
 
-
 ## Install
 
-### Download
-
-Our codes rely on the following packages: 
-
-1. AMReX:`git clone https://github.com/ruohai0925/amrex`
-2. AMReX-Hydro:`git clone https://github.com/ruohai0925/AMReX-Hydro`
-3. This repo:`git clone https://github.com/ruohai0925/IAMReX/tree/development`
-
-After cloning, one will have three folder in your current directory:`AMReX`,`AMReX-Hydro`,`IAMReX`.
-
-### Compile
-
-We recommend using the GNU compiler to compile the program on the Linux platform. The compilation process requires preparing a `make` file, which you can find in the example folder under Tutorials. It is strongly recommended to use the `GNUmakefile` prepared in advance by the example. If you want to know more about the configuration information of the compilation parameters, you can check it in the [AMReX building](https://amrex-codes.github.io/amrex/docs_html/BuildingAMReX.html).
-
-For example, if we want to compile in the `FlowPastSphere` , refer to the following steps:
-
-1. `cd` to the FlowPastSphere directory
-
-    ```shell
-    cd IAMReX/Tutorials/FlowPastSphere
-    ```
-
-2. Modify compilation parameters in `GNUmakefile`.
-
-   The compilation parameters depend on your computing platform. If you use `MPI` to run your program, then set `USE_MPI = TRUE`. If you are running the program with `Nvidia GPU(CUDA)`, then set `USE_CUDA = TRUE`. When using GPU runtime, please make sure your CUDA environment is ok.
-   
-3. Compile
-
-   With the above settings, you can compile the program:
-
-   ```shell
-   make
-   ```
-
-   You can add parameters after `make`, such as `-f your_make_file` to customize your parameter file, and `-j 8` to specify `8` threads to participate in the compilation.
-
-   If the compilation is successful, an executable file will be generated. Usually the executable file is named in the following format:`amr[DIM].[Compiler manufacturers].[computing platform].[is Debug].ex`. The executable file name of the Release version of the three-dimensional compiled using the GNU compiler in the MPI environment is: `amr3d.GNU.MPI.ex`.
-   
-
-### Usage
-
-You should takes an input file as its first command-line argument.  The file may contain a set of parameter definitions that will overrides defaults set in the code. In the `FlowPastSphere`, you can find a file named `inputs.3d.flow_past_sphere`, run:
-
-```shell
-./amr3d.GNU.MPI.ex inputs.3d.flow_past_sphere
-```
-
-If you use `MPI` to run your program, you can type:
-
-```shell
-mpirun -np how_many_threads amr3d.GNU.MPI.ex inputs.3d.flow_past_sphere
-```
-
-This code typically generates subfolders in the current folder that are named `plt00000`, `plt00010`, etc, and `chk00000`, `chk00010`, etc. These are called plotfiles and checkpoint files. The plotfiles are used for visualization of derived fields; the checkpoint files are used for restarting the code. 
-
-
-
-## Tools
-
-In the `Tools` folder, there are some post-processing script for DIBM. The `postProcess` submodule is used to process the generated particle data file. The specific usage can be seen in the `README`. 
-
-In addition, a Fortran code for generating a particle bed is provided, You can customize the domain size and particle size you want. 
-
-```fortran
-! Line 10 - 15
-! domain scheme
-LX_DOMAIN=3.0D0*Pi
-LY_DOMAIN=6.0D0*Pi
-LZ_DOMAIN=3.0D0*Pi
-! D
-SPD=1.D0
-```
-
-Compile the code and run it, and a file named `SPC.DAT` will be generated, in which each line represents the position of a particle.
-
-```shell
-gfortran -o fixBed DomainFill.F90
-./fixBed
-```
+For detailed steps on downloading, building, and running, see [Getting Started](https://ruohai0925.github.io/IAMReX/Getting_Started.html).
 
 ## State of the field
+
 We made great efforts to simulate more complex multiphase flows at higher resolution using IAMReX. One effort is to combine the AMR technique with the multidirect forcing immersed boundary method to resolve particles only on the finest-level grid. It significantly reduces the grid requirements for particle-resolved simulation compared with commonly used uniform grid solvers [Incompact3d](https://github.com/xcompact3d/Incompact3d), [CaNS](https://github.com/CaNS-World/CaNS), and [CP3d](https://github.com/GongZheng-Justin/CP3d). Additionally, we utilized a subcycling technique to alleviate the time step constraint on coarser levels. It minimizes the total time step needed by time advancement compared with the non-subcycling technique used in other AMR-related packages, such as [IBAMR](https://github.com/IBAMR/IBAMR.git), [basilisk](http://basilisk.fr/), and [incflo](https://github.com/AMReX-Fluids/incflo.git).
 
 ## Get Help
@@ -215,7 +133,6 @@ To cite IAMReX, please use
 ## Acknowledgements
 
 We are grateful to Ann Almgren, Andy Nonaka, Andrew Myers, Axel Huebl, Marc Day, and Weiqun Zhang in the Lawrence Berkeley National Laboratory (LBNL) for their discussions related to [AMReX](https://github.com/AMReX-Codes/amrex) and [IAMR](https://github.com/AMReX-Fluids/IAMR). Y.Z. and Z.Z. also thank Prof. Lian Shen, Prof. Ruifeng Hu, and Prof. Xiaojing Zheng during their Ph.D. studies.
-
 
 
 ## Contact

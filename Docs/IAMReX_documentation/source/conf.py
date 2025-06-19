@@ -9,8 +9,8 @@
 import sphinx_rtd_theme
 
 project = 'IAMReX'
-copyright = '2025, IAMReX'
-author = 'YD Z'
+copyright = '2025, IAMReX Team'
+author = 'IAMReX Team'
 release = '0.1.0'
 
 bibtex_bibfiles = ["refs.bib"]
