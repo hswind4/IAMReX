@@ -41,15 +41,10 @@ math_numfig = True
 numfig_secnum_depth = 2
 numfig_format = {'table': 'Table %s', 'figure': 'Figure %s', 'code-block': 'Listing %s', 'section': 'Section'}
 
-mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-
-mathjax_config = {
+mathjax3_config = {
     'tex': {
         'tags': 'ams',
-        'tagSide': 'right',
-        'macros': {
-            'bm': ['{\\boldsymbol{#1}}', 1],
-        }
+        'tag_side': 'right',
     }
 }
 
