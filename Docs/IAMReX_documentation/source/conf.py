@@ -35,6 +35,23 @@ extensions = ['sphinx.ext.mathjax',
 templates_path = ['_templates']
 exclude_patterns = []
 
+# -- Options for equation numbering ------------------------------------------
+numfig = True
+math_numfig = True
+numfig_secnum_depth = 2
+numfig_format = {'table': 'Table %s', 'figure': 'Figure %s', 'code-block': 'Listing %s', 'section': 'Section'}
+
+mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+
+mathjax_config = {
+    'tex': {
+        'tags': 'ams',
+        'tagSide': 'right',
+        'macros': {
+            'bm': ['{\\boldsymbol{#1}}', 1],
+        }
+    }
+}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
