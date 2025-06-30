@@ -32,46 +32,11 @@ This IAMReX repo extends the capability of original [IAMR](https://github.com/AM
 
 - [Reversed Single Vortex (RSV)](./Tutorials/RSV/)
 
-<div align="center">
-    <img src="./README_figures/RSV.jpeg" alt="Profiles of drop interface in the RSV problem" width="500">
-    <br>
-    <figcaption style="text-align:center;">Profiles of drop interface in the RSV problem at t/T=1 after one rotation. Black line: Analytical Solution; Red line: 64*64; Blue line: 128*128; Green line: 256*256</figcaption>
-    <br>
-    <br>
-</div>
-
 - [Rayleigh-Taylor (RT) instability](./Tutorials/RayleighTaylor_LS/)
-
-<div align="center">
-    <!-- First Image -->
-    <div style="display:inline-block; margin-right:10px; vertical-align:top; width:600px; height:400px; overflow:hidden;">
-        <img src="./README_figures/IAMR_LSAMR.png" alt="Short Description 1" width="600">
-        <br>
-        <figcaption style="text-align:center;">(a) Density profile at t/T=2.42 using LS method. (b) Density profile at t/T=2.42 using IAMR convective scheme.</figcaption>
-        <br>       
-    </div>
-    <!-- Second Image -->
-	<br>
-    <div style="display:inline-block; margin-left:10px; vertical-align:top; width:600px; height:400px; overflow:hidden;">
-        <img src="./README_figures/RT_tip.png" alt="Short Description 2" width="600">
-        <br>
-        <figcaption style="text-align:center;">Comparison of the tip locations of the falling fluid and the rising fluid.</figcaption>
-        <br>
-        <br>
-    </div>
-</div>
-
 
 - [Cluster of monodisperse particles](./Tutorials/Monodisperse/)
 
-<div align="center">
-    <img src="./README_figures/Monodisperse.png" alt="Cluster of monodisperse particles" width="600">
-    <br>
-    <figcaption style="text-align:center;"> Contours of velocity magnitude in y − z plane </figcaption>
-    <br>
-    <br>
-</div>
-
+For more details, you can check doc : [sample-cases](https://ruohai0925.github.io/IAMReX/Introduction_Chapter.html#sample-cases)
 
 ## Install
 
