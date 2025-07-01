@@ -27,8 +27,7 @@ This IAMReX repo extends the capability of original [IAMR](https://github.com/AM
 - Multidirect forcing Immersed Boundary Method
 - Particle Collision Algorithms with Discrete Element Method
 
-
-## Examples
+## Sample Cases
 
 - [Reversed Single Vortex (RSV)](./Tutorials/RSV/)
 
@@ -36,11 +35,11 @@ This IAMReX repo extends the capability of original [IAMR](https://github.com/AM
 
 - [Cluster of monodisperse particles](./Tutorials/Monodisperse/)
 
-For more details, you can check doc : [sample-cases](https://ruohai0925.github.io/IAMReX/Introduction_Chapter.html#sample-cases)
+For more details, please check the document: [sample-cases](https://ruohai0925.github.io/IAMReX/Introduction_Chapter.html#sample-cases)
 
-## Install
+## Installation
 
-For detailed steps on downloading, building, and running, see [Getting Started](https://ruohai0925.github.io/IAMReX/Getting_Started.html).
+For detailed steps on downloading IAMReX, building and running the cases, see [Getting Started](https://ruohai0925.github.io/IAMReX/Getting_Started.html).
 
 ## State of the field
 
