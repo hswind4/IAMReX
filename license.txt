@@ -1,0 +1,5 @@
+All licenses used in this project can be found in the LICENSES directory.
+
+This project includes code originally derived from the IAMR project, developed by Lawrence Berkeley National Laboratory. These parts retain their original license, which can be found in `LICENSES/LicenseRef-OpenSource.txt`.
+
+All new files created for IAMReX from scratch are licensed under the BSD-3-Clause license.
