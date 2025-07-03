@@ -98,6 +98,14 @@ To cite IAMReX, please use
 
 We are grateful to Ann Almgren, Andy Nonaka, Andrew Myers, Axel Huebl, Marc Day, and Weiqun Zhang in the Lawrence Berkeley National Laboratory (LBNL) for their discussions related to [AMReX](https://github.com/AMReX-Codes/amrex) and [IAMR](https://github.com/AMReX-Fluids/IAMR). Y.Z. and Z.Z. also thank Prof. Lian Shen, Prof. Ruifeng Hu, and Prof. Xiaojing Zheng during their Ph.D. studies.
 
+## License
+
+This project complies with the [REUSE Specification](https://reuse.software/). Accordingly, license header in each file specifies its copyright and licensing information. All licenses used in this project can be found in the LICENSES directory.
+
+Licensing is determined as follows:
+
+* LicenseRef-OpenSource refers to the [original IAMR license](https://github.com/AMReX-Fluids/IAMR/blob/development/OpenSource.txt), applies to all files originating from IAMR and any modifications made to them. 
+* All new files created from scratch for IAMReX are licensed under the BSD-3-Clause.  
 
 ## Contact
 
