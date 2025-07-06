@@ -35,7 +35,7 @@ IAMReX is a fork of the original [IAMR](https://github.com/AMReX-Fluids/IAMR) co
 | Particle Support | None | Full 6-DOF dynamics with collisions |
 | Multi-Physics | Single-phase only | Multi-phase, fluid-solid interaction |
 | Collision Detection | None | Spatial hashing with DKT model |
-| GPU Support | Basic AMReX | Enhanced particle operations |
+| GPU Support | Basic AMReX | Enhanced operations for resolved particles |
 
 ## Sample Cases
 
@@ -63,7 +63,7 @@ To obtain additional help, simply post an issue.
 
 ## Contribute
 
-We are always happy to have users contribute to the IAMReX source code. To
+We actively monitor the original IAMR repository and selectively merge upstream changes when they contain important bug fixes or feature improvements. We are always happy to have users contribute to the IAMReX source code. To
 contribute, issue a pull request against the development branch.
 Any level of changes are welcomed: documentation, bug fixes, new test problems,
 new solvers, etc. For more details on how to contribute to IAMReX, please see
