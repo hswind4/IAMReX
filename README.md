@@ -19,13 +19,23 @@
 
 ## Overview
 
-This IAMReX repo extends the capability of original [IAMR](https://github.com/AMReX-Fluids/IAMR) codes, aiming at simulating the multiphase incompressible flows and fluid structure interaction problems on both CPUs and GPUs with/without subcycling. The Navier-Stokes equations are solved on an adaptive semi-staggered grid using the projection method. The gas-liquid interface is captured using the level set (LS) method. The fluid-solid interface is resolved using the multidirect forcing immersed boundary method (IBM). The particle-wall as well as the particle-particle collisions are also captured by the adaptive collision time model (ACTM).
+IAMReX is a fork of the original [IAMR](https://github.com/AMReX-Fluids/IAMR) codebase that extends its capabilities for simulating multiphase incompressible flows and fluid-structure interaction problems on both CPUs and GPUs with/without subcycling. 
 
-## Features
+**Key additions to IAMR include:**
+- **Level Set (LS) method** for capturing gas-liquid interfaces with reinitialization schemes
+- **Multidirect forcing Immersed Boundary Method (IBM)** for resolving fluid-solid interfaces
+- **Particle collision algorithms** with Discrete Element Method (DEM) and adaptive collision time model (ACTM) for particle-wall and particle-particle interactions
 
-- LS method and reinitialization schemes
-- Multidirect forcing Immersed Boundary Method
-- Particle Collision Algorithms with Discrete Element Method
+## Comparison with Base IAMR
+
+| Feature | IAMR | IAMReX |
+|---------|------|--------|
+| State Variables | 4 (velocity, density, tracers, temperature) | 5 (adds level set) |
+| Interface Methods | None | Level set, immersed boundary, phase field (TBD) |
+| Particle Support | None | Full 6-DOF dynamics with collisions |
+| Multi-Physics | Single-phase only | Multi-phase, fluid-solid interaction |
+| Collision Detection | None | Spatial hashing with DKT model |
+| GPU Support | Basic AMReX | Enhanced particle operations |
 
 ## Sample Cases
 
