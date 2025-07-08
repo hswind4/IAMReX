@@ -29,14 +29,11 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com> & ZhuXu Li<1246206018@qq.com>"
 SPDX-License-Identifier = "BSD-3-Clause"
 
-
 [[annotations]]
 path = "Exec/**/*"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
 SPDX-License-Identifier = "LicenseRef-OpenSource"
-
-
 
 [[annotations]]
 path = "Tutorials/**/*"
@@ -44,9 +41,39 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab; 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
 SPDX-License-Identifier = "LicenseRef-OpenSource"
 
-
 [[annotations]]
 path = "Source/**/Make.package"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = "Tools/plt_to_numpyArray/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = "Util/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = [
+     "Tutorials_profiling/Bubble/**/*",
+     "Tutorials_profiling/ConvectedVortex/**/*",
+     "Tutorials_profiling/DoubleShearLayer/**/*",
+     "Tutorials_profiling/FlowPastCylinder/**/*",
+     "Tutorials_profiling/HIT/**/*",
+     "Tutorials_profiling/HotSpot/**/*",
+     "Tutorials_profiling/LidDrivenCavity/**/*",
+     "Tutorials_profiling/Particles/**/*",
+     "Tutorials_profiling/Poiseuille/**/*",
+     "Tutorials_profiling/RayleighTaylor/**/*",
+     "Tutorials_profiling/TaylorGreen/**/*",
+     "Tutorials_profiling/TracerAdvection/**/*"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab; 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
 SPDX-License-Identifier = "LicenseRef-OpenSource"
