@@ -77,3 +77,36 @@ path = [
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab; 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
 SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = "JOSS_paper/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = "README_figures/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = [
+    ".*",
+    "IAMeX_Particle_Flow_CN.md",
+    "license.txt",
+    "README.md"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+
+[[annotations]]
+path = [
+    "CONTRIBUTING.md",
+    "RELEASE_NOTES",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
