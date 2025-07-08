@@ -1,0 +1,112 @@
+# SPDX-FileCopyrightText: 2025 Shuai He<hswind53@gmail.com>
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+version = 1
+
+[[annotations]]
+path = [
+     ".github/**.yml",
+     ".github/**.sh"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+
+[[annotations]]
+path = [
+     "Docs/sphinx_documentation/**/*",
+     "Docs/*"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = "Docs/IAMReX_documentation/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com> & ZhuXu Li<1246206018@qq.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = "Exec/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = "Tutorials/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab; 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = "Source/**/Make.package"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = "Tools/plt_to_numpyArray/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = "Util/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = [
+     "Tutorials_profiling/Bubble/**/*",
+     "Tutorials_profiling/ConvectedVortex/**/*",
+     "Tutorials_profiling/DoubleShearLayer/**/*",
+     "Tutorials_profiling/FlowPastCylinder/**/*",
+     "Tutorials_profiling/HIT/**/*",
+     "Tutorials_profiling/HotSpot/**/*",
+     "Tutorials_profiling/LidDrivenCavity/**/*",
+     "Tutorials_profiling/Particles/**/*",
+     "Tutorials_profiling/Poiseuille/**/*",
+     "Tutorials_profiling/RayleighTaylor/**/*",
+     "Tutorials_profiling/TaylorGreen/**/*",
+     "Tutorials_profiling/TracerAdvection/**/*"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab; 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "LicenseRef-OpenSource"
+
+[[annotations]]
+path = "JOSS_paper/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = "README_figures/**/*"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = [
+    ".*",
+    "IAMeX_Particle_Flow_CN.md",
+    "license.txt",
+    "README.md"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 - 2025 Yadong Zeng<zdsjtu@gmail.com>"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+
+[[annotations]]
+path = [
+    "CONTRIBUTING.md",
+    "RELEASE_NOTES",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2016 - 2023 Berkeley Lab"
+SPDX-License-Identifier = "LicenseRef-OpenSource"

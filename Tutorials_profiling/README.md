@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com> & Shuai He<hswind53@gmail.com>
+
+SPDX-License-Identifier: BSD-3-Clause
+-->
+
 In addition to the Tutorial, we provide four shell scripts to help you easily modify parameters and evaluate the performance of AMR (Adaptive Mesh Refinement) technology on different problems and platforms.
 
 Take **jobiamr2dcpu** as an example:
