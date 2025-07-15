@@ -44,9 +44,13 @@ CEXE_sources += NS_LS.cpp
 CEXE_headers += NS_LS.H
 
 ifeq ($(USE_PARTICLES), TRUE)
-  CEXE_sources += DiffusedIB.cpp
-  CEXE_headers += DiffusedIB.H
-
+  ifeq ($(PARTICLE_PARALLEL), TRUE)
+    CEXE_sources += DiffusedIB_Parallel.cpp
+    CEXE_headers += DiffusedIB_Parallel.H
+  else
+    CEXE_sources += DiffusedIB.cpp
+    CEXE_headers += DiffusedIB.H
+  endif
   CEXE_sources += Collision.cpp
   CEXE_headers += Collision.H
 endif

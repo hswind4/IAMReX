@@ -17,7 +17,11 @@
 #include <NS_kernels.H>
 
 #ifdef AMREX_PARTICLES
-#include <DiffusedIB.H>
+#ifdef PARTICLE_PARALLEL
+#include "DiffusedIB_Parallel.h"
+#else
+#include "DiffusedIB.H"
+#endif
 #endif
 
 #ifdef BL_USE_VELOCITY
@@ -1170,7 +1174,7 @@ NavierStokes::writePlotFilePost (const std::string& dir,
 
 #ifdef AMREX_PARTICLES
     if(level == parent->finestLevel()){
-        Particles::get_particles()->mContainer->Checkpoint(dir, "particles");
+        Particles::get_particles()->mContainer->Checkpoint(dir, "LagrangianMarker");
     }
 #endif
 
