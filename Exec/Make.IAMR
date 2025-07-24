@@ -41,6 +41,10 @@ ifeq ($(USE_PARTICLES),TRUE)
   Pdirs += Particle
 endif
 
+ifeq ($(PARTICLE_PARALLEL),TRUE)
+  DEFINES += -DPARTICLE_PARALLEL
+endif
+
 ifeq ($(USE_EB),TRUE)
   Pdirs += EB
 endif

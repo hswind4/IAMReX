@@ -22,7 +22,11 @@
 #include <hydro_utils.H>
 
 #ifdef AMREX_PARTICLES
-#include <DiffusedIB.H>
+#ifdef PARTICLE_PARALLEL
+#include "DiffusedIB_Parallel.h"
+#else
+#include "DiffusedIB.H"
+#endif
 #endif
 #ifdef AMREX_USE_EB
 #include <AMReX_EBAmrUtil.H>
