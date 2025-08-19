@@ -44,13 +44,17 @@ enum P_ATTR_INT {
 };
 
 enum DELTA_FUNCTION_TYPE{
-    FOUR_POINT_IB = 0,
-    THREE_POINT_IB
+    THREE_POINT_IB = 0,
+    FOUR_POINT_IB
 };
 
-/**
- * particle information
- */
+typedef struct {
+    IntVect index;
+    Real weight;
+    Real Vcell;
+    Real eps;
+}MAP_INFO;
+
 struct kernel{
     int id;
     RealVect velocity{0.0,0.0,0.0};
@@ -79,8 +83,8 @@ struct kernel{
     RealVect Fcp{0.0,0.0,0.0};
     RealVect Tcp{0.0,0.0,0.0};
 
-    Gpu::DeviceVector<Real> phiK;
-    Gpu::DeviceVector<Real> thetaK;
+    Real* phiK;
+    Real* thetaK;
 
     IntVect TL{0, 0, 0}, RL{0, 0, 0};
 };
@@ -89,40 +93,6 @@ using CusParIter = ParIter<0, 0, num_Real, num_Int>;
 // lagrangian marker manager
 using mParticleContainer = ParticleContainer<0, 0, num_Real, num_Int>;
 
-template<typename T, int size = 6>
-class ParallelVector {
-public:
-    ParallelVector() = default;
-
-    ParallelVector& operator +=(const ParallelVector& v) {
-        for (int i = 0; i < size; i++) {
-            data[i] += v[i];
-        }
-        return *this;
-    }
-
-    ParallelVector& operator =(int v) {
-        for (int i = 0; i < size; i++) {
-            data[i] = v;
-        }
-        return *this;
-    }
-
-    T at(const int index) {
-        return data.at(index);
-    }
-
-    void setValue(const int index, const T& d) {
-        data[index] = d;
-    }
-
-private:
-    std::array<T, size> data = {};
-};
-
-/**
- * lagrangian marker iterator
- */
 class mParIter : public CusParIter{
 public:
 
@@ -130,80 +100,32 @@ public:
     using RealVector = CusParIter::ContainerType::RealVector;
     using IntVector = CusParIter::ContainerType::IntVector;
 
-    /**
-     *
-     * @return const particle real datas
-     */
     [[nodiscard]] const std::array<RealVector, num_Real>& GetAttribs () const {
         return GetStructOfArrays().GetRealData();
     }
 
-    /**
-     *
-     * @param comp attribute index
-     * @return const particle index attribute
-     */
     [[nodiscard]] const RealVector& GetAttribs (int comp) const {
         return GetStructOfArrays().GetRealData(comp);
     }
 
-    /**
-     *
-     * @return particle's id
-     */
     [[nodiscard]] const IntVector& GetIDs() const {
         return GetStructOfArrays().GetIntData(M_ID);
     }
 
-    /**
-     *
-     * @return particle real datas non-const
-     */
     std::array<RealVector, num_Real>& GetAttribs () {
         return GetStructOfArrays().GetRealData();
     }
 
-    /**
-     *
-     * @param comp attribute index
-     * @return particle index real data
-     */
     RealVector& GetAttribs (int comp) {
         return GetStructOfArrays().GetRealData(comp);
     }
 };
 
-/**
- * particle manager
- */
 class mParticle
 {
 public:
     explicit mParticle() = default;
 
-    /**
-     *
-     * @param x
-     * @param y
-     * @param z
-     * @param rho_s
-     * @param Vx
-     * @param Vy
-     * @param Vz
-     * @param Ox
-     * @param Oy
-     * @param Oz
-     * @param TLX
-     * @param TLY
-     * @param TLZ
-     * @param RLX
-     * @param RLY
-     * @param RLZ
-     * @param radius
-     * @param h
-     * @param gravity
-     * @param verbose
-     */
     void InitParticles(const Vector<Real>& x,
                        const Vector<Real>& y,
                        const Vector<Real>& z,
@@ -225,89 +147,51 @@ public:
                        Real gravity,
                        int verbose = 0);
 
-    /**
-     *
-     * @param EulerVel
-     * @param EulerForce
-     * @param dt
-     * @param type
-     */
-    void InteractWithEuler(MultiFab &EulerVel, MultiFab &EulerForce, Real dt = 0.1, DELTA_FUNCTION_TYPE type = FOUR_POINT_IB);
+    void InteractWithEuler(MultiFab &EulerVel, MultiFab &EulerForce, Real dt = 0.1);
 
-    /**
-     *
-     * @param index
-     */
     void WriteParticleFile(int index);
 
     void UpdateLagrangianMarker();
 
-    /**
-     *
-     * @param Euler
-     * @param type
-     */
-    void VelocityInterpolation(amrex::MultiFab &Euler, DELTA_FUNCTION_TYPE type);
+    void VelocityInterpolation(amrex::MultiFab &Euler, int type);
 
-    /**
-     * compute euler force
-     * @param dt time step
-     */
     void ComputeLagrangianForce(Real dt);
 
-    /**
-     *
-     * @param Euler Fluid MF
-     * @param type  Delta function select
-     */
-    void ForceSpreading(amrex::MultiFab &Euler, DELTA_FUNCTION_TYPE type);
+    void ForceSpreading(amrex::MultiFab &Euler, int type);
 
-    /**
-     *
-     * @param Euler Fluid MF
-     * @param EulerForce Euler force MF
-     * @param dt Time step
-     */
     void VelocityCorrection(amrex::MultiFab &Euler, amrex::MultiFab &EulerForce, Real dt) const;
 
-    /**
-     *
-     * @param iStep steps
-     * @param time time
-     * @param Euler_old Fluid MF in last time step
-     * @param Euler Fluid MF in current time step
-     * @param phi_nodal phi function
-     * @param pvf particle volume fraction
-     * @param dt time step
-     */
     void UpdateParticles(int iStep, Real time, const MultiFab& Euler_old, const MultiFab& Euler, MultiFab& phi_nodal, MultiFab& pvf, Real dt);
 
-    /**
-     *
-     * @param model collision model
-     */
     void DoParticleCollision(int model);
 
-    /**
-     *
-     * @param step istep
-     * @param time
-     * @param dt time step
-     * @param current_kernel particle data
-     */
     static void WriteIBForceAndMoment(int step, amrex::Real time, amrex::Real dt, kernel& current_kernel);
 
-    /**
-     *
-     * @param kernel particle
-     */
     void RecordOldValue(kernel& kernel);
+
+    void ResolveLagrangianMarker(std::string marker_file);
+
+    void ResolveWithRPKM(std::string RKPM_file);
+
+    int StartOfLagrangianMarker(size_t index);
+
+    int NumOfLagrangianMarker(size_t index);
+
+    RealVect GetPositionOfMarker(size_t index);
 
     Vector<kernel> particle_kernels;
 
     mParticleContainer *mContainer{nullptr};
 
     ParticleCollision m_Collision;
+
+    Vector<RealVect> LargrangianMarker;
+
+    Vector<size_t> StartOfMarker;
+
+    Vector<size_t> NumOfMarker;
+
+    std::map<int, Vector<MAP_INFO>> RKPM_MAP;
 
     int max_largrangian_num = 0;
 
@@ -318,6 +202,8 @@ public:
     int verbose = 0;
 
     Real spend_time;
+    // read write
+    bool do_RKPM{false};
 };
 
 class Particles{
