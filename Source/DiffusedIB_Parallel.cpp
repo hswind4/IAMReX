@@ -50,11 +50,14 @@ namespace ParticleProperties{
     Vector<Real> GLO, GHI;
     int start_step{-1};
     int collision_model{0};
+    int delta_type{1};
 
     int write_freq{1};
     bool init_particle_from_file{false};
 
     GpuArray<Real, 3> plo{0.0,0.0,0.0}, phi{0.0,0.0,0.0}, dx{0.0, 0.0, 0.0};
+
+    int RKPM{0};
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -211,7 +214,7 @@ Real cal_momentum(Real rho, Real radius)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void deltaFunction(Real xf, Real xp, Real h, Real& value, DELTA_FUNCTION_TYPE type)
+void deltaFunction(Real xf, Real xp, Real h, Real& value, int type)
 {
     Real rr = Math::abs(( xf - xp ) / h);
 
@@ -245,8 +248,7 @@ void deltaFunction(Real xf, Real xp, Real h, Real& value, DELTA_FUNCTION_TYPE ty
 //loop all particels
 void mParticle::InteractWithEuler(MultiFab &EulerVel,
                                   MultiFab &EulerForce,
-                                  Real dt,
-                                  DELTA_FUNCTION_TYPE type)
+                                  Real dt)
 {
     if (verbose) Print() << "[Particle] mParticle::InteractWithEuler\n";
     // clear time , start record
@@ -258,8 +260,8 @@ void mParticle::InteractWithEuler(MultiFab &EulerVel,
         kernel.ib_force.scale(0.0);
         kernel.ib_moment.scale(0.0);
     }
-
-    //for 1 -> Ns
+    int type = ParticleProperties::delta_type;
+    //for 1 -> Ns是
     int loop = ParticleProperties::loop_ns;
 
     BL_ASSERT(loop > 0);
@@ -314,6 +316,13 @@ void mParticle::InitParticles(const Vector<Real>& x,
         return;
     }
 
+    if (ParticleProperties::RKPM != 0) {
+        // RKPM only one particle
+        do_RKPM = true;
+        ResolveLagrangianMarker("rkpm_mappings.id");
+        ResolveWithRPKM("rkpm_mappings.lag");
+    }
+
     //all the particles have different radius
     for(int index = 0; index < x.size(); index++){
         int real_index;
@@ -348,38 +357,51 @@ void mParticle::InitParticles(const Vector<Real>& x,
         mKernel.RL[1] = RLYt[real_index];
         mKernel.RL[2] = RLZt[real_index];
         mKernel.rho = rho_s[real_index];
+        // sphere particle need
         mKernel.radius = radius[real_index];
         mKernel.Vp = Math::pi<Real>() * 4 / 3 * Math::powi<3>(radius[real_index]);
 
-        //int Ml = static_cast<int>( Math::pi<Real>() / 3 * (12 * Math::powi<2>(mKernel.radius / h)));
-        //Real dv = Math::pi<Real>() * h / 3 / Ml * (12 * mKernel.radius * mKernel.radius + h * h);
-        int Ml = static_cast<int>((Math::powi<3>(mKernel.radius - (ParticleProperties::rd - 0.5) * h)
-               - Math::powi<3>(mKernel.radius - (ParticleProperties::rd + 0.5) * h))/(3.*h*h*h/4./Math::pi<Real>()));
-        Real dv = (Math::powi<3>(mKernel.radius - (ParticleProperties::rd - 0.5) * h)
-               - Math::powi<3>(mKernel.radius - (ParticleProperties::rd + 0.5) * h))/(3.*Ml/4./Math::pi<Real>());
-        mKernel.ml = Ml;
-        mKernel.dv = dv;
-        if( Ml > max_largrangian_num ) max_largrangian_num = Ml;
+        if (ParticleProperties::RKPM == 0) {
 
-        Real phiK = 0;
-        for(int marker_index = 0; marker_index < Ml; marker_index++){
-            const Real Hk = -1.0 + 2.0 * (marker_index) / ( Ml - 1.0);
-            Real thetaK = std::acos(Hk);
-            if(marker_index == 0 || marker_index == Ml - 1){
-                phiK = 0;
-            }else {
-                phiK = std::fmod( phiK + 3.809 / std::sqrt(Ml) / std::sqrt( 1 - Math::powi<2>(Hk)) , 2 * Math::pi<Real>());
+            //int Ml = static_cast<int>( Math::pi<Real>() / 3 * (12 * Math::powi<2>(mKernel.radius / h)));
+            //Real dv = Math::pi<Real>() * h / 3 / Ml * (12 * mKernel.radius * mKernel.radius + h * h);
+            const int Ml = static_cast<int>((Math::powi<3>(mKernel.radius - (ParticleProperties::rd - 0.5) * h)
+                   - Math::powi<3>(mKernel.radius - (ParticleProperties::rd + 0.5) * h))/(3.*h*h*h/4./Math::pi<Real>()));
+            Real dv = (Math::powi<3>(mKernel.radius - (ParticleProperties::rd - 0.5) * h)
+                   - Math::powi<3>(mKernel.radius - (ParticleProperties::rd + 0.5) * h))/(3.*Ml/4./Math::pi<Real>());
+            mKernel.ml = Ml;
+            mKernel.dv = dv;
+            if( Ml > max_largrangian_num ) max_largrangian_num = Ml;
+
+            Real phiK = 0;
+            auto phiKdata = new Vector<Real>();
+            auto thetaKdata = new Vector<Real>();
+            for(int marker_index = 0; marker_index < Ml; marker_index++){
+                const Real Hk = -1.0 + 2.0 * (marker_index) / ( Ml - 1.0);
+                Real thetaK = std::acos(Hk);
+                if(marker_index == 0 || marker_index == Ml - 1){
+                    phiK = 0;
+                }else {
+                    phiK = std::fmod( phiK + 3.809 / std::sqrt(Ml) / std::sqrt( 1 - Math::powi<2>(Hk)) , 2 * Math::pi<Real>());
+                }
+                phiKdata->push_back(phiK);
+                thetaKdata->push_back(thetaK);
             }
-            mKernel.phiK.push_back(phiK);
-            mKernel.thetaK.push_back(thetaK);
+            phiKdata->shrink_to_fit();
+            thetaKdata->shrink_to_fit();
+            mKernel.phiK = phiKdata->data();
+            mKernel.thetaK = thetaKdata->data();
+
+            if (verbose) Print() << "h: " << h << ", Ml: " << Ml << ", D: " << Math::powi<3>(h) << " gravity : " << gravity << "\n"
+                                        << "Kernel : " << index << ": Location (" << x[index] << ", " << y[index] << ", " << z[index]
+                                        << "), Velocity : (" << mKernel.velocity[0] << ", " << mKernel.velocity[1] << ", "<< mKernel.velocity[2]
+                                        << "), Radius: " << mKernel.radius << ", Ml: " << Ml << ", dv: " << dv << ", Rho: " << mKernel.rho << "\n";
+        }else {
+            mKernel.ml = NumOfLagrangianMarker(index);
+            mKernel.dv = RKPM_MAP.at(index)[0].eps;
         }
 
         particle_kernels.emplace_back(mKernel);
-
-        if (verbose) Print() << "h: " << h << ", Ml: " << Ml << ", D: " << Math::powi<3>(h) << " gravity : " << gravity << "\n"
-                                    << "Kernel : " << index << ": Location (" << x[index] << ", " << y[index] << ", " << z[index]
-                                    << "), Velocity : (" << mKernel.velocity[0] << ", " << mKernel.velocity[1] << ", "<< mKernel.velocity[2]
-                                    << "), Radius: " << mKernel.radius << ", Ml: " << Ml << ", dv: " << dv << ", Rho: " << mKernel.rho << "\n";
     }
     //collision box generate
     m_Collision.SetGeometry(RealVect(ParticleProperties::GLO), RealVect(ParticleProperties::GHI),particle_kernels[0].radius, h);
@@ -394,7 +416,7 @@ void mParticle::UpdateLagrangianMarker() {
         auto* particles = pti.GetArrayOfStructs().data();
         const Long np = pti.numParticles();
         auto* attri = pti.GetAttribs().data();
-        const auto ids = pti.GetIDs();
+        const auto *const ids = pti.GetIDs().data();
         auto *const vUP_ptr = attri[P_ATTR_REAL::U_Marker].data();
         auto *const vVP_ptr = attri[P_ATTR_REAL::V_Marker].data();
         auto *const vWP_ptr = attri[P_ATTR_REAL::W_Marker].data();
@@ -405,20 +427,24 @@ void mParticle::UpdateLagrangianMarker() {
         auto *const myP_ptr = attri[P_ATTR_REAL::My_Marker].data();
         auto *const mzP_ptr = attri[P_ATTR_REAL::Mz_Marker].data();
 
+        const auto *const ps = particle_kernels.data();
+
         ParallelFor(np,
             [=] AMREX_GPU_DEVICE (const int i) noexcept {
-                const auto id = ids[i];
-                const auto m_id = particles[i].id();
-                const auto location = particle_kernels.at(id).location;
-                const auto radius = particle_kernels.at(id).radius;
-                const auto* phiK = particle_kernels.at(id).phiK.dataPtr();
-                const auto* thetaK = particle_kernels.at(id).thetaK.dataPtr();
-                const auto start_id = particle_kernels.at(id).start_id;
+                if (!do_RKPM) {
+                    const auto id = ids[i];
+                    const auto m_id = particles[i].id();
+                    const auto location = ps[id].location;
+                    const auto radius = ps[id].radius;
+                    const auto *const phiK = ps[id].phiK;
+                    const auto *const thetaK = ps[id].thetaK;
+                    const auto start_id = ps[id].start_id;
 
-                particles[i].pos(0) = location[0] + radius * std::sin(thetaK[m_id - start_id]) * std::cos(phiK[m_id - start_id]);
-                particles[i].pos(1) = location[1] + radius * std::sin(thetaK[m_id - start_id]) * std::sin(phiK[m_id - start_id]);
-                particles[i].pos(2) = location[2] + radius * std::cos(thetaK[m_id - start_id]);
-
+                    particles[i].pos(0) = location[0] + radius * std::sin(thetaK[m_id - start_id]) * std::cos(phiK[m_id - start_id]);
+                    particles[i].pos(1) = location[1] + radius * std::sin(thetaK[m_id - start_id]) * std::sin(phiK[m_id - start_id]);
+                    particles[i].pos(2) = location[2] + radius * std::cos(thetaK[m_id - start_id]);
+                }
+                // RKPM forbi
                 vUP_ptr[i] = 0.0;
                 vVP_ptr[i] = 0.0;
                 vWP_ptr[i] = 0.0;
@@ -436,7 +462,7 @@ void mParticle::UpdateLagrangianMarker() {
 
     if (verbose) {
         Print() << "[particle] : particle num :" << mContainer->TotalNumberOfParticles() << "\n";
-        // mContainer->WriteAsciiFile(amrex::Concatenate("particle", 1));
+        // mContainer->WriteAsciiFile(Concatenate("particle", 1));
     }
 }
 
@@ -447,7 +473,7 @@ void VelocityInterpolation_cir(int p_iter, P const& p, Real& Up, Real& Vp, Real&
                                const int *lo, const int *hi,
                                GpuArray<Real, AMREX_SPACEDIM> const& plo,
                                GpuArray<Real, AMREX_SPACEDIM> const& dx,
-                               DELTA_FUNCTION_TYPE type)
+                               int type)
 {
     const Real d = AMREX_D_TERM(dx[0], *dx[1], *dx[2]);
 
@@ -463,9 +489,9 @@ void VelocityInterpolation_cir(int p_iter, P const& p, Real& Up, Real& Vp, Real&
     Vp = 0;
     Wp = 0;
     //Euler to Lagrangian
-    for(int ii = -2; ii < 3; ii++){
-        for(int jj = -2; jj < 3; jj++){
-            for(int kk = -2; kk < 3; kk ++){
+    for(int ii = -2 + type; ii < 3 - type; ii++){
+        for(int jj = -2 + type; jj < 3 - type; jj++){
+            for(int kk = -2 + type; kk < 3 - type; kk ++){
                 Real tU, tV, tW;
                 const Real xi = plo[0] + (i + ii) * dx[0] + dx[0]/2;
                 const Real yj = plo[1] + (j + jj) * dx[1] + dx[1]/2;
@@ -482,8 +508,29 @@ void VelocityInterpolation_cir(int p_iter, P const& p, Real& Up, Real& Vp, Real&
     }
 }
 
+template<typename P>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void VelocityInterpolationRKPM_cir(
+    P p,
+    Real& U,
+    Real& V,
+    Real& W,
+    Vector<MAP_INFO> RKPM_MAP,
+    Array4<Real const> const& E,
+    int EulerVIndex)
+{
+    U = 0;
+    V = 0;
+    W = 0;
+    for (auto & l : RKPM_MAP) {
+        U += l.weight * l.Vcell * E(l.index.get<0>(), l.index.get<1>(), l.index.get<2>(), EulerVIndex    );
+        V += l.weight * l.Vcell * E(l.index.get<0>(), l.index.get<1>(), l.index.get<2>(), EulerVIndex + 1);
+        W += l.weight * l.Vcell * E(l.index.get<0>(), l.index.get<1>(), l.index.get<2>(), EulerVIndex + 2);
+    }
+}
+
 void mParticle::VelocityInterpolation(MultiFab &EulerVel,
-                                      DELTA_FUNCTION_TYPE type)//
+                                      int type)//
 {
     if (verbose) Print() << "\tmParticle::VelocityInterpolation\n";
 
@@ -504,6 +551,7 @@ void mParticle::VelocityInterpolation(MultiFab &EulerVel,
         auto& particles = pti.GetArrayOfStructs();
         const auto *p_ptr = particles.data();
         const Long np = pti.numParticles();
+        const auto& ids = pti.GetIDs().data();
 
         auto& attri = pti.GetAttribs();
         auto* Up = attri[P_ATTR_REAL::U_Marker].data();
@@ -511,10 +559,18 @@ void mParticle::VelocityInterpolation(MultiFab &EulerVel,
         auto* Wp = attri[P_ATTR_REAL::W_Marker].data();
         const auto& E = EulerVel.array(pti);
 
-        ParallelFor(np,
-            [=] AMREX_GPU_DEVICE (const int i) noexcept{
-            VelocityInterpolation_cir(i, p_ptr[i], Up[i], Vp[i], Wp[i], E, EulerVelocityIndex, box.loVect(), box.hiVect(), plo, dx, type);
-        });
+        if (do_RKPM) {
+            ParallelFor(np,
+                [=] AMREX_GPU_DEVICE (const int i) {
+                const auto id = p_ptr[i].id();
+                VelocityInterpolationRKPM_cir(p_ptr[i], Up[i], Vp[i], Wp[i], RKPM_MAP[id], E, EulerVelocityIndex);
+            });
+        }else {
+            ParallelFor(np,
+                [=] AMREX_GPU_DEVICE (const int i) noexcept{
+                VelocityInterpolation_cir(i, p_ptr[i], Up[i], Vp[i], Wp[i], E, EulerVelocityIndex, box.loVect(), box.hiVect(), plo, dx, type);
+            });
+        }
     }
 
     // if (verbose) mContainer->WriteAsciiFile(Concatenate("particle", 2));
@@ -537,12 +593,13 @@ void mParticle::ComputeLagrangianForce(Real dt)
         auto* FyP = attri[P_ATTR_REAL::Fy_Marker].data();
         auto* FzP = attri[P_ATTR_REAL::Fz_Marker].data();
 
-        const auto p_ids = pti.GetIDs();
+        const auto p_ids = pti.GetIDs().data();
+        const auto ps = particle_kernels.data();
 
         ParallelFor(np,
         [=] AMREX_GPU_DEVICE (const int i) noexcept{
             const auto p_id = p_ids[i];
-            auto p = particle_kernels.at(p_id);
+            auto p = ps[p_id];
             const Real Ub = p.velocity[0];
             const Real Vb = p.velocity[1];
             const Real Wb = p.velocity[2];
@@ -576,7 +633,7 @@ void ForceSpreading_cic (P const& p,
                          Real dv,
                          GpuArray<Real,AMREX_SPACEDIM> const& plo,
                          GpuArray<Real,AMREX_SPACEDIM> const& dx,
-                         DELTA_FUNCTION_TYPE type)
+                         int type)
 {
     //const Real d = AMREX_D_TERM(dx[0], *dx[1], *dx[2]);
     //plo to ii jj kk
@@ -595,9 +652,9 @@ void ForceSpreading_cic (P const& p,
     myP = moment[1];
     mzP = moment[2];
     //lagrangian to Euler
-    for(int ii = -2; ii < +3; ii++){
-        for(int jj = -2; jj < +3; jj++){
-            for(int kk = -2; kk < +3; kk ++){
+    for(int ii = -2 + type; ii < +3 - type; ii++){
+        for(int jj = -2 + type; jj < +3 - type; jj++){
+            for(int kk = -2 + type; kk < +3 - type; kk ++){
                 Real tU, tV, tW;
                 const Real xi =plo[0] + (i + ii) * dx[0] + dx[0]/2;
                 const Real yj =plo[1] + (j + jj) * dx[1] + dx[1]/2;
@@ -614,8 +671,41 @@ void ForceSpreading_cic (P const& p,
     }
 }
 
+template<typename P>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void ForceSpreadingRKPM_cir(
+    P p,
+    Real Px,
+    Real Py,
+    Real Pz,
+    Real& fxP,
+    Real& fyP,
+    Real& fzP,
+    Real& mxP,
+    Real& myP,
+    Real& mzP,
+    Vector<MAP_INFO> RKPM_MAP,
+    Real dv,
+    Array4<Real> const &E,
+    int EulerForceIndex)
+{
+    fxP *= dv;
+    fyP *= dv;
+    fzP *= dv;
+    RealVect moment = RealVect(p.pos(0) - Px, p.pos(1) - Py, p.pos(2) - Pz).crossProduct(RealVect(fxP, fyP, fzP));
+    mxP = moment[0];
+    myP = moment[1];
+    mzP = moment[2];
+    for (auto& rkpm : RKPM_MAP) {
+        Gpu::Atomic::AddNoRet(&E(rkpm.index.get<0>(), rkpm.index.get<1>(), rkpm.index.get<2>(), EulerForceIndex    ), rkpm.weight * fxP);
+        Gpu::Atomic::AddNoRet(&E(rkpm.index.get<0>(), rkpm.index.get<1>(), rkpm.index.get<2>(), EulerForceIndex + 1), rkpm.weight * fyP);
+        Gpu::Atomic::AddNoRet(&E(rkpm.index.get<0>(), rkpm.index.get<1>(), rkpm.index.get<2>(), EulerForceIndex + 2), rkpm.weight * fzP);
+    }
+}
+
+
 void mParticle::ForceSpreading(MultiFab & EulerForce,
-                               DELTA_FUNCTION_TYPE type)
+                               int type)
 {
     if (verbose) Print() << "\tmParticle::ForceSpreading\n";
     const auto& gm = mContainer->GetParGDB()->Geom(LOCAL_LEVEL);
@@ -626,7 +716,7 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
         const auto& particles = pti.GetArrayOfStructs();
         auto Uarray = EulerForce[pti].array();
         auto& attri = pti.GetAttribs();
-        const auto& ids = pti.GetIDs();
+        const auto& ids = pti.GetIDs().data();
 
         auto *const fxP_ptr = attri[P_ATTR_REAL::Fx_Marker].data();
         auto *const fyP_ptr = attri[P_ATTR_REAL::Fy_Marker].data();
@@ -637,17 +727,32 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
         const auto *const p_ptr = particles().data();
 
         auto force_index = ParticleProperties::euler_force_index;
+        const auto ps = particle_kernels.data();
 
-        ParallelFor(np,
+        if (do_RKPM) {
+            ParallelFor(np,
             [=] AMREX_GPU_DEVICE (const int i) noexcept{
-            const auto id = ids[i];
-            auto loc_ptr = particle_kernels.at(id).location;
-            auto dv = particle_kernels.at(id).dv;
-            ForceSpreading_cic(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
-                               fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
-                               mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
-                               Uarray, force_index, dv, plo, dxi, type);
-        });
+                const auto p_id = p_ptr[i].id(); // lagrangian marker's id
+                const auto id = ids[i];  // particle's id
+                auto loc_ptr = ps[id].location;
+                auto dv = ps[id].dv;
+                ForceSpreadingRKPM_cir(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
+                                fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
+                                mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
+                                RKPM_MAP[p_id], dv, Uarray, force_index);
+            });
+        }else {
+            ParallelFor(np,
+            [=] AMREX_GPU_DEVICE (const int i) noexcept{
+                const auto id = ids[i];
+                auto loc_ptr = ps[id].location;
+                auto dv = ps[id].dv;
+                ForceSpreading_cic(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
+                                   fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
+                                   mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
+                                   Uarray, force_index, dv, plo, dxi, type);
+            });
+        }
     }
     //barrier for sync;
     ParallelDescriptor::Barrier();
@@ -656,26 +761,30 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
     // particle id => thread id
 
     for (auto& cur_p : particle_kernels) { // gm position
-        // cur_p
-        // auto data = ReduceSum(*mContainer, [=]AMREX_GPU_HOST_DEVICE(const pc& p) {
-        //     if (p.idata(M_ID) == cur_p.id) {
-        //         auto v =  ParallelVector<double>();
-        //         v.setValue(0, p.rdata(P_ATTR_REAL::Fx_Marker));
-        //         v.setValue(1, p.rdata(P_ATTR_REAL::Fy_Marker));
-        //         v.setValue(2, p.rdata(P_ATTR_REAL::Fz_Marker));
-        //         v.setValue(3, p.rdata(P_ATTR_REAL::Mx_Marker));
-        //         v.setValue(4, p.rdata(P_ATTR_REAL::My_Marker));
-        //         v.setValue(5, p.rdata(P_ATTR_REAL::Mz_Marker));
-        //     }
-        //     return ParallelVector<double>();
-        // });
-        // // MPI sum reduce -> current particle all IB force and moment
-        // auto fx = data.at(0);
-        // auto fy = data.at(1);
-        // auto fz = data.at(2);
-        // auto mx = data.at(3);
-        // auto my = data.at(4);
-        // auto mz = data.at(5);
+        // https://github.com/AMReX-Codes/amrex/discussions/4593
+        // ReduceOps<ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum, ReduceOpSum> reduce_ops;
+        // auto r = ParticleReduce<ReduceData<Real, Real, Real, Real, Real, Real>> (
+        //     *mContainer, [=] AMREX_GPU_DEVICE (const pc& p) -> GpuTuple<Real, Real, Real, Real, Real, Real> {
+        //         if (p.idata(M_ID) == cur_p.id) {
+        //             return {
+        //                 p.rdata(P_ATTR_REAL::Fx_Marker),
+        //                 p.rdata(P_ATTR_REAL::Fy_Marker),
+        //                 p.rdata(P_ATTR_REAL::Fz_Marker),
+        //                 p.rdata(P_ATTR_REAL::Mx_Marker),
+        //                 p.rdata(P_ATTR_REAL::My_Marker),
+        //                 p.rdata(P_ATTR_REAL::Mz_Marker)
+        //             };
+        //         }
+        //     return {0,0,0,0,0,0};
+        //     }, reduce_ops
+        // );
+        //
+        // auto fx = get<0>(r);
+        // auto fy = get<1>(r);
+        // auto fz = get<2>(r);
+        // auto mx = get<3>(r);
+        // auto my = get<4>(r);
+        // auto mz = get<5>(r);
 
         auto fx = ReduceSum(*mContainer, [=] AMREX_GPU_HOST_DEVICE(const pc& p) -> ParticleReal{
             if (p.idata(M_ID) == cur_p.id) {
@@ -906,6 +1015,146 @@ void mParticle::RecordOldValue(kernel& kernel)
     kernel.omega_old = kernel.omega;
 }
 
+void mParticle::ResolveLagrangianMarker(std::string marker_file) {
+    if (verbose) Print() << "\tmParticle::ResolveLagrangianMarker\n";
+    // resolve point dict to LargrangianMarker
+    /** point dict
+    {
+        0: (1.0565757615805609, 0.8544864844710995, 1.475),
+        ...
+    }
+    {
+        10: (0.7637951673013351, 1.1165430264314247, 1.425),
+        ...
+    }
+    **/
+
+    // txt file resolve
+    std::ifstream marker(marker_file);
+    std::string line;
+    size_t number;
+    size_t begin{0};
+    while (std::getline(marker, line)) {
+        // skip
+        if (line.empty() || line.find('{') != std::string::npos ) {
+            StartOfMarker.push_back(begin);
+            number = 0;
+            continue;
+        }
+        if (line.find('}') != std::string::npos) {
+            NumOfMarker.push_back(number);
+            continue;
+        }
+        // clear blank char
+        line.erase(0, line.find_first_not_of(" \t"));
+        line.erase(line.find_last_not_of(" \t") + 1);
+        // sub location
+        size_t colon_pos = line.find(':');
+        size_t start = line.find('(');
+        size_t end = line.find(')');
+        std::string locations = line.substr(start + 1, end - start - 1);
+        // location
+        std::vector<Real> location;
+        std::stringstream vs(locations);
+        std::string v;
+        while (getline(vs, v, ',')) {
+            location.push_back(std::stod(v));
+        }
+        number++;
+        begin++;
+        LargrangianMarker.push_back(RealVect{location});
+    }
+    Print() << "\tLargrangianMarker size : " << LargrangianMarker.size()  << "\n";
+}
+
+void mParticle::ResolveWithRPKM(std::string RKPM_file) {
+    if (verbose) Print() << "\tmParticle::ResolveWithRPKM\n";
+    // resolve RKPM file
+    /**
+    0: [
+        {"i": 4, "j": 3, "k": 6, "w": -0.309, "Vcell": 0.008, "eps":1.017},
+        {"i": 4, "j": 3, "k": 7, "w": -1.365, "Vcell": 0.008, "eps":1.017},
+        {"i": 4, "j": 3, "k": 8, "w": -1.327, "Vcell": 0.008, "eps":1.017},
+        ... # 平均27个欧拉点
+    ],
+    1: [...],
+    ...
+    **/
+    // txt file
+    std::ifstream RKPM(RKPM_file);
+    std::string line, dict_arr;
+    int key_id;
+    bool in_dict;
+    while (getline(RKPM, line)) {
+        // clear blank char
+        line.erase(0, line.find_first_not_of(" \t\r\n"));
+        line.erase(line.find_last_not_of(" \t\r\n") + 1);
+        // clear empty and #
+        if (line.empty() || line.find("#") == 0) continue;
+        size_t colonPos = line.find(':');
+        // dict start
+        if (colonPos != std::string::npos && line.find('[') != std::string::npos) {
+            key_id = std::stoi(line.substr(0, colonPos));
+            in_dict = true;
+            dict_arr = "";
+
+            continue;
+        }
+        // get all {}
+        if (in_dict) {
+            dict_arr += line;
+        }
+        // dict end
+        if (in_dict && line.find(']') != std::string::npos) {
+            in_dict = false;
+            Vector<MAP_INFO> r;
+            int start = 0;
+            while ((start = dict_arr.find('{', start)) != std::string::npos) {
+                size_t end = dict_arr.find('}', start);
+                std::string str = dict_arr.substr(start, end - start + 1);
+                // resolve {}
+                str.erase(remove_if(str.begin(), str.end(), ::isspace), str.end());
+                int s = 0;
+                MAP_INFO t;
+                while ((s = str.find('"', s)) != std::string::npos) {
+                    size_t e = str.find('"', s + 1);
+                    std::string key = str.substr(s + 1, e - s - 1);
+
+                    s = str.find(':', e) + 1;
+                    size_t valueEnd = str.find_first_of(",}", s);
+                    std::string valueStr = str.substr(s, valueEnd - s);
+
+                    if (key == "i") t.index[0] = stoi(valueStr);
+                    else if (key == "j") t.index[1] = stoi(valueStr);
+                    else if (key == "k") t.index[2] = stoi(valueStr);
+                    else if (key == "w") t.weight = stod(valueStr);
+                    else if (key == "Vcell") t.Vcell = stod(valueStr);
+                    else if (key == "eps") t.eps = stod(valueStr);
+
+                    s = valueEnd + 1;
+                }
+                r.push_back(t);
+                start = end + 1;
+            }
+            RKPM_MAP[key_id] = r;
+            continue;
+        }
+    }
+    Print() << "\tRKPM mapping size : " << RKPM_MAP.size() << "\n";
+}
+
+int mParticle::StartOfLagrangianMarker(size_t index) {
+    return StartOfMarker.at(index);
+}
+
+int mParticle::NumOfLagrangianMarker(size_t index) {
+    return NumOfMarker.at(index);
+}
+
+RealVect mParticle::GetPositionOfMarker(size_t index) {
+    return LargrangianMarker.at(index);
+}
+
 void mParticle::WriteParticleFile(int index)
 {
     mContainer->WriteAsciiFile(Concatenate("particle", index));
@@ -970,7 +1219,11 @@ void Particles::create_particles(const Geometry &gm,
     for (auto& cur_p: particle->particle_kernels){
         //insert markers
         if ( ParallelDescriptor::MyProc() == ParallelDescriptor::IOProcessorNumber() ) {
-            cur_p.start_id = marker_index + 1;
+            if (particle->do_RKPM) {
+                cur_p.start_id = particle->StartOfLagrangianMarker(cur_p.id);
+            }else {
+                cur_p.start_id = marker_index;
+            }
             for(int i = 0; i < cur_p.ml; i++){
                 //insert code
                 mParticleContainer::ParticleType markerP;
@@ -979,6 +1232,12 @@ void Particles::create_particles(const Geometry &gm,
                 markerP.pos(0) = cur_p.location[0];
                 markerP.pos(1) = cur_p.location[1];
                 markerP.pos(2) = cur_p.location[2];
+                if (particle->do_RKPM) {
+                    auto pos = particle->GetPositionOfMarker(i + cur_p.start_id);
+                    markerP.pos(0) = pos[0];
+                    markerP.pos(1) = pos[1];
+                    markerP.pos(2) = pos[2];
+                }
 
                 std::array<ParticleReal, num_Real> Marker_attr;
                 Marker_attr[U_Marker] = 0.0;
@@ -1172,6 +1431,9 @@ void Particles::Initialize()
         p_file.query("Uhlmann",     ParticleProperties::Uhlmann);
         p_file.query("collision_model", ParticleProperties::collision_model);
         p_file.query("write_freq",  ParticleProperties::write_freq);
+        p_file.query("delta_type", ParticleProperties::delta_type);
+        // update with RKPM method
+        p_file.query("RKPM", ParticleProperties::RKPM);
 
         ParmParse ns("ns");
         ns.get("fluid_rho",      ParticleProperties::euler_fluid_rho);
@@ -1211,7 +1473,7 @@ void Particles::Initialize()
             ParticleProperties::_y.shrink_to_fit();
             ParticleProperties::_z.shrink_to_fit();
             Print() << "             initial Particle by file : " << particle_init_file
-                           << "             particle's size : " << ParticleProperties::_x.size() << "\n";
+                    << "             particle's size : " << ParticleProperties::_x.size() << "\n";
         }
 
     }else {
