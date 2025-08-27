@@ -735,7 +735,7 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
                 const auto p_id = p_ptr[i].id(); // lagrangian marker's id
                 const auto id = ids[i];  // particle's id
                 auto loc_ptr = ps[id].location;
-                auto dv = ps[id].dv;
+                auto dv = RKPM_MAP[p_id - 1][0].eps;
                 ForceSpreadingRKPM_cir(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
                                 fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
                                 mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
