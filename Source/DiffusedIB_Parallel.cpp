@@ -517,15 +517,32 @@ void VelocityInterpolationRKPM_cir(
     Real& W,
     Vector<MAP_INFO> RKPM_MAP,
     Array4<Real const> const& E,
+    GpuArray<Real, AMREX_SPACEDIM> const& plo,
+    GpuArray<Real, AMREX_SPACEDIM> const& dx,
     int EulerVIndex)
 {
+    const Real lx = (p.pos(0) - plo[0]) / dx[0]; // x
+    const Real ly = (p.pos(1) - plo[1]) / dx[1]; // y
+    const Real lz = (p.pos(2) - plo[2]) / dx[2]; // z
+
+    const int i = static_cast<int>(Math::floor(lx)); // i
+    const int j = static_cast<int>(Math::floor(ly)); // j
+    const int k = static_cast<int>(Math::floor(lz)); // k
+
     U = 0;
     V = 0;
     W = 0;
-    for (auto & l : RKPM_MAP) {
-        U += l.weight * l.Vcell * E(l.index.get<0>(), l.index.get<1>(), l.index.get<2>(), EulerVIndex    );
-        V += l.weight * l.Vcell * E(l.index.get<0>(), l.index.get<1>(), l.index.get<2>(), EulerVIndex + 1);
-        W += l.weight * l.Vcell * E(l.index.get<0>(), l.index.get<1>(), l.index.get<2>(), EulerVIndex + 2);
+
+    int cell_index = 0;
+    for(int ii = -1; ii < 2; ii++){
+        for(int jj = -1; jj < 2; jj++){
+            for(int kk = -1; kk < 2; kk ++){
+                auto RKPM = RKPM_MAP.at(cell_index++);
+                U += RKPM.weight * RKPM.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex    );
+                V += RKPM.weight * RKPM.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 1);
+                W += RKPM.weight * RKPM.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 2);
+            }
+        }
     }
 }
 
@@ -562,8 +579,8 @@ void mParticle::VelocityInterpolation(MultiFab &EulerVel,
         if (do_RKPM) {
             ParallelFor(np,
                 [=] AMREX_GPU_DEVICE (const int i) {
-                const auto id = p_ptr[i].id();
-                VelocityInterpolationRKPM_cir(p_ptr[i], Up[i], Vp[i], Wp[i], RKPM_MAP[id], E, EulerVelocityIndex);
+                const auto id = p_ptr[i].id() - 1;
+                VelocityInterpolationRKPM_cir(p_ptr[i], Up[i], Vp[i], Wp[i], RKPM_MAP[id], E, plo, dx, EulerVelocityIndex);
             });
         }else {
             ParallelFor(np,
@@ -687,8 +704,18 @@ void ForceSpreadingRKPM_cir(
     Vector<MAP_INFO> RKPM_MAP,
     Real dv,
     Array4<Real> const &E,
+    GpuArray<Real,AMREX_SPACEDIM> const& plo,
+    GpuArray<Real,AMREX_SPACEDIM> const& dx,
     int EulerForceIndex)
 {
+    Real lx = (p.pos(0) - plo[0]) / dx[0];
+    Real ly = (p.pos(1) - plo[1]) / dx[1];
+    Real lz = (p.pos(2) - plo[2]) / dx[2];
+
+    int i = static_cast<int>(Math::floor(lx));
+    int j = static_cast<int>(Math::floor(ly));
+    int k = static_cast<int>(Math::floor(lz));
+
     fxP *= dv;
     fyP *= dv;
     fzP *= dv;
@@ -696,10 +723,17 @@ void ForceSpreadingRKPM_cir(
     mxP = moment[0];
     myP = moment[1];
     mzP = moment[2];
-    for (auto& rkpm : RKPM_MAP) {
-        Gpu::Atomic::AddNoRet(&E(rkpm.index.get<0>(), rkpm.index.get<1>(), rkpm.index.get<2>(), EulerForceIndex    ), rkpm.weight * fxP);
-        Gpu::Atomic::AddNoRet(&E(rkpm.index.get<0>(), rkpm.index.get<1>(), rkpm.index.get<2>(), EulerForceIndex + 1), rkpm.weight * fyP);
-        Gpu::Atomic::AddNoRet(&E(rkpm.index.get<0>(), rkpm.index.get<1>(), rkpm.index.get<2>(), EulerForceIndex + 2), rkpm.weight * fzP);
+
+    int cell_index = 0;
+    for(int ii = -1; ii < 2; ii++){
+        for(int jj = -1; jj < 2; jj++){
+            for(int kk = -1; kk < 2; kk ++){
+                auto RKPM = RKPM_MAP.at(cell_index++);
+                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), RKPM.weight * fxP);
+                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), RKPM.weight * fyP);
+                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), RKPM.weight * fzP);
+            }
+        }
     }
 }
 
@@ -732,14 +766,14 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
         if (do_RKPM) {
             ParallelFor(np,
             [=] AMREX_GPU_DEVICE (const int i) noexcept{
-                const auto p_id = p_ptr[i].id(); // lagrangian marker's id
+                const auto p_id = p_ptr[i].id() - 1; // lagrangian marker's id
                 const auto id = ids[i];  // particle's id
                 auto loc_ptr = ps[id].location;
-                auto dv = ps[id].dv;
+                auto dv = RKPM_MAP[p_id][0].eps;
                 ForceSpreadingRKPM_cir(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
                                 fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
                                 mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
-                                RKPM_MAP[p_id], dv, Uarray, force_index);
+                                RKPM_MAP[p_id], dv, Uarray, plo, dxi, force_index);
             });
         }else {
             ParallelFor(np,

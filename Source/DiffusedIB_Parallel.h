@@ -44,8 +44,8 @@ enum P_ATTR_INT {
 };
 
 enum DELTA_FUNCTION_TYPE{
-    THREE_POINT_IB = 0,
-    FOUR_POINT_IB
+    FOUR_POINT_IB = 0,
+    THREE_POINT_IB
 };
 
 typedef struct {
