@@ -137,7 +137,9 @@ The theoretical S-N law for calculating the drag coefficient of the shaped parti
 .. math::
     C_D = (24/Re_p)(1+0.15Re_p^{0.687}),
 
-which is proposed by Schiller :cite:`schiller1933uber` and :math:`Re_p = UD_p/\nu` represents the particle Reynolds number. It can be seen from above Fig that the present results under different particle Reynolds numbers are in good agreement with S-N law. The fact that different levels of grid produce the nearly identical results validated the accuracy of our solver on the adaptive grid.
+which is proposed by Schiller :cite:`schiller1933uber` and :math:`Re_p = UD_p/\nu` represents the particle Reynolds number. It can be seen from :numref:`figFPSR_ref` that the present results under different particle Reynolds numbers are in good agreement with S-N law. The fact that different levels of grid produce the nearly identical results validated the accuracy of our solver on the adaptive grid.
+
+Refer to this `link <https://github.com/ruohai0925/IAMReX/blob/development/Tutorials/FlowPastSphere/inputs.3d.flow_past_sphere>`_ for the input file of this case.
 
 .. _sec:ClusterParticles:
 
@@ -181,3 +183,5 @@ Following the equation in Akiki et al. :cite:`akiki2016immersed`, the theoretica
     :width: 5.0in
 
     Comparison of total drag force between the theory and present results with different :math:`N_s=2`
+
+Refer to this `link <https://github.com/ruohai0925/IAMReX/blob/development/Tutorials/Monodisperse/inputs.random_particle>`_ for the input file of this case.
