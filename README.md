@@ -8,14 +8,14 @@
 
 
 [Overview](#Overview) -
-[Comparison with Base IAMR](#Comparison with Base IAMR)-
-[Sample Cases](#Sample Cases)-
-[Installation](#Installation)-
-[State of the field](#State of the field)-
-[Get Help](#Get Help)-
-[Contribute](#Contribute)-
-[Citation](#Citation)-
-[License](#License)-
+[Comparison with Base IAMR](#Comparison-with-Base-IAMR) -
+[Sample Cases](#Sample-Cases) -
+[Installation](#Installation) -
+[State of the field](#State-of-the-field) -
+[Get Help](#Get-Help) -
+[Contribute](#Contribute) -
+[Citation](#Citation) -
+[License](#License) -
 [Acknowledgements](#Acknowledgements) -
 [Contact](#Contact)
 
