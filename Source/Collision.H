@@ -42,20 +42,57 @@ typedef struct{
 
 class ParticleCollision{
 public:
+    /**
+     * Set the collision model to be used for particle interactions.
+     * @param model Integer identifier for the collision model
+     */
     void takeModel(int model);
 
+    /**
+     * Apply the Discrete Element Method (DEM) collision model.
+     * This function implements the DEM approach for particle-particle collisions.
+     */
     void DKTModel();
 
     explicit ParticleCollision() = default;
-    //generate background meshs
+    
+    /**
+     * Generate background mesh for collision detection.
+     * @param gm_lo Lower bounds of the computational domain
+     * @param gm_hi Upper bounds of the computational domain
+     * @param size Particle size parameter
+     * @param l Grid spacing for collision mesh
+     */
     void SetGeometry(amrex::RealVect gm_lo, amrex::RealVect gm_hi, amrex::Real size, amrex::Real l);
-    //initial Collision particle;
+    
+    /**
+     * Insert a particle into the collision detection system.
+     * @param location Position of the particle
+     * @param velocity Velocity of the particle
+     * @param radius Radius of the particle
+     * @param rho Density of the particle
+     */
     void InsertParticle(amrex::RealVect location, amrex::RealVect velocity, amrex::Real radius, amrex::Real rho);
-    //insert collision pair to CollisionCollector
+    
+    /**
+     * Insert a collision pair into the collision collector.
+     * @param p1 Pointer to first particle in collision pair
+     * @param p2 Pointer to second particle in collision pair
+     */
     void InsertCollision(CollisionParticle* p1, CollisionParticle* p2);
-    //generator collision pair
+    
+    /**
+     * Generate all possible collision pairs between particles.
+     * This function identifies which particles are in close proximity
+     * and may collide during the current timestep.
+     */
     void GenerateCollisionPairs();
-    //Resolve collision
+    
+    /**
+     * Resolve all collision pairs using the selected collision model.
+     * This function applies collision forces and updates particle states
+     * based on the detected collisions.
+     */
     void ResolveCollisionPairs();
     //all the Geometry split mesh
     std::vector<CollisionCell> *Cells;

@@ -14,11 +14,28 @@
 
 using namespace amrex;
 
+/**
+ * Convert nodal level set function value to Heaviside function value.
+ * @param phi Level set function value at node
+ * @return Heaviside function value (0.0 if phi <= 0, 1.0 if phi > 0)
+ */
 AMREX_INLINE AMREX_GPU_DEVICE
 Real nodal_phi_to_heavi(Real phi);
 
+/**
+ * Convert nodal level set function to particle volume fraction (PVF).
+ * @param pvf Output MultiFab containing particle volume fraction
+ * @param phi_nodal Input MultiFab containing nodal level set function
+ */
 void nodal_phi_to_pvf(MultiFab& pvf, const MultiFab& phi_nodal);
 
+/**
+ * Compute delta function value for immersed boundary method.
+ * @param xf Eulerian grid point coordinate
+ * @param xp Lagrangian marker coordinate
+ * @param h Grid spacing
+ * @param value Output delta function value
+ */
 void deltaFunction(Real xf, Real xp, Real h, Real& value);
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -126,6 +143,29 @@ class mParticle
 public:
     explicit mParticle() = default;
 
+    /**
+     * Initialize particles with given properties and parameters.
+     * @param x Vector of x-coordinates for particle centers
+     * @param y Vector of y-coordinates for particle centers
+     * @param z Vector of z-coordinates for particle centers
+     * @param rho_s Vector of solid particle densities
+     * @param Vx Vector of initial x-velocities
+     * @param Vy Vector of initial y-velocities
+     * @param Vz Vector of initial z-velocities
+     * @param Ox Vector of initial x-angular velocities
+     * @param Oy Vector of initial y-angular velocities
+     * @param Oz Vector of initial z-angular velocities
+     * @param TLX Vector of translational constraint flags in x-direction
+     * @param TLY Vector of translational constraint flags in y-direction
+     * @param TLZ Vector of translational constraint flags in z-direction
+     * @param RLX Vector of rotational constraint flags in x-direction
+     * @param RLY Vector of rotational constraint flags in y-direction
+     * @param RLZ Vector of rotational constraint flags in z-direction
+     * @param radius Vector of particle radii
+     * @param h Grid spacing
+     * @param gravity Gravitational acceleration
+     * @param verbose Verbosity level for output
+     */
     void InitParticles(const Vector<Real>& x,
                        const Vector<Real>& y,
                        const Vector<Real>& z,
@@ -147,36 +187,112 @@ public:
                        Real gravity,
                        int verbose = 0);
 
+    /**
+     * Perform interaction between Lagrangian particles and Eulerian fluid.
+     * This function handles the immersed boundary method coupling between
+     * solid particles and the surrounding fluid.
+     * @param EulerVel Eulerian velocity field
+     * @param EulerForce Eulerian force field (output)
+     * @param dt Time step size
+     */
     void InteractWithEuler(MultiFab &EulerVel, MultiFab &EulerForce, Real dt = 0.1);
 
+    /**
+     * Write particle data to file for visualization or restart.
+     * @param index File index for output
+     */
     void WriteParticleFile(int index);
 
+    /**
+     * Update Lagrangian marker positions and properties.
+     */
     void UpdateLagrangianMarker();
 
+    /**
+     * Interpolate Eulerian velocity to Lagrangian markers.
+     * @param Euler Eulerian velocity field
+     * @param type Velocity component type (0=x, 1=y, 2=z)
+     */
     void VelocityInterpolation(amrex::MultiFab &Euler, int type);
 
+    /**
+     * Compute Lagrangian forces on immersed boundary markers.
+     * @param dt Time step size
+     */
     void ComputeLagrangianForce(Real dt);
 
+    /**
+     * Spread Lagrangian forces to Eulerian grid.
+     * @param Euler Eulerian field for force spreading
+     * @param type Force component type (0=x, 1=y, 2=z)
+     */
     void ForceSpreading(amrex::MultiFab &Euler, int type);
 
+    /**
+     * Apply velocity correction for immersed boundary method.
+     * @param Euler Eulerian velocity field
+     * @param EulerForce Eulerian force field
+     * @param dt Time step size
+     */
     void VelocityCorrection(amrex::MultiFab &Euler, amrex::MultiFab &EulerForce, Real dt) const;
 
+    /**
+     * Update particle positions and properties based on fluid flow.
+     * @param iStep Current time step index
+     * @param time Current simulation time
+     * @param Euler_old Eulerian velocity field at previous time
+     * @param Euler Eulerian velocity field at current time
+     * @param phi_nodal Nodal level set function
+     * @param pvf Particle volume fraction
+     * @param dt Time step size
+     */
     void UpdateParticles(int iStep, Real time, const MultiFab& Euler_old, const MultiFab& Euler, MultiFab& phi_nodal, MultiFab& pvf, Real dt);
 
+    /**
+     * Handle particle-particle collision interactions.
+     * @param model Collision model identifier
+     */
     void DoParticleCollision(int model);
 
     static void WriteIBForceAndMoment(int step, amrex::Real time, amrex::Real dt, kernel& current_kernel);
 
+    /**
+     * Record old values for time integration.
+     * @param kernel Kernel object containing particle data
+     */
     void RecordOldValue(kernel& kernel);
 
+    /**
+     * Resolve Lagrangian markers from file.
+     * @param marker_file File containing marker data
+     */
     void ResolveLagrangianMarker(std::string marker_file);
 
+    /**
+     * Resolve particle data using RKPM (Reproducing Kernel Particle Method).
+     * @param RKPM_file File containing RKPM data
+     */
     void ResolveWithRPKM(std::string RKPM_file);
 
+    /**
+     * Get starting index of Lagrangian markers for a particle.
+     * @param index Particle index
+     * @return Starting index of Lagrangian markers
+     */
     int StartOfLagrangianMarker(size_t index);
 
+    /**
+     * Get number of Lagrangian markers for a particle.
+     * @param index Particle index
+     * @return Number of Lagrangian markers
+     */
     int NumOfLagrangianMarker(size_t index);
 
+    /**
+     * Get position of a specific Lagrangian marker.
+     * @param index Marker index
+     * @return Position vector of the marker
+     */
     RealVect GetPositionOfMarker(size_t index);
 
     Vector<kernel> particle_kernels;

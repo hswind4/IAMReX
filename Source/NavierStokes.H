@@ -60,6 +60,11 @@ public:
     //
     // Init grid data at problem start-up.
     //
+    /**
+     * Initialize grid data at problem start-up.
+     * This function sets up initial conditions for the Navier-Stokes equations
+     * including velocity, pressure, and scalar fields.
+     */
     void initData () override;
     //
     // Problem initialization functions
@@ -105,23 +110,58 @@ public:
     //
     // Advance grids at this level in time.
     //
+    /**
+     * Advance grids at this level in time using the Navier-Stokes solver.
+     * @param time Current simulation time
+     * @param dt Time step size
+     * @param iteration Current iteration number
+     * @param ncycle Total number of cycles for this level
+     * @return Estimated optimal timestep for next iteration
+     */
     amrex::Real advance (amrex::Real time,
                          amrex::Real dt,
                          int  iteration,
                          int  ncycle) override;
 
     // ls related
+    /**
+     * Advance grids using semi-staggered two-phase level set method.
+     * This function implements the level set method for two-phase flow simulations.
+     * @param time Current simulation time
+     * @param dt Time step size
+     * @param iteration Current iteration number
+     * @param ncycle Total number of cycles for this level
+     * @return Estimated optimal timestep for next iteration
+     */
     amrex::Real advance_semistaggered_twophase_ls (amrex::Real time,
                          amrex::Real dt,
                          int  iteration,
                          int  ncycle);
 #ifdef AMREX_PARTICLES
+    /**
+     * Advance grids using semi-staggered fluid-structure interaction with diffused immersed boundary method.
+     * This function implements FSI simulations using the diffused immersed boundary method.
+     * @param time Current simulation time
+     * @param dt Time step size
+     * @param iteration Current iteration number
+     * @param ncycle Total number of cycles for this level
+     * @return Estimated optimal timestep for next iteration
+     */
     amrex::Real advance_semistaggered_fsi_diffusedib (amrex::Real time,
                          amrex::Real dt,
                          int  iteration,
                          int  ncycle);
 #endif
 
+    /**
+     * Advance grids using semi-staggered two-phase phase field method.
+     * This function implements the phase field method for two-phase flow simulations.
+     * @param time Current simulation time
+     * @param dt Time step size
+     * @param iteration Current iteration number
+     * @param ncycle Total number of cycles for this level
+     * @return Estimated optimal timestep for next iteration
+     */
     amrex::Real advance_semistaggered_twophase_phasefield (amrex::Real time,
                          amrex::Real dt,
                          int  iteration,
@@ -171,10 +211,22 @@ public:
     //
     // Advect scalars.
     //
+    /**
+     * Advect scalar quantities using the chosen advection scheme.
+     * @param dt Time step size
+     * @param fscalar First scalar component index
+     * @param lscalar Last scalar component index
+     */
     void scalar_advection (amrex::Real dt,
                            int  fscalar,
                            int  lscalar);
     //
+    /**
+     * Update scalar quantities with diffusion terms.
+     * @param dt Time step size
+     * @param first_scalar First scalar component index
+     * @param last_scalar Last scalar component index
+     */
     void scalar_diffusion_update (amrex::Real dt,
                                   int  first_scalar,
                                   int  last_scalar);
@@ -185,35 +237,77 @@ protected:
     //    Overriding Virtual Functions in NavierStokesBase                    //
     ////////////////////////////////////////////////////////////////////////////
 
-    void avgDown () override; // Average down for all the state types.
+    /**
+     * Average down all state types from fine to coarse level.
+     */
+    void avgDown () override;
     //
     // Calculate nonuniform viscosity and diffusivity
     //
+    /**
+     * Calculate nonuniform viscosity and diffusivity.
+     * @param time Current simulation time
+     * @param dt Time step size
+     * @param iteration Current iteration number
+     * @param ncycle Total number of cycles
+     */
     void calcViscosity (amrex::Real time,
                         amrex::Real dt,
                         int  iteration,
                         int  ncycle) override;
     //
+    /**
+     * Calculate diffusivity coefficients.
+     * @param time Current simulation time
+     */
     void calcDiffusivity (amrex::Real time) override;
     //
+    /**
+     * Get viscosity coefficients for each spatial direction.
+     * @param viscosity Array of MultiFab pointers for viscosity in each direction
+     * @param time Current simulation time
+     */
     void getViscosity (amrex::MultiFab*  viscosity[AMREX_SPACEDIM],
                        amrex::Real time) override;
     //
     // Compute viscous terms.
     //
+    /**
+     * Compute viscous terms for momentum equations.
+     * @param visc_terms MultiFab containing viscous terms (output)
+     * @param src_comp Source component index
+     * @param ncomp Number of components
+     * @param time Current simulation time
+     */
     void getViscTerms (amrex::MultiFab& visc_terms,
                        int       src_comp,
                        int       ncomp,
                        amrex::Real      time) override;
     //
+    /**
+     * Sum integrated quantities for diagnostics and statistics.
+     */
     void sum_integrated_quantities () override;
     //
+    /**
+     * Update velocities with diffusion terms.
+     * @param dt Time step size
+     */
     void velocity_diffusion_update (amrex::Real dt) override;
 
     ////////////////////////////////////////////////////////////////////////////
     //    NavierStokes protected static functions                             //
     ////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Estimate error for adaptive mesh refinement.
+     * @param tags TagBoxArray for marking cells for refinement
+     * @param clearval Value to clear tags
+     * @param tagval Value to set tags
+     * @param time Current simulation time
+     * @param n_error_buf Number of error buffer cells
+     * @param ngrow Number of ghost cells
+     */
     void errorEst (amrex::TagBoxArray& tags,
                    int                 clearval,
                    int                 tagval,
@@ -221,13 +315,33 @@ protected:
                    int                 n_error_buf,
                    int                 ngrow) override;
 
-    static void Initialize ();   // Read input file
+    /**
+     * Initialize NavierStokes solver by reading input file.
+     */
+    static void Initialize ();
+    /**
+     * Initialize boundary conditions.
+     */
     static void Initialize_bcs ();
+    /**
+     * Initialize diffusivity coefficients.
+     */
     static void Initialize_diffusivities ();
+    /**
+     * Finalize NavierStokes solver and clean up resources.
+     */
     static void Finalize ();
 
 private:
 
+    /**
+     * Get diffusivity coefficients for scalar transport.
+     * @param diffusivity Array of MultiFab pointers for diffusivity in each direction
+     * @param time Current simulation time
+     * @param state_comp State component index
+     * @param dst_comp Destination component index
+     * @param ncomp Number of components
+     */
     static void getDiffusivity (amrex::MultiFab*  diffusivity[AMREX_SPACEDIM],
                                 amrex::Real time,
                                 int  state_comp,
@@ -241,18 +355,33 @@ private:
     //
     // Initialize the pressure by iterating the initial timestep.
     //
+    /**
+     * Initialize pressure by iterating the initial timestep.
+     * @param dt_init Initial time step size (output)
+     * @param nc_save Vector to save cycle numbers
+     * @param dt_save Vector to save time step sizes
+     */
     void post_init_press (amrex::Real&        dt_init,
                           amrex::Vector<int>&  nc_save,
                           amrex::Vector<amrex::Real>& dt_save);
     //
     // Update scalars, (viscous solve in scalar_update).
     //
+    /**
+     * Update scalar quantities with viscous solve.
+     * @param dt Time step size
+     * @param first_scalar First scalar component index
+     * @param last_scalar Last scalar component index
+     */
     void scalar_update (amrex::Real dt,
                         int  first_scalar,
                         int  last_scalar);
     //
     // Define error estimators
     //
+    /**
+     * Set up error estimators for adaptive mesh refinement.
+     */
     static void error_setup ();
 
     ///////////////////

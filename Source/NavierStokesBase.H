@@ -87,17 +87,38 @@ public:
     NavierStokesBase& operator= (NavierStokesBase const&) = delete;
     NavierStokesBase& operator= (NavierStokesBase &&) = delete;
 
+    /**
+     * Define workspace and initialize data structures required for computation.
+     * This function sets up grid geometry information, allocates memory space,
+     * and prepares necessary arrays for subsequent calculations.
+     */
     void define_workspace ();
 
     ////////////////////////////////////////////////////////////////////////////
     //    AmrLevel virtual functions                                          //
     ////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Save checkpoint data to specified directory.
+     * @param dir Directory path for saving checkpoint data
+     * @param os Output stream object for writing checkpoint information
+     * @param how File output method, defaults to one file per CPU
+     * @param dump_old Whether to save old timestep data, defaults to true
+     */
     void checkPoint (const std::string& dir,
                      std::ostream&      os,
                      amrex::VisMF::How         how = amrex::VisMF::OneFilePerCPU,
                      bool               dump_old = true) override;
 
+    /**
+     * Compute initial timestep for all levels in the AMR hierarchy.
+     * @param finest_level Index of the finest level in the hierarchy
+     * @param sub_cycle Number of sub-cycles for fine levels
+     * @param n_cycle Vector storing number of cycles for each level
+     * @param ref_ratio Vector of refinement ratios between levels
+     * @param dt_level Vector storing timestep for each level
+     * @param stop_time Final simulation time
+     */
     void computeInitialDt (int                   finest_level,
                            int                   sub_cycle,
                            amrex::Vector<int>&           n_cycle,
@@ -105,6 +126,17 @@ public:
                            amrex::Vector<amrex::Real>&          dt_level,
                            amrex::Real                  stop_time) override;
 
+    /**
+     * Compute new timestep for all levels after a timestep or regridding.
+     * @param finest_level Index of the finest level in the hierarchy
+     * @param sub_cycle Number of sub-cycles for fine levels
+     * @param n_cycle Vector storing number of cycles for each level
+     * @param ref_ratio Vector of refinement ratios between levels
+     * @param dt_min Vector storing minimum allowed timestep for each level
+     * @param dt_level Vector storing computed timestep for each level
+     * @param stop_time Final simulation time
+     * @param post_regrid_flag Flag indicating if this is called after regridding
+     */
     void computeNewDt (int                   finest_level,
                        int                   sub_cycle,
                        amrex::Vector<int>&           n_cycle,
@@ -146,6 +178,10 @@ public:
     // Check whether simulation has reached steady state, i.e. whether the
     // change from last iteration is below a prescribed threshold steady_tol.
     //
+    /**
+     * Check whether simulation has reached steady state.
+     * @return 1 if steady state is reached (change below threshold), 0 otherwise
+     */
     virtual int steadyState ();
     //
     // Build any additional data structures after regrid.
@@ -202,6 +238,10 @@ public:
     //
     // Get pressure gradient data, fill-patch ghost cells.
     //
+    /**
+     * Compute pressure gradient data and fill ghost cells.
+     * @param time Current simulation time for which to compute pressure gradient
+     */
     void computeGradP(amrex::Real time);
 
 #ifdef AMREX_USE_EB
@@ -218,12 +258,55 @@ public:
     //
     // ls related
     //
+    /**
+     * Fill ghost cells for level set function with appropriate boundary conditions.
+     * @param mf MultiFab containing the level set function
+     * @param type State type identifier
+     * @param scomp Starting component index
+     * @param ncomp Number of components to fill
+     * @param time Current simulation time
+     */
     void fill_allgts (amrex::MultiFab& mf, int type, int scomp, int ncomp, amrex::Real time);
+    /**
+     * Perform level set reinitialization to maintain signed distance property.
+     * This function ensures the level set function remains a signed distance function
+     * by solving the reinitialization equation.
+     */
     void reinit ();
+    /**
+     * Perform Sussman reinitialization of level set function.
+     * @param dt Time step size for reinitialization
+     * @param loop_iter Number of reinitialization iterations
+     */
     void reinitialization_sussman (amrex::Real dt, int loop_iter);
+    /**
+     * Perform conservative level set reinitialization.
+     * @param dt Time step size for reinitialization
+     * @param loop_iter Number of reinitialization iterations
+     * @param epsG Epsilon parameter for conservative level set
+     * @param epsG2 Second epsilon parameter for conservative level set
+     */
     void reinitialization_consls (amrex::Real dt, int loop_iter, amrex::Real epsG, amrex::Real epsG2);
+    /**
+     * Convert level set function phi to sign function (sgn0).
+     * @param phi MultiFab containing the level set function
+     */
     void phi_to_sgn0 (amrex::MultiFab& phi);
+    /**
+     * Get level set function at half time step.
+     * @return Reference to MultiFab containing level set function at t+dt/2
+     */
     amrex::MultiFab& get_phi_half_time ();
+    /**
+     * First stage of Runge-Kutta reinitialization scheme.
+     * @param phi_ctime Current time level set function
+     * @param phi2 Second stage level set function
+     * @param phi3 Third stage level set function
+     * @param sgn0 Sign function
+     * @param G0 Gradient magnitude function
+     * @param dt Time step size
+     * @param phi_ori Original level set function
+     */
     void rk_first_reinit (amrex::MultiFab& phi_ctime,
                           amrex::MultiFab& phi2,
                           amrex::MultiFab& phi3,
@@ -231,6 +314,16 @@ public:
                           amrex::MultiFab& G0,
                           amrex::Real dt, 
                           amrex::MultiFab& phi_ori);
+    /**
+     * Second stage of Runge-Kutta reinitialization scheme.
+     * @param phi_ctime Current time level set function
+     * @param phi2 Second stage level set function
+     * @param phi3 Third stage level set function
+     * @param sgn0 Sign function
+     * @param G0 Gradient magnitude function
+     * @param dt Time step size
+     * @param phi_ori Original level set function
+     */
     void rk_second_reinit (amrex::MultiFab& phi_ctime,
                           amrex::MultiFab& phi2,
                           amrex::MultiFab& phi3,
@@ -238,6 +331,18 @@ public:
                           amrex::MultiFab& G0,
                           amrex::Real dt,
                           amrex::MultiFab& phi_ori);
+    /**
+     * Apply mass conservation fix for level set reinitialization.
+     * @param phi_ctime Current time level set function
+     * @param phi_original Original level set function
+     * @param phi2 Second stage level set function
+     * @param phi3 Third stage level set function
+     * @param ld Lagrange multiplier for mass conservation
+     * @param lambdad Lagrange multiplier derivative
+     * @param deltafunc_alias Delta function alias
+     * @param delta_t Time step size
+     * @param loop_iter Current iteration number
+     */
     void mass_fix (amrex::MultiFab& phi_ctime,
                           amrex::MultiFab& phi_original,
                           amrex::MultiFab& phi2,
@@ -263,8 +368,20 @@ public:
     void average_down(const amrex::MultiFab& S_fine, amrex::MultiFab& S_crse,
               int scomp, int ncomp);
 
+    /**
+     * Calculate turbulent viscosity for Large Eddy Simulation (LES).
+     * @param mu_LES Array of MultiFab pointers for turbulent viscosity in each direction
+     * @param time Current simulation time
+     */
     void calc_mut_LES(amrex::MultiFab* mu_LES[AMREX_SPACEDIM], amrex::Real time);
 
+    /**
+     * Compute time-averaged quantities for statistics.
+     * @param time_avg Time-averaged value (output)
+     * @param time_avg_fluct Time-averaged fluctuation (output)
+     * @param dt_avg Time-averaged time step (output)
+     * @param dt_level Current time step size
+     */
     void time_average(amrex::Real& time_avg, amrex::Real& time_avg_fluct, amrex::Real& dt_avg, const amrex::Real& dt_level);
 
     ////////////////////////////////////////////////////////////////////////////
@@ -302,6 +419,11 @@ public:
     //    NavierStokesBase functions                                //
     //////////////////////////////////////////////////////////////////
 
+    /**
+     * Clean up after advance step completion.
+     * @param iteration Current iteration number
+     * @param ncycle Total number of cycles
+     */
     void advance_cleanup (int iteration,int ncycle);
 
     static void diffuse_scalar_setup (int sigma, int& rho_flag);
@@ -342,11 +464,25 @@ public:
     //
     [[nodiscard]] amrex::MultiFab* getDsdt (int ngrow, amrex::Real time);
     //
+    /**
+     * Increment density average with given weight.
+     * @param alpha Weight factor for averaging
+     */
     void incrRhoAvg (amrex::Real alpha);
+    /**
+     * Increment density average with MultiFab input.
+     * @param rho_incr MultiFab containing density increment
+     * @param sComp Starting component index
+     * @param alpha Weight factor for averaging
+     */
     void incrRhoAvg (const amrex::MultiFab& rho_incr,
                      int             sComp,
                      amrex::Real            alpha);
 
+    /**
+     * Update initial velocity with diffusion terms.
+     * @param dt Time step size
+     */
     void initial_velocity_diffusion_update (amrex::Real dt);
     //
     // Compute level projection.
@@ -357,6 +493,10 @@ public:
     //
     // Compute the level sync correction.
     //
+    /**
+     * Compute level synchronization correction.
+     * @param crse_iteration Coarse level iteration number
+     */
     void level_sync (int crse_iteration);
     //
     // Impose divergence constraint on MAC velocities.
@@ -370,10 +510,16 @@ public:
     //
     // Make rho at time n.
     //
+    /**
+     * Make density at previous time step.
+     */
     void make_rho_prev_time ();
     //
     // Make rho at time n+1.
     //
+    /**
+     * Make density at current time step.
+     */
     void make_rho_curr_time ();
     //
     // This function estimates the initial timesteping used by the model.
@@ -386,6 +532,11 @@ public:
     // Ensure state is consistent, i.e. velocity field is nondivergent,
     // coarse level data are averages of fine level data, pressure is zero.
     //
+    /**
+     * Ensure state is consistent after initialization.
+     * This function makes sure velocity field is non-divergent,
+     * coarse level data are averages of fine level data, and pressure is zero.
+     */
     void post_init_state ();
     //
     // Interpolate cell-centered cync correction from coarse to fine.
@@ -421,6 +572,10 @@ public:
                          int       f_lev,
                          amrex::IntVect&  ratio);
 
+    /**
+     * Set up synchronization data structures.
+     * @param DeltaSsync Pointer to MultiFab for sync correction (output)
+     */
     void sync_setup (amrex::MultiFab*& DeltaSsync);
     static void sync_cleanup (amrex::MultiFab*& DeltaSsync);
     //
@@ -436,18 +591,33 @@ public:
     //
     // Advect velocities.
     //
+    /**
+     * Advect velocities using the chosen advection scheme.
+     * @param dt Time step size
+     */
     void velocity_advection (amrex::Real dt);
     //
     // Update velocities (or momentum) with advection and diffusion terms.
     //
+    /**
+     * Update velocities with advection and diffusion terms.
+     * @param dt Time step size
+     */
     void velocity_update (amrex::Real dt);
     //
     // Update velocities (or momentum) with advection terms.
     //
+    /**
+     * Update velocities with advection terms only.
+     * @param dt Time step size
+     */
     void velocity_advection_update (amrex::Real dt);
     //
     // Average down State_Type and Press_Type.
     //
+    /**
+     * Average down State_Type and Press_Type data from fine to coarse level.
+     */
     void avgDown_StatePress ();
 
     void LES_setDomainBC (std::array<amrex::LinOpBCType,AMREX_SPACEDIM>& mlmg_lobc,
@@ -556,15 +726,30 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     //    NavierStokesBase diagnostics functions                              //
     ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Print maximum velocity values for diagnostics.
+     * @param new_data Whether to use new time data (true) or old time data (false)
+     */
     void printMaxVel (bool new_data = true);
 
+    /**
+     * Print maximum pressure gradient values for diagnostics.
+     * @param new_data Whether to use new time data (true) or old time data (false)
+     */
     void printMaxGp (bool new_data = true);
 
+    /**
+     * Print maximum values of all state variables for diagnostics.
+     * @param new_data Whether to use new time data (true) or old time data (false)
+     */
     void printMaxValues (bool new_data = true);
 
     ////////////////////////////////////////////////////////////////////////////
 
-    void buildMetrics (); // 1-D metric arrays for RZ
+    /**
+     * Build 1-D metric arrays for RZ (radial-axial) geometry.
+     */
+    void buildMetrics ();
     //
     void calc_dsdt (amrex::Real      time,
             amrex::Real      dt,
@@ -591,11 +776,23 @@ public:
     //
     // Compile p_avg in advance.
     //
+    /**
+     * Increment pressure average for time-averaged statistics.
+     */
     void incrPAvg ();
-    void initOldFromNew (int type, int lev = -1); // Initialize old with new
+    /**
+     * Initialize old time data with new time data.
+     * @param type State type to initialize
+     * @param lev Level index (-1 for current level)
+     */
+    void initOldFromNew (int type, int lev = -1);
     //
     // Compile rho_avg in advance.
     //
+    /**
+     * Initialize density average with given weight.
+     * @param alpha Weight factor for averaging
+     */
     void initRhoAvg (amrex::Real alpha);
     //
     static void init_additional_state_types ();
@@ -619,11 +816,26 @@ public:
     static void floor(amrex::MultiFab& mf);
 
 #ifdef AMREX_USE_EB
+    /**
+     * Initialize embedded boundary data structures.
+     * @param level_geom Geometry for the current level
+     * @param ba BoxArray for the current level
+     * @param dm DistributionMapping for the current level
+     */
     void init_eb (const amrex::Geometry& level_geom, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm);
 
+    /**
+     * Initialize EB2 (Embedded Boundary 2) data structures.
+     */
     void initialize_eb2_structs();
+    /**
+     * Define body state for embedded boundary conditions.
+     */
     void define_body_state();
 
+    /**
+     * Perform initial redistribution for embedded boundary method.
+     */
     void InitialRedistribution ();
 
     static bool ebInitialized();
@@ -662,6 +874,10 @@ public:
     std::unique_ptr<amrex::iMultiFab> coarse_fine_mask;
 
 #ifdef AMREX_USE_EB
+    /**
+     * Set body state values in the MultiFab.
+     * @param S MultiFab containing state data
+     */
     void set_body_state(amrex::MultiFab& S);
 
     const amrex::MultiFab* volfrac;
