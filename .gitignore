@@ -16,3 +16,9 @@ case_results*/
 tmp_build_dir/
 Docs/IAMReX_documentation/build
 .codegpt
+html
+latex
+xml
+.cache
+.idea
+build
