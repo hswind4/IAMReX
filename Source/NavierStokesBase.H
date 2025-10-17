@@ -70,6 +70,12 @@ enum GradpNames  { Gradpx=0, Gradpy, Gradpz};
 enum DivuNames { Divu=0};
 enum DsDtNames { Dsdt=0};
 
+/**
+ * @ingroup NavierStokes Navier Stokes base class
+ */
+
+/// @{
+
 class NavierStokesBase
     :
     public amrex::AmrLevel
@@ -312,7 +318,7 @@ public:
                           amrex::MultiFab& phi3,
                           amrex::MultiFab& sgn0,
                           amrex::MultiFab& G0,
-                          amrex::Real dt, 
+                          amrex::Real dt,
                           amrex::MultiFab& phi_ori);
     /**
      * Second stage of Runge-Kutta reinitialization scheme.
@@ -997,7 +1003,7 @@ public:
     //
     // ls related
     // change to two gts
-    // 
+    //
     static const int    NUM_GROW=2;       // number of ghost cells
 #endif
     //
@@ -1094,7 +1100,7 @@ public:
     static int number_of_reinit;
     static int reinit_levelset;
 
-    // for reinit_sussman  
+    // for reinit_sussman
     amrex::MultiFab phi_original;
     amrex::MultiFab sgn0;
 
@@ -1160,5 +1166,7 @@ public:
   static bool particles_in_plotfile;
 #endif
 };
+
+/// @}
 
 #endif

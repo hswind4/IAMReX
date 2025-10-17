@@ -10,16 +10,29 @@
 
 #include <AMReX_RealVect.H>
 #include "Collision.H"
-// using deltaFuncType = std::function<AMREX_GPU_HOST_DEVICE void(Real, Real, Real, Real&)>;
 
 using namespace amrex;
 
+/**
+ * @defgroup DFIBM direct forcing immersed boundary method
+ *
+ * IBM class
+ */
+
+/// @{
+
+/**
+ * @name useful function
+ */
+
+/// @{
+
+AMREX_INLINE AMREX_GPU_DEVICE
 /**
  * Convert nodal level set function value to Heaviside function value.
  * @param phi Level set function value at node
  * @return Heaviside function value (0.0 if phi <= 0, 1.0 if phi > 0)
  */
-AMREX_INLINE AMREX_GPU_DEVICE
 Real nodal_phi_to_heavi(Real phi);
 
 /**
@@ -38,10 +51,13 @@ void nodal_phi_to_pvf(MultiFab& pvf, const MultiFab& phi_nodal);
  */
 void deltaFunction(Real xf, Real xp, Real h, Real& value);
 
+/// @}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                     particle and markers                      */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/// @cond
 enum P_ATTR_REAL{
     U_Marker = 0,
     V_Marker,
@@ -137,6 +153,15 @@ public:
         return GetStructOfArrays().GetRealData(comp);
     }
 };
+/// @endcond
+
+/**
+ * @name Particle Manager
+ *
+ * @brief particle manager for AMReX particle container
+ */
+
+/// @{
 
 class mParticle
 {
@@ -322,6 +347,9 @@ public:
     bool do_RKPM{false};
 };
 
+/// @}
+/// @cond
+
 class Particles{
 public:
     static void create_particles(const Geometry &gm,
@@ -339,6 +367,7 @@ private:
     inline static mParticle* particle = nullptr;
 };
 
-
+/// @endcond
+/// @}
 
 #endif //DIFFUSEDIB_PARALLEL_H

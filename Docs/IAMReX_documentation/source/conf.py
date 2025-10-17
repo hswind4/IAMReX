@@ -5,8 +5,13 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
+import os
+import sys
+import subprocess
 import sphinx_rtd_theme
+
+# build the doxygen documentation
+subprocess.call('cd ../doxygen; make html', shell=True)
 
 project = 'IAMReX'
 copyright = '2025, IAMReX Team'
@@ -29,8 +34,11 @@ extensions = ['sphinx.ext.mathjax',
               'sphinx.ext.githubpages',
               'sphinx.ext.viewcode',
               'sphinx.ext.intersphinx',
-              'sphinx.ext.autosectionlabel'
+              'sphinx.ext.autosectionlabel',
+              'breathe'
               ]
+
+breathe_projects = { 'IAMReX': '../doxygen/xml' }
 
 templates_path = ['_templates']
 exclude_patterns = []

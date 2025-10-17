@@ -28,6 +28,14 @@ class NSBld
                                  amrex::Real            time) override;
 };
 
+/**
+ * @defgroup NavierStokes fluid parameters and function
+ *
+ * introduction for Navier stokes
+ */
+
+/// @{
+
 class NavierStokes
     :
     public NavierStokesBase
@@ -411,4 +419,5 @@ private:
                    AMREX_SPACEDIM*2> m_bc_values;
 };
 
+/// @}
 #endif /*_NavierStokes_H_*/

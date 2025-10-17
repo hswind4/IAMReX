@@ -7,6 +7,7 @@
 #ifndef COLLISION_H
 #define COLLISION_H
 
+#include <AMReX_REAL.H>
 #include <AMReX_RealVect.H>
 #include <array>
 #include <list>
@@ -40,8 +41,17 @@ typedef struct{
     CollisionParticle* solid2;
 }CollisionPair;
 
+/**
+ * @defgroup collision Particle collision manager for DEM system
+ *
+ * Particle collision class
+ */
+
+/// @{
 class ParticleCollision{
 public:
+    using Real = amrex::Real;
+    using RealVect = amrex::RealVect;
     /**
      * Set the collision model to be used for particle interactions.
      * @param model Integer identifier for the collision model
@@ -55,7 +65,7 @@ public:
     void DKTModel();
 
     explicit ParticleCollision() = default;
-    
+
     /**
      * Generate background mesh for collision detection.
      * @param gm_lo Lower bounds of the computational domain
@@ -63,8 +73,8 @@ public:
      * @param size Particle size parameter
      * @param l Grid spacing for collision mesh
      */
-    void SetGeometry(amrex::RealVect gm_lo, amrex::RealVect gm_hi, amrex::Real size, amrex::Real l);
-    
+    void SetGeometry(RealVect gm_lo, RealVect gm_hi, Real size, Real l);
+
     /**
      * Insert a particle into the collision detection system.
      * @param location Position of the particle
@@ -72,22 +82,22 @@ public:
      * @param radius Radius of the particle
      * @param rho Density of the particle
      */
-    void InsertParticle(amrex::RealVect location, amrex::RealVect velocity, amrex::Real radius, amrex::Real rho);
-    
+    void InsertParticle(RealVect location, RealVect velocity, Real radius, Real rho);
+
     /**
      * Insert a collision pair into the collision collector.
      * @param p1 Pointer to first particle in collision pair
      * @param p2 Pointer to second particle in collision pair
      */
     void InsertCollision(CollisionParticle* p1, CollisionParticle* p2);
-    
+
     /**
      * Generate all possible collision pairs between particles.
      * This function identifies which particles are in close proximity
      * and may collide during the current timestep.
      */
     void GenerateCollisionPairs();
-    
+
     /**
      * Resolve all collision pairs using the selected collision model.
      * This function applies collision forces and updates particle states
@@ -99,12 +109,14 @@ public:
     std::list<CollisionParticle> Particles;
     //mesh x,y,z cell size, loop for i,j,k
     int Nx, Ny, Nz;
-    amrex::Real cell_size, mesh_size;
+    Real cell_size, mesh_size;
     //lo,hi
-    amrex::RealVect lo, hi;
+    RealVect lo, hi;
     //store collision type
     std::list<CollisionPair> CollisionCollector;
 
 };
+
+///@}
 
 #endif
