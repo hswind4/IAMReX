@@ -22,25 +22,28 @@ authors:
   - name: Shuai He
     orcid: 0009-0004-7754-8346
     affiliation: 6
+  - name: Boqiao Huang
+    orcid: 0009-0003-5928-3244
+    affiliation: 7
   - name: Haoran Cheng
     orcid: 0009-0002-7636-038X
-    affiliation: 7
+    affiliation: 8
   - name: Xiaokai Li
     orcid:  0009-0001-6639-0473
-    affiliation: 8
+    affiliation: 9
   - name: Wenzhuo Li
     orcid: 0009-0001-7608-2992
-    affiliation: 9
+    affiliation: 10
   - name: Mingze Tang
     orcid: 0009-0007-4194-9908
-    affiliation: 10
+    affiliation: 11
   - name: Zhengping Zhu
     orcid: 0000-0002-1315-3554
     affiliation: 1
   - name: Yadong Zeng
     corresponding: true
     orcid: 0009-0001-7944-3597
-    affiliation: 11
+    affiliation: 12
 affiliations:
  - name: Research Center for Astronomical Computing, Zhejiang Laboratory, Hangzhou, 311100, China
    index: 1
@@ -54,16 +57,18 @@ affiliations:
    index: 5
  - name: School of Power and Energy, Northwestern Polytechnical University, Xi'an, 710129, China
    index: 6
- - name: Department of Electrical Engineering and Computer Science, University of Michigan, Ann Arbor, 48104, USA
+ - name: Paris Elite Institute of Technology, Shanghai Jiao Tong University, Shanghai, 200240, China
    index: 7
- - name: School of Physical Science and Technology, ShanghaiTech University, Shanghai, 201210, China
+ - name: Department of Electrical Engineering and Computer Science, University of Michigan, Ann Arbor, 48104, USA
    index: 8
- - name: Advanced Propulsion Laboratory, Department of Modern Mechanics, University of Science and Technology of China, Hefei, 230026, China
+ - name: School of Physical Science and Technology, ShanghaiTech University, Shanghai, 201210, China
    index: 9
- - name: School of Aeronautics, Northwestern Polytechnical University, Xi'an, 710072, China
+ - name: Advanced Propulsion Laboratory, Department of Modern Mechanics, University of Science and Technology of China, Hefei, 230026, China
    index: 10
- - name: Department of Computer Science, University of Texas at Austin, Austin, 78712, USA
+ - name: School of Aeronautics, Northwestern Polytechnical University, Xi'an, 710072, China
    index: 11
+ - name: Department of Computer Science, University of Texas at Austin, Austin, 78712, USA
+   index: 12
 
 date: 17 January 2025
 bibliography: paper.bib
