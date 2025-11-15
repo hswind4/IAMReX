@@ -127,7 +127,7 @@ void NavierStokes::prob_initData ()
             // Start from rest, constant density of 1
             // Introduced for LidDrivenCavity problem
             //
-            S_new[mfi].setVal<RunOn::Gpu>(1.0,Density);
+            S_new[mfi].setVal<RunOn::Gpu>(IC.density,Density);
         }
         else if ( 2 == probtype || 6 == probtype )
         {

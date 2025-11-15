@@ -100,6 +100,9 @@ struct kernel{
 
     RealVect varphi{0.0,0.0,0.0};
     Real radius{0.0};
+    Real radius2{0.0};
+    Real radius3{0.0};
+    int geometry_type{1};  // 1 = sphere, 2 = ellipsoid, 3 = cylinder
     Real rho{0.0};
     int ml{0};
     int start_id{0};
@@ -208,6 +211,9 @@ public:
                        const Vector<int>& RLY,
                        const Vector<int>& RLZ,
                        const Vector<Real>& radius,
+                       const Vector<Real>& radius2,
+                       const Vector<Real>& radius3,
+                       const Vector<int>& geometry_type,
                        Real h,
                        Real gravity,
                        int verbose = 0);

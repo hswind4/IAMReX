@@ -34,6 +34,9 @@ namespace ParticleProperties{
     Vector<Real> Vx{}, Vy{}, Vz{};
     Vector<Real> Ox{}, Oy{}, Oz{};
     Vector<Real> _radius;
+    Vector<Real> _radius2;
+    Vector<Real> _radius3;
+    Vector<int> _geometry_type;
     Real rd{0.0};
     Vector<int> TLX{}, TLY{},TLZ{},RLX{},RLY{},RLZ{};
     int euler_finest_level{0};
@@ -107,7 +110,8 @@ void calculate_phi_nodal(MultiFab& phi_nodal, kernel& current_kernel)
     amrex::Real Xp = current_kernel.location[0];
     amrex::Real Yp = current_kernel.location[1];
     amrex::Real Zp = current_kernel.location[2];
-    amrex::Real Rp = current_kernel.radius;
+    amrex::Real a = current_kernel.radius;
+    int geometry_type = current_kernel.geometry_type;
 
     // Only set the valid cells of phi_nodal
     for (MFIter mfi(phi_nodal,TilingIfNotGPU()); mfi.isValid(); ++mfi)
@@ -116,19 +120,69 @@ void calculate_phi_nodal(MultiFab& phi_nodal, kernel& current_kernel)
         auto const& pnfab = phi_nodal.array(mfi);
         auto dx = ParticleProperties::dx;
         auto plo = ParticleProperties::plo;
-        amrex::ParallelFor(bx, [=]
-            AMREX_GPU_DEVICE(int i, int j, int k) noexcept
-            {
-                Real Xn = i * dx[0] + plo[0];
-                Real Yn = j * dx[1] + plo[1];
-                Real Zn = k * dx[2] + plo[2];
+        
+        if (geometry_type == 1) {
+            // Sphere geometry
+            amrex::ParallelFor(bx, [=]
+                AMREX_GPU_DEVICE(int i, int j, int k) noexcept
+                {
+                    Real Xn = i * dx[0] + plo[0];
+                    Real Yn = j * dx[1] + plo[1];
+                    Real Zn = k * dx[2] + plo[2];
 
-                pnfab(i,j,k) = std::sqrt( (Xn - Xp)*(Xn - Xp)
-                        + (Yn - Yp)*(Yn - Yp)  + (Zn - Zp)*(Zn - Zp)) - Rp;
-                pnfab(i,j,k) = pnfab(i,j,k) / Rp;
+                    pnfab(i,j,k) = std::sqrt( (Xn - Xp)*(Xn - Xp)
+                            + (Yn - Yp)*(Yn - Yp)  + (Zn - Zp)*(Zn - Zp)) - a;
+                    pnfab(i,j,k) = pnfab(i,j,k) / a;
 
-            }
-        );
+                }
+            );
+        } else if (geometry_type == 2) {
+            // Ellipsoid geometry
+            Real b = current_kernel.radius2;  // semi-axis b
+            Real c = current_kernel.radius3; // semi-axis c
+            amrex::ParallelFor(bx, [=]
+                AMREX_GPU_DEVICE(int i, int j, int k) noexcept
+                {
+                    Real Xn = i * dx[0] + plo[0];
+                    Real Yn = j * dx[1] + plo[1];
+                    Real Zn = k * dx[2] + plo[2];
+
+                    // Relative coordinates to ellipsoid center
+                    Real xp = Xn - Xp;
+                    Real yp = Yn - Yp;
+                    Real zp = Zn - Zp;
+
+                    // Compute ellipsoid level set function using the formula:
+                    // d ≈ (x'^2/a^2 + y'^2/b^2 + z'^2/c^2 - 1) / (2 * sqrt(x'^4/a^4 + y'^4/b^4 + z'^4/c^4))
+                    Real xp2 = xp * xp;
+                    Real yp2 = yp * yp;
+                    Real zp2 = zp * zp;
+                    
+                    Real a2 = a * a;
+                    Real b2 = b * b;
+                    Real c2 = c * c;
+                    
+                    Real numerator = (xp2 / a2 + yp2 / b2 + zp2 / c2) - 1.0;
+                    
+                    Real xp4 = xp2 * xp2;
+                    Real yp4 = yp2 * yp2;
+                    Real zp4 = zp2 * zp2;
+                    
+                    Real a4 = a2 * a2;
+                    Real b4 = b2 * b2;
+                    Real c4 = c2 * c2;
+                    
+                    Real denominator = 2.0 * std::sqrt(xp4 / a4 + yp4 / b4 + zp4 / c4);
+                    
+                    // Do not normalize here!
+                    pnfab(i,j,k) = numerator / (denominator + 1.e-12);
+
+                }
+            );
+        } else if (geometry_type > 2) {
+            amrex::Print() << "Particle (" << current_kernel.id << ") has unsupported geometry_type: " << geometry_type << "\n";
+            amrex::Abort("Unsupported geometry type. Only geometry_type = 1 (sphere) and 2 (ellipsoid) are supported.");
+        }
     }
 }
 
@@ -195,9 +249,36 @@ void CalculateSumT_cir (RealVect& sum,
 }
 
 [[nodiscard]] AMREX_FORCE_INLINE
-Real cal_momentum(Real rho, Real radius)
+Real cal_momentum(Real rho, Real radius, int geometry_type = 1, int idir = 0, Real radius2 = 0.0, Real radius3 = 0.0)
 {
-    return 8.0 * Math::pi<Real>() * rho * Math::powi<5>(radius) / 15.0;
+    if (geometry_type == 1) {
+        // Sphere: I = (2/5) * m * r² = (8/15) * π * ρ * r⁵
+        return 8.0 * Math::pi<Real>() * rho * Math::powi<5>(radius) / 15.0;
+    } else if (geometry_type == 2) {
+        // Ellipsoid: I = (1/5) * m * (sum of squares of perpendicular semi-axes)
+        // m = (4/3) * π * a * b * c * ρ
+        Real a = radius;
+        Real b = (radius2 > 0.0) ? radius2 : radius;
+        Real c = (radius3 > 0.0) ? radius3 : radius;
+        Real m = 4.0 * Math::pi<Real>() * rho * a * b * c / 3.0;
+        
+        // Moment of inertia depends on rotation axis
+        Real I;
+        if (idir == 0) {
+            // Rotation around x-axis (a-axis): I_x = (1/5) * m * (b² + c²)
+            I = m * (b * b + c * c) / 5.0;
+        } else if (idir == 1) {
+            // Rotation around y-axis (b-axis): I_y = (1/5) * m * (a² + c²)
+            I = m * (a * a + c * c) / 5.0;
+        } else {
+            // Rotation around z-axis (c-axis): I_z = (1/5) * m * (a² + b²)
+            I = m * (a * a + b * b) / 5.0;
+        }
+        return I;
+    } else {
+        // Default to sphere for unsupported geometry types
+        return 8.0 * Math::pi<Real>() * rho * Math::powi<5>(radius) / 15.0;
+    }
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -298,6 +379,9 @@ void mParticle::InitParticles(const Vector<Real>& x,
                               const Vector<int>& RLYt,
                               const Vector<int>& RLZt,
                               const Vector<Real>& radius,
+                              const Vector<Real>& radius2,
+                              const Vector<Real>& radius3,
+                              const Vector<int>& geometry_type,
                               Real h,
                               Real gravity,
                               int _verbose)
@@ -347,7 +431,26 @@ void mParticle::InitParticles(const Vector<Real>& x,
         mKernel.RL[1] = RLYt[real_index];
         mKernel.RL[2] = RLZt[real_index];
         mKernel.rho = rho_s[real_index];
+        // geometry type
+        if (geometry_type.size() > 0 && real_index < geometry_type.size()) {
+            mKernel.geometry_type = geometry_type[real_index];
+        } else {
+            mKernel.geometry_type = 1;  // default to sphere if not provided
+        }
         mKernel.radius = radius[real_index];
+        // ellipsoid particle need
+        // Check if radius2 is provided and has enough elements
+        if (radius2.size() > 0 && real_index < radius2.size()) {
+            mKernel.radius2 = radius2[real_index];
+        } else {
+            mKernel.radius2 = radius[real_index];  // default to radius if not provided
+        }
+        // Check if radius3 is provided and has enough elements
+        if (radius3.size() > 0 && real_index < radius3.size()) {
+            mKernel.radius3 = radius3[real_index];
+        } else {
+            mKernel.radius3 = radius[real_index];  // default to radius if not provided
+        }
         mKernel.Vp = Math::pi<Real>() * 4 / 3 * Math::powi<3>(radius[real_index]);
 
         //int Ml = static_cast<int>( Math::pi<Real>() / 3 * (12 * Math::powi<2>(mKernel.radius / h)));
@@ -378,7 +481,7 @@ void mParticle::InitParticles(const Vector<Real>& x,
         if (verbose) amrex::Print() << "h: " << h << ", Ml: " << Ml << ", D: " << Math::powi<3>(h) << " gravity : " << gravity << "\n"
                                     << "Kernel : " << index << ": Location (" << x[index] << ", " << y[index] << ", " << z[index] 
                                     << "), Velocity : (" << mKernel.velocity[0] << ", " << mKernel.velocity[1] << ", "<< mKernel.velocity[2] 
-                                    << "), Radius: " << mKernel.radius << ", Ml: " << Ml << ", dv: " << dv << ", Rho: " << mKernel.rho << "\n";
+                                    << "), Radius: " << mKernel.radius << ", Radius2: " << mKernel.radius2 << ", Radius3: " << mKernel.radius3 << ", Ml: " << Ml << ", dv: " << dv << ", Rho: " << mKernel.rho << "\n";
     }
     //collision box generate
     m_Collision.SetGeometry(RealVect(ParticleProperties::GLO), RealVect(ParticleProperties::GHI),particle_kernels[0].radius, h);
@@ -791,12 +894,12 @@ void mParticle::UpdateParticles(int iStep,
                             kernel.omega[idir] = kernel.omega_old[idir]
                                             + ((kernel.sum_t_new[idir] - kernel.sum_t_old[idir]) * ParticleProperties::euler_fluid_rho / dt
                                             - kernel.ib_moment[idir] * ParticleProperties::euler_fluid_rho
-                                            + kernel.Tcp[idir]) * dt / cal_momentum(kernel.rho, kernel.radius);
+                                            + kernel.Tcp[idir]) * dt / cal_momentum(kernel.rho, kernel.radius, kernel.geometry_type, idir, kernel.radius2, kernel.radius3);
                         }else{
                             //Uhlmann
                             kernel.omega[idir] = kernel.omega_old[idir]
                                             + ParticleProperties::euler_fluid_rho /(ParticleProperties::euler_fluid_rho - kernel.rho) * kernel.ib_moment[idir] * kernel.dv
-                                            / cal_momentum(kernel.rho, kernel.radius) * kernel.rho * dt;
+                                            / cal_momentum(kernel.rho, kernel.radius, kernel.geometry_type, idir, kernel.radius2, kernel.radius3) * kernel.rho * dt;
                         }
                     }
                     else {
@@ -1035,6 +1138,9 @@ void Particles::init_particle(Real gravity, Real h)
             ParticleProperties::RLY,
             ParticleProperties::RLZ,
             ParticleProperties::_radius,
+            ParticleProperties::_radius2,
+            ParticleProperties::_radius3,
+            ParticleProperties::_geometry_type,
             h,
             gravity,
             ParticleProperties::verbose);
@@ -1067,6 +1173,9 @@ void Particles::Restart(Real gravity, Real h, int iStep)
             ParticleProperties::RLY,
             ParticleProperties::RLZ,
             ParticleProperties::_radius,
+            ParticleProperties::_radius2,
+            ParticleProperties::_radius3,
+            ParticleProperties::_geometry_type,
             h,
             gravity,
             ParticleProperties::verbose);
@@ -1164,6 +1273,9 @@ void Particles::Initialize()
         p_file.getarr("RLY",        ParticleProperties::RLY);
         p_file.getarr("RLZ",        ParticleProperties::RLZ);
         p_file.getarr("radius",     ParticleProperties::_radius);
+        p_file.queryarr("radius2",   ParticleProperties::_radius2);
+        p_file.queryarr("radius3",   ParticleProperties::_radius3);
+        p_file.queryarr("geometry_type", ParticleProperties::_geometry_type);
         p_file.query("RD",          ParticleProperties::rd);
         p_file.query("LOOP_NS",     ParticleProperties::loop_ns);
         p_file.query("LOOP_SOLID",  ParticleProperties::loop_solid);
