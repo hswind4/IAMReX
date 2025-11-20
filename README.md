@@ -1,8 +1,14 @@
 <div align="center">
 <img src="./README_figures/IAMReX.png" alt="title" width="300">
 <p align="center">
-  <a href="https://arxiv.org/abs/2408.14140">
-  <img src="https://img.shields.io/badge/arXiv-2408.14140-blue" alt="arxiv">
+  <a href="https://joss.theoj.org/papers/10.21105/joss.08080">
+  <img src="https://img.shields.io/badge/JOSS-10.21105%2Fjoss.08080-green" alt="JOSS">
+  </a>
+  <a href="https://pubs.aip.org/aip/pof/article-abstract/36/11/113335/3320064/An-open-source-adaptive-solver-for-particle">
+  <img src="https://img.shields.io/badge/Physics%20of%20Fluids-10.1063%2F5.0236509-blue" alt="Physics of Fluids">
+  </a>
+  <a href="https://arc.aiaa.org/doi/abs/10.2514/6.2025-1865">
+  <img src="https://img.shields.io/badge/AIAA-10.2514%2F6.2025--1865-orange" alt="AIAA">
   </a>
 </p>
 
@@ -83,6 +89,19 @@ This helps others discover related work and strengthens the IAMReX ecosystem.
 To cite IAMReX, please use
 
 ```
+@article{Li2025,
+    author = {Li, Chun and Li, Xuzhu and Wang, Yiliang and Liu, Dewen and He, Shuai and Huang, Boqiao and Cheng, Haoran and Li, Xiaokai and Li, Wenzhuo and Tang, Mingze and Zhu, Zhengping and Zeng, Yadong},
+    title = {IAMReX: an adaptive framework for the multiphase flow and fluid-particle interaction problems},
+    journal = {Journal of Open Source Software},
+    volume = {10},
+    number = {115},
+    pages = {8080},
+    year = {2025},
+    publisher = {The Open Journal},
+    doi = {10.21105/joss.08080},
+    url = {https://doi.org/10.21105/joss.08080},
+}
+
 @article{10.1063/5.0236509,
     author = {Li, Xuzhu (李虚竹) and Li, Chun (李春) and Li, Xiaokai (李晓凯) and Li, Wenzhuo (李文卓) and Tang, Mingze (唐铭泽) and Zeng, Yadong (曾亚东) and Zhu, Zhengping (朱正平)},
     title = {An open-source, adaptive solver for particle-resolved simulations with both subcycling and non-subcycling methods},
@@ -106,7 +125,6 @@ To cite IAMReX, please use
     URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2025-1865},
     eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2025-1865},
 }
-
 ```
 
 ## License
