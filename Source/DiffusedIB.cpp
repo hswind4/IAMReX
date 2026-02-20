@@ -519,9 +519,9 @@ void mParticle::InitialWithLargrangianPoints(const kernel& current_kernel){
 
 template <typename P = Particle<numAttri>>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void VelocityInterpolation_cir(int p_iter, P const& p, Real& Up, Real& Vp, Real& Wp,
+void VelocityInterpolation_cir(int p_iter, P const& p, ParticleReal& Up, ParticleReal& Vp, ParticleReal& Wp,
                                Array4<Real const> const& E, int EulerVIndex,
-                               const int *lo, const int *hi, 
+                               const int *lo, const int *hi,
                                GpuArray<Real, AMREX_SPACEDIM> const& plo,
                                GpuArray<Real, AMREX_SPACEDIM> const& dx,
                                DELTA_FUNCTION_TYPE type)
@@ -654,9 +654,9 @@ void ForceSpreading_cic (P const& p,
                 deltaFunction( p.pos(1), yj, dx[1], tV, type);
                 deltaFunction( p.pos(2), kz, dx[2], tW, type);
                 Real delta_value = tU * tV * tW;
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex  ), delta_value * fxP);
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex+1), delta_value * fyP);
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex+2), delta_value * fzP);
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex  ), Real(delta_value * fxP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex+1), Real(delta_value * fyP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex+2), Real(delta_value * fzP));
             }
         }
     }
@@ -714,8 +714,8 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
     amrex::ParallelAllReduce::Sum(my, ParallelDescriptor::Communicator());
     amrex::ParallelAllReduce::Sum(mz, ParallelDescriptor::Communicator());
 
-    kernel.ib_force = {fx, fy, fz};
-    kernel.ib_moment = {mx, my, mz};
+    kernel.ib_force = {Real(fx), Real(fy), Real(fz)};
+    kernel.ib_moment = {Real(mx), Real(my), Real(mz)};
 
     EulerForce.SumBoundary(ParticleProperties::euler_force_index, 3, gm.periodicity());
 
@@ -980,6 +980,7 @@ void mParticle::ComputeLagrangianForce(Real dt,
     Real Px = kernel.location[0];
     Real Py = kernel.location[1];
     Real Pz = kernel.location[2];
+    RealVect omega_local = kernel.omega;
 
     for(mParIter pti(*mContainer, LOCAL_LEVEL); pti.isValid(); ++pti){
         const Long np = pti.numParticles();
@@ -995,7 +996,7 @@ void mParticle::ComputeLagrangianForce(Real dt,
 
         amrex::ParallelFor(np,
         [=] AMREX_GPU_DEVICE (int i) noexcept{
-            auto Ur = (kernel.omega).crossProduct(RealVect(p_ptr[i].pos(0) - Px, p_ptr[i].pos(1) - Py, p_ptr[i].pos(2) - Pz));
+            auto Ur = omega_local.crossProduct(RealVect(p_ptr[i].pos(0) - Px, p_ptr[i].pos(1) - Py, p_ptr[i].pos(2) - Pz));
             FxP[i] = (Ub + Ur[0] - Up[i])/dt; //
             FyP[i] = (Vb + Ur[1] - Vp[i])/dt; //
             FzP[i] = (Wb + Ur[2] - Wp[i])/dt; //

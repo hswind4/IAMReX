@@ -22,9 +22,9 @@ using namespace amrex;
 
 int  Projection::proj_2              = 1;
 int  Projection::verbose             = 0;
-Real Projection::proj_tol            = 1.0e-12;
-Real Projection::sync_tol            = 1.e-10;
-Real Projection::proj_abs_tol        = 1.e-16;
+Real Projection::proj_tol            = Real(1.0e-12);
+Real Projection::sync_tol            = Real(1.e-10);
+Real Projection::proj_abs_tol        = Real(1.e-16);
 int  Projection::add_vort_proj       = 0;
 int  Projection::do_outflow_bcs      = 1;
 int  Projection::rho_wgt_vel_proj    = 0;
@@ -42,8 +42,8 @@ namespace
     int max_fmg_iter = 0;
     int max_coarsening_level(-1);
 
-    constexpr Real BogusValue = 1.e200;
-    constexpr Real SmallValue = 1.e-200;
+    constexpr Real BogusValue = Real(1.e30);
+    constexpr Real SmallValue = Real(1.e-30);
 }
 
 

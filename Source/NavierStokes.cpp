@@ -1952,7 +1952,7 @@ NavierStokes::getViscTerms (MultiFab& visc_terms,
     // Initialize boundary to bogus value so we know if we're using them
     // when we shouldn't
     //
-    visc_terms.setBndry(1.e40);
+    visc_terms.setBndry(Real(1.e30));
 
     const int nGrow = visc_terms.nGrow();
 

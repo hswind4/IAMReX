@@ -110,15 +110,15 @@ initialize_EB2 (const Geometry& geom, int required_coarsening_level,
     pp.getarr("pipe_lo", pipelo);
     pp.getarr("pipe_hi", pipehi);
 
-    EB2::BoxIF pipe({pipelo[0], pipelo[1], -1.}, {pipehi[0], pipehi[1], 1.}, false);
+    EB2::BoxIF pipe({pipelo[0], pipelo[1], Real(-1.)}, {pipehi[0], pipehi[1], Real(1.)}, false);
 
     // where does plane 1 and plane 2 intersect?
     Real k2 = std::abs(pl2nm[0]/pl2nm[1]);
     Real secty = pl2pt[1] + k2*(pl3pt[0]-pl2pt[0]);
     // How much do we cut?
     Real dx = geom.CellSize(0);
-    Real dycut = 4.*(1.+max_coarsening_level)*std::min(dx, k2*dx);
-    EB2::BoxIF flat_corner({pl3pt[0], 0., -1.}, {1.e10, secty+dycut, 1.}, false);
+    Real dycut = Real(4.)*(Real(1.)+max_coarsening_level)*std::min(dx, k2*dx);
+    EB2::BoxIF flat_corner({pl3pt[0], Real(0.), Real(-1.)}, {Real(1.e10), secty+dycut, Real(1.)}, false);
 
     auto polys = EB2::makeUnion(farwall, ramp, pipe, flat_corner);
 
@@ -126,7 +126,7 @@ initialize_EB2 (const Geometry& geom, int required_coarsening_level,
     // Real leny = Geometry::ProbLength(1);
     Real lenx = DefaultGeometry().ProbLength(0);
     Real leny = DefaultGeometry().ProbLength(1);
-    auto pr = EB2::translate(EB2::lathe(polys), {lenx*0.5, leny*0.5, 0.});
+    auto pr = EB2::translate(EB2::lathe(polys), {lenx*Real(0.5), leny*Real(0.5), Real(0.)});
 
     auto gshop = EB2::makeShop(pr);
     EB2::Build(gshop, geom, required_coarsening_level, max_coarsening_level);

@@ -787,7 +787,7 @@ NavierStokesBase::advance_setup (Real /*time*/,
         {
             const BoxArray& edgeba = getEdgeBoxArray(dir);
             u_mac[dir].define(edgeba,dmap,1,umac_n_grow,MFInfo(),Factory());
-            u_mac[dir].setVal(1.e40);
+            u_mac[dir].setVal(Real(1.e40));
         }
     }
     //
@@ -1517,8 +1517,8 @@ NavierStokesBase::estTimeStep ()
         return factor*fixed_dt;
     }
 
-    const Real  small         = 1.0e-8;
-    Real        estdt         = 1.0e+20;
+    const Real  small         = Real(1.0e-8);
+    Real        estdt         = Real(1.0e+20);
 
     MultiFab&   S_new         = get_new_data(State_Type);
 
@@ -1588,7 +1588,7 @@ NavierStokesBase::estTimeStep ()
 
         if (f_max[idim] > small)
         {
-            estdt = std::min(estdt, std::sqrt(2.0*dx[idim]/f_max[idim]));
+            estdt = std::min(estdt, std::sqrt(Real(2.0)*dx[idim]/f_max[idim]));
         }
     }
 
@@ -1597,7 +1597,7 @@ NavierStokesBase::estTimeStep ()
     //
     ParallelDescriptor::ReduceRealMin(estdt);
 
-    if ( estdt < 1.0e+20) {
+    if ( estdt < Real(1.0e+20)) {
       //
       // timestep estimation successful
       //
@@ -1819,7 +1819,7 @@ NavierStokesBase::initRhoAvg (Real alpha)
     const MultiFab& S_new = get_new_data(State_Type);
 
     // Set to a ridiculous number just for debugging -- shouldn't need this otherwise
-    rho_avg.setVal(1.e200);
+    rho_avg.setVal(Real(1.e200));
 
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
@@ -3484,7 +3484,7 @@ NavierStokesBase::SyncProjInterp (MultiFab& phi,
     MultiFab     crse_phi(crse_ba,P_new.DistributionMap(),1,0);
 #endif
 
-    crse_phi.setVal(1.e200);
+    crse_phi.setVal(Real(1.e200));
     crse_phi.ParallelCopy(phi,0,0,1);
 
 #ifdef AMREX_USE_EB
@@ -5421,7 +5421,7 @@ NavierStokesBase::reinit()
         const Real coeff = 0.75;
         Real epsG  = calculate_eps_one(geom, reinit_levelset);
         Real epsG2 = calculate_eps_two(geom, reinit_levelset);
-        Real dtlevel = coeff * std::min({dxmin, dxmin * dxmin / (4.0 * (epsG + epsG2))});
+        Real dtlevel = coeff * std::min({dxmin, dxmin * dxmin / (Real(4.0) * (epsG + epsG2))});
 
         for (int k=1; k<=number_of_reinit; k++)
         {

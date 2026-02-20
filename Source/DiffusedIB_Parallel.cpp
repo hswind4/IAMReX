@@ -345,6 +345,9 @@ void mParticle::InteractWithEuler(MultiFab &EulerVel,
     //for 1 -> Ns是
     int loop = ParticleProperties::loop_ns;
 
+    // Sync kernel data to device memory for GPU ParallelFor
+    syncKernelsToDevice();
+
     BL_ASSERT(loop > 0);
     while(loop > 0){
         if(verbose) Print() << "[Particle] Ns loop index : " << loop << "\n";
@@ -477,8 +480,7 @@ void mParticle::InitParticles(const Vector<Real>& x,
             if( Ml > max_largrangian_num ) max_largrangian_num = Ml;
 
             Real phiK = 0;
-            auto phiKdata = new Vector<Real>();
-            auto thetaKdata = new Vector<Real>();
+            Gpu::HostVector<Real> h_phiK, h_thetaK;
             for(int marker_index = 0; marker_index < Ml; marker_index++){
                 const Real Hk = -1.0 + 2.0 * (marker_index) / ( Ml - 1.0);
                 Real thetaK = std::acos(Hk);
@@ -487,13 +489,14 @@ void mParticle::InitParticles(const Vector<Real>& x,
                 }else {
                     phiK = std::fmod( phiK + 3.809 / std::sqrt(Ml) / std::sqrt( 1 - Math::powi<2>(Hk)) , 2 * Math::pi<Real>());
                 }
-                phiKdata->push_back(phiK);
-                thetaKdata->push_back(thetaK);
+                h_phiK.push_back(phiK);
+                h_thetaK.push_back(thetaK);
             }
-            phiKdata->shrink_to_fit();
-            thetaKdata->shrink_to_fit();
-            mKernel.phiK = phiKdata->data();
-            mKernel.thetaK = thetaKdata->data();
+            mKernel.phiK.resize(Ml);
+            mKernel.thetaK.resize(Ml);
+            Gpu::copyAsync(Gpu::hostToDevice, h_phiK.begin(), h_phiK.end(), mKernel.phiK.begin());
+            Gpu::copyAsync(Gpu::hostToDevice, h_thetaK.begin(), h_thetaK.end(), mKernel.thetaK.begin());
+            Gpu::streamSynchronize();
 
             if (verbose) Print() << "h: " << h << ", Ml: " << Ml << ", D: " << Math::powi<3>(h) << " gravity : " << gravity << "\n"
                                         << "Kernel : " << index << ": Location (" << x[index] << ", " << y[index] << ", " << z[index]
@@ -508,6 +511,26 @@ void mParticle::InitParticles(const Vector<Real>& x,
     }
     //collision box generate
     m_Collision.SetGeometry(RealVect(ParticleProperties::GLO), RealVect(ParticleProperties::GHI),particle_kernels[0].radius, h);
+}
+
+void mParticle::syncKernelsToDevice ()
+{
+    const int nk = static_cast<int>(particle_kernels.size());
+    Gpu::HostVector<kernel_gpu> h_kg(nk);
+    for (int i = 0; i < nk; ++i) {
+        auto const& pk = particle_kernels[i];
+        h_kg[i].location  = pk.location;
+        h_kg[i].velocity  = pk.velocity;
+        h_kg[i].omega     = pk.omega;
+        h_kg[i].radius    = pk.radius;
+        h_kg[i].dv        = pk.dv;
+        h_kg[i].phiK      = pk.phiK.data();
+        h_kg[i].thetaK    = pk.thetaK.data();
+        h_kg[i].start_id  = pk.start_id;
+    }
+    d_kernels.resize(nk);
+    Gpu::copyAsync(Gpu::hostToDevice, h_kg.begin(), h_kg.end(), d_kernels.begin());
+    Gpu::streamSynchronize();
 }
 
 void mParticle::UpdateLagrangianMarker() {
@@ -530,11 +553,12 @@ void mParticle::UpdateLagrangianMarker() {
         auto *const myP_ptr = attri[P_ATTR_REAL::My_Marker].data();
         auto *const mzP_ptr = attri[P_ATTR_REAL::Mz_Marker].data();
 
-        const auto *const ps = particle_kernels.data();
+        const auto *const ps = d_kernels.data();
+        const bool do_RKPM_l = do_RKPM;
 
         ParallelFor(np,
             [=] AMREX_GPU_DEVICE (const int i) noexcept {
-                if (!do_RKPM) {
+                if (!do_RKPM_l) {
                     const auto id = ids[i];
                     const auto m_id = particles[i].id();
                     const auto location = ps[id].location;
@@ -571,7 +595,7 @@ void mParticle::UpdateLagrangianMarker() {
 
 template <typename P = Particle<num_Real, num_Int>>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void VelocityInterpolation_cir(int p_iter, P const& p, Real& Up, Real& Vp, Real& Wp,
+void VelocityInterpolation_cir(int p_iter, P const& p, ParticleReal& Up, ParticleReal& Vp, ParticleReal& Wp,
                                Array4<Real const> const& E, int EulerVIndex,
                                const int *lo, const int *hi,
                                GpuArray<Real, AMREX_SPACEDIM> const& plo,
@@ -615,10 +639,10 @@ template<typename P>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void VelocityInterpolationRKPM_cir(
     P p,
-    Real& U,
-    Real& V,
-    Real& W,
-    Vector<MAP_INFO> RKPM_MAP,
+    ParticleReal& U,
+    ParticleReal& V,
+    ParticleReal& W,
+    MAP_INFO const* rkpm_data,
     Array4<Real const> const& E,
     GpuArray<Real, AMREX_SPACEDIM> const& plo,
     GpuArray<Real, AMREX_SPACEDIM> const& dx,
@@ -640,10 +664,10 @@ void VelocityInterpolationRKPM_cir(
     for(int ii = -1; ii < 2; ii++){
         for(int jj = -1; jj < 2; jj++){
             for(int kk = -1; kk < 2; kk ++){
-                auto RKPM = RKPM_MAP.at(cell_index++);
-                U += RKPM.weight * RKPM.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex    );
-                V += RKPM.weight * RKPM.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 1);
-                W += RKPM.weight * RKPM.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 2);
+                auto rkpm = rkpm_data[cell_index++];
+                U += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex    );
+                V += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 1);
+                W += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 2);
             }
         }
     }
@@ -680,10 +704,13 @@ void mParticle::VelocityInterpolation(MultiFab &EulerVel,
         const auto& E = EulerVel.array(pti);
 
         if (do_RKPM) {
+            const MAP_INFO* rkpm_ptr = d_rkpm_flat.data();
+            constexpr int STENCIL = mParticle::RKPM_STENCIL_SIZE;
             ParallelFor(np,
                 [=] AMREX_GPU_DEVICE (const int i) {
                 const auto id = p_ptr[i].id() - 1;
-                VelocityInterpolationRKPM_cir(p_ptr[i], Up[i], Vp[i], Wp[i], RKPM_MAP[id], E, plo, dx, EulerVelocityIndex);
+                VelocityInterpolationRKPM_cir(p_ptr[i], Up[i], Vp[i], Wp[i],
+                                              rkpm_ptr + id * STENCIL, E, plo, dx, EulerVelocityIndex);
             });
         }else {
             ParallelFor(np,
@@ -714,12 +741,12 @@ void mParticle::ComputeLagrangianForce(Real dt)
         auto* FzP = attri[P_ATTR_REAL::Fz_Marker].data();
 
         const auto p_ids = pti.GetIDs().data();
-        const auto ps = particle_kernels.data();
+        const auto ps = d_kernels.data();
 
         ParallelFor(np,
         [=] AMREX_GPU_DEVICE (const int i) noexcept{
             const auto p_id = p_ids[i];
-            auto p = ps[p_id];
+            const auto& p = ps[p_id];
             const Real Ub = p.velocity[0];
             const Real Vb = p.velocity[1];
             const Real Wb = p.velocity[2];
@@ -783,9 +810,9 @@ void ForceSpreading_cic (P const& p,
                 deltaFunction( p.pos(1), yj, dx[1], tV, type);
                 deltaFunction( p.pos(2), kz, dx[2], tW, type);
                 Real delta_value = tU * tV * tW;
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex  ), delta_value * fxP);
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex+1), delta_value * fyP);
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex+2), delta_value * fzP);
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex  ), Real(delta_value * fxP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex+1), Real(delta_value * fyP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex+2), Real(delta_value * fzP));
             }
         }
     }
@@ -798,13 +825,13 @@ void ForceSpreadingRKPM_cir(
     Real Px,
     Real Py,
     Real Pz,
-    Real& fxP,
-    Real& fyP,
-    Real& fzP,
-    Real& mxP,
-    Real& myP,
-    Real& mzP,
-    Vector<MAP_INFO> RKPM_MAP,
+    ParticleReal& fxP,
+    ParticleReal& fyP,
+    ParticleReal& fzP,
+    ParticleReal& mxP,
+    ParticleReal& myP,
+    ParticleReal& mzP,
+    MAP_INFO const* rkpm_data,
     Real dv,
     Array4<Real> const &E,
     GpuArray<Real,AMREX_SPACEDIM> const& plo,
@@ -822,7 +849,8 @@ void ForceSpreadingRKPM_cir(
     fxP *= dv;
     fyP *= dv;
     fzP *= dv;
-    RealVect moment = RealVect(p.pos(0) - Px, p.pos(1) - Py, p.pos(2) - Pz).crossProduct(RealVect(fxP, fyP, fzP));
+    RealVect moment = RealVect(Real(p.pos(0) - Px), Real(p.pos(1) - Py), Real(p.pos(2) - Pz)).crossProduct(
+                      RealVect(Real(fxP), Real(fyP), Real(fzP)));
     mxP = moment[0];
     myP = moment[1];
     mzP = moment[2];
@@ -831,10 +859,10 @@ void ForceSpreadingRKPM_cir(
     for(int ii = -1; ii < 2; ii++){
         for(int jj = -1; jj < 2; jj++){
             for(int kk = -1; kk < 2; kk ++){
-                auto RKPM = RKPM_MAP.at(cell_index++);
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), RKPM.weight * fxP);
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), RKPM.weight * fyP);
-                Gpu::Atomic::AddNoRet(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), RKPM.weight * fzP);
+                auto rkpm = rkpm_data[cell_index++];
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), Real(rkpm.weight * fxP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), Real(rkpm.weight * fyP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), Real(rkpm.weight * fzP));
             }
         }
     }
@@ -864,19 +892,21 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
         const auto *const p_ptr = particles().data();
 
         auto force_index = ParticleProperties::euler_force_index;
-        const auto ps = particle_kernels.data();
+        const auto ps = d_kernels.data();
 
         if (do_RKPM) {
+            const MAP_INFO* rkpm_ptr = d_rkpm_flat.data();
+            constexpr int STENCIL = mParticle::RKPM_STENCIL_SIZE;
             ParallelFor(np,
             [=] AMREX_GPU_DEVICE (const int i) noexcept{
                 const auto p_id = p_ptr[i].id() - 1; // lagrangian marker's id
                 const auto id = ids[i];  // particle's id
                 auto loc_ptr = ps[id].location;
-                auto dv = RKPM_MAP[p_id][0].eps;
+                auto dv = rkpm_ptr[p_id * STENCIL].eps;
                 ForceSpreadingRKPM_cir(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
                                 fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
                                 mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
-                                RKPM_MAP[p_id], dv, Uarray, plo, dxi, force_index);
+                                rkpm_ptr + p_id * STENCIL, dv, Uarray, plo, dxi, force_index);
             });
         }else {
             ParallelFor(np,
@@ -967,8 +997,8 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
         ParallelAllReduce::Sum(my, ParallelDescriptor::Communicator());
         ParallelAllReduce::Sum(mz, ParallelDescriptor::Communicator());
 
-        cur_p.ib_force += {fx, fy, fz};
-        cur_p.ib_moment += {mx, my, mz};
+        cur_p.ib_force += {Real(fx), Real(fy), Real(fz)};
+        cur_p.ib_moment += {Real(mx), Real(my), Real(mz)};
     }
 
     EulerForce.SumBoundary(ParticleProperties::euler_force_index, 3, gm.periodicity());
@@ -1278,6 +1308,23 @@ void mParticle::ResolveWithRPKM(std::string RKPM_file) {
         }
     }
     Print() << "\tRKPM mapping size : " << RKPM_MAP.size() << "\n";
+
+    // Flatten RKPM_MAP into a contiguous device-accessible array for GPU ParallelFor
+    int max_key = 0;
+    for (const auto& [key, vec] : RKPM_MAP) {
+        max_key = std::max(max_key, key);
+        AMREX_ALWAYS_ASSERT(int(vec.size()) <= RKPM_STENCIL_SIZE);
+    }
+    Gpu::HostVector<MAP_INFO> h_rkpm_flat((max_key + 1) * RKPM_STENCIL_SIZE);
+    for (const auto& [key, vec] : RKPM_MAP) {
+        for (int j = 0; j < int(vec.size()); ++j) {
+            h_rkpm_flat[key * RKPM_STENCIL_SIZE + j] = vec[j];
+        }
+    }
+    d_rkpm_flat.resize(h_rkpm_flat.size());
+    Gpu::copyAsync(Gpu::hostToDevice, h_rkpm_flat.begin(), h_rkpm_flat.end(),
+                   d_rkpm_flat.begin());
+    Gpu::streamSynchronize();
 }
 
 int mParticle::StartOfLagrangianMarker(size_t index) {

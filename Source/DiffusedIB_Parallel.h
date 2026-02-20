@@ -119,10 +119,23 @@ struct kernel{
     RealVect Fcp{0.0,0.0,0.0};
     RealVect Tcp{0.0,0.0,0.0};
 
-    Real* phiK;
-    Real* thetaK;
+    Gpu::DeviceVector<Real> phiK;
+    Gpu::DeviceVector<Real> thetaK;
 
     IntVect TL{0, 0, 0}, RL{0, 0, 0};
+};
+
+/// Lightweight POD subset of kernel data, safe for GPU device code.
+/// Stored in managed/device memory via Gpu::DeviceVector.
+struct kernel_gpu {
+    RealVect location;
+    RealVect velocity;
+    RealVect omega;
+    Real radius;
+    Real dv;
+    Real const* phiK;     ///< device pointer into kernel::phiK
+    Real const* thetaK;   ///< device pointer into kernel::thetaK
+    int start_id;
 };
 
 using CusParIter = ParIter<0, 0, num_Real, num_Int>;
@@ -328,6 +341,15 @@ public:
 
     Vector<kernel> particle_kernels;
 
+    /// GPU-accessible copy of kernel data for use in device lambdas.
+    Gpu::DeviceVector<kernel_gpu> d_kernels;
+
+    /** \brief Sync particle_kernels host data to d_kernels device memory.
+     *  Must be called after any host-side modification to particle_kernels
+     *  and before GPU ParallelFor that reads kernel data.
+     */
+    void syncKernelsToDevice ();
+
     mParticleContainer *mContainer{nullptr};
 
     ParticleCollision m_Collision;
@@ -339,6 +361,10 @@ public:
     Vector<size_t> NumOfMarker;
 
     std::map<int, Vector<MAP_INFO>> RKPM_MAP;
+
+    /// GPU-friendly flattened RKPM stencil data: d_rkpm_flat[id * RKPM_STENCIL_SIZE + cell_index]
+    static constexpr int RKPM_STENCIL_SIZE = 27;
+    Gpu::DeviceVector<MAP_INFO> d_rkpm_flat;
 
     int max_largrangian_num = 0;
 
