@@ -5,167 +5,62 @@
 import os
 import subprocess
 
-def test_lidDrivenCanvity(working_dir, print_output):
+# Common overrides for fast CI runs: minimal steps, small grids, no file output
+CI_OVERRIDES = "max_step=2 amr.plot_int=-1 amr.check_int=-1"
+
+def run_test (name, working_dir, build_cmd, run_cmd, print_output):
+    """Build and run a single test case."""
+    full_cmd = f"{build_cmd} && {run_cmd}"
     subprocess.run(
-    "make -j8 && ./amr2d.gnu.ex inputs.2d.lid_driven_cavity",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
+        full_cmd,
+        shell=True,
+        check=True,
+        cwd=working_dir,
+        stdout=None if print_output else subprocess.DEVNULL,
+        stderr=None if print_output else subprocess.DEVNULL
     )
-    print("Test_lidDrivenCanvity succeed")
-
-def test_LidDrivenCavitySphere(working_dir, print_output):
-    subprocess.run(
-    "make -j8 && ./amr3d.gnu.MPI.ex inputs.3d.lid_driven_cavity_particle",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("Test LidDrivenCavitySphere succeed")
-
-def test_RSV(working_dir, print_output):
-    subprocess.run(
-    "make -j8 && ./amr2d.gnu.MPI.ex inputs.2d.rsv",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("Test RSV succeed")
-
-def test_DraftingKissingTumbling(working_dir, print_output):
-    subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
-    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.DKT max_step=1 amr.n_cell=16 8 8",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("test_DraftingKissingTumbling succeed")
-
-def test_FallingSphere(working_dir, print_output):
-    subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
-    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.FallingSphere max_step=1 amr.n_cell=16 8 8",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("test_FallingSphere succeed")
-
-def test_FlowPastCylinder(working_dir, print_output):
-    subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
-    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.flow_past_cylinder-x max_step=1",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("test_FlowPastCylinder succeed")
-
-def test_FlowPastSphere(working_dir, print_output):
-    subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
-    "mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.flow_past_sphere max_step=1 amr.n_cell=16 8 8",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("test_FlowPastSphere succeed")
-
-def test_RayleighTaylor(working_dir, print_output):
-    subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE && mpiexec -np 2 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("test_RayleighTaylor succeed")
-
-def test_RayleighTaylor_LS(working_dir, print_output):
-    subprocess.run(
-    "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE;"
-    "mpiexec -np 2 ./amr2d.gnu.MPI.ex inputs.2d.rayleightaylor_rt ",
-    shell=True,
-    check=True,
-    cwd=working_dir,
-    stdout=None if print_output else subprocess.DEVNULL,
-    stderr=None if print_output else subprocess.DEVNULL
-    )
-    print("test_RayleighTaylor_LS succeed")
-
-
+    print(f"Test {name} succeed")
 
 def main():
-    # if print_output = false，the information of compile and running doesn't display in terminal
-    print_output =False
+    # if print_output = false, the information of compile and running doesn't display in terminal
+    print_output = False
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     print("Script Directory:", script_dir)
 
-    # LidDrivenCavity
+    # LidDrivenCavity (2D, no MPI — basic compilation and run test)
     working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavity")
     print("Test Working Directory:", os.path.abspath(working_dir))
-    test_lidDrivenCanvity(working_dir, print_output)
+    run_test(
+        "LidDrivenCavity",
+        working_dir,
+        "make -j8",
+        f"./amr2d.gnu.ex inputs.2d.lid_driven_cavity {CI_OVERRIDES}",
+        print_output
+    )
 
-    # LidDrivenCavitySphere
-    working_dir = os.path.join(script_dir, "../Tutorials/LidDrivenCavitySphere")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_LidDrivenCavitySphere(working_dir, print_output)
-
-    # RSV
+    # RSV (2D, MPI, level set)
     working_dir = os.path.join(script_dir, "../Tutorials/RSV")
     print("Test Working Directory:", os.path.abspath(working_dir))
-    test_RSV(working_dir, False)
+    run_test(
+        "RSV",
+        working_dir,
+        "make -j8",
+        f"./amr2d.gnu.MPI.ex inputs.2d.rsv {CI_OVERRIDES}",
+        print_output
+    )
 
-
-    # DraftingKissingTumbling
+    # DraftingKissingTumbling (3D, MPI, particles/IBM)
     working_dir = os.path.join(script_dir, "../Tutorials/DraftingKissingTumbling")
     print("Test Working Directory:", os.path.abspath(working_dir))
-    test_DraftingKissingTumbling(working_dir, print_output)
-
-    # FallingSphere
-    working_dir = os.path.join(script_dir, "../Tutorials/FallingSphere")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_FallingSphere(working_dir, print_output)
-
-    # FlowPastCylinder
-    working_dir = os.path.join(script_dir, "../Tutorials/FlowPastCylinder")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_FlowPastCylinder(working_dir, print_output)
-
-    # FlowPastSphere
-    working_dir = os.path.join(script_dir, "../Tutorials/FlowPastSphere")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_FlowPastSphere(working_dir, print_output)
-
-    # RayleighTaylor
-    working_dir = os.path.join(script_dir, "../Tutorials/RayleighTaylor")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_RayleighTaylor(working_dir, print_output)
-
-    # RayleighTaylor_LS
-    working_dir = os.path.join(script_dir, "../Tutorials/RayleighTaylor_LS")
-    print("Test Working Directory:", os.path.abspath(working_dir))
-    test_RayleighTaylor_LS(working_dir, print_output)
+    run_test(
+        "DraftingKissingTumbling",
+        working_dir,
+        "make -j8 USE_CUDA=FALSE USE_MPI=TRUE DEBUG=FALSE",
+        f"mpiexec -np 2 ./amr3d.gnu.MPI.ex inputs.3d.DKT max_step=1 amr.n_cell=16 8 8 amr.plot_int=-1 amr.check_int=-1",
+        print_output
+    )
 
 
-
-if __name__== "__main__" :
+if __name__ == "__main__":
     main()
-

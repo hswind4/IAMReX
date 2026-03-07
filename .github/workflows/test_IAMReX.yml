@@ -26,8 +26,8 @@ jobs:
       - name: Clone AMReX and AMReX-Hydro repositories
         run: |
           cd /home/runner/work/IAMReX
-          git clone https://github.com/AMReX-Codes/amrex.git
-          git clone https://github.com/AMReX-Fluids/AMReX-Hydro.git
+          git clone --depth 1 https://github.com/AMReX-Codes/amrex.git
+          git clone --depth 1 https://github.com/AMReX-Fluids/AMReX-Hydro.git
       - name: Run IAMReX tests
         run: |
           cd /home/runner/work/IAMReX/IAMReX
