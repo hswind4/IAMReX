@@ -50,10 +50,10 @@ def read_file_plt(simulation_path, variables, level_num, visualize, verbose):
                         os.makedirs(full_path)
                     try:
                         P_array = ad[variable].to_ndarray()
-                        if verbose: 
+                        if verbose:
                             print("here is the shape of numpy array")
                             print(P_array.shape)
-                        
+
                         fig = plt.figure()
                         ax = fig.add_subplot(111, projection='3d')
 
@@ -84,7 +84,7 @@ def main():
                     prog='etl_experiment',
                     description='Extract-transform-load simulations in an experiment: provide experiment file with list of simulations in experiment ',
                     epilog='')
-    
+
     parser.add_argument('experiment_id', help='Experiment ID')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     parser.add_argument('variables', nargs='*', help='Physical variables to process and visualize')
@@ -99,7 +99,7 @@ def main():
     level_num = args.level_num
     visualize = args.visualize
     experiment_path = experiments_path + experiment_id
-    
+
     simulation_paths = []
     with open(experiment_path) as experiment:
         for i, line in enumerate(experiment.readlines()):

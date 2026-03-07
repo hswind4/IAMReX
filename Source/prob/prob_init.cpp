@@ -297,7 +297,7 @@ void NavierStokes::init_bubble (Box const& vbx,
 
 //
 // ls related
-// 
+//
 void NavierStokes::init_rsv (Box const& vbx,
                 Array4<Real> const& /*press*/,
                 Array4<Real> const& vel,
@@ -338,19 +338,19 @@ void NavierStokes::init_rsv (Box const& vbx,
     {
       scal(i,j,k,nt) = 1.0;
     }
-    
+
     // Initialize the LS function if do_phi
     if (IC.do_phi) {
       scal(i,j,k,IC.phicomp-IC.Density) = IC.blob_radius - std::sqrt( (x-IC.blob_x)*(x-IC.blob_x)
               + (y-IC.blob_y)*(y-IC.blob_y));
-    } 
+    }
 
   });
 }
 
 //
 // ls related
-// 
+//
 void NavierStokes::set_rsv_vel (Box const& vbx,
                 Array4<Real> const& vel,
                 Box const& domain,
@@ -381,7 +381,7 @@ void NavierStokes::set_rsv_vel (Box const& vbx,
 
 //
 // diffused ib
-// 
+//
 void NavierStokes::set_initial_phi_nodal (Box const& bx,
                 Array4<Real> const& phi_nodal,
                 Box const& domain,
@@ -391,7 +391,7 @@ void NavierStokes::set_initial_phi_nodal (Box const& bx,
                 InitialConditions IC,
                 Real time)
 {
-  
+
   BL_ASSERT(AMREX_SPACEDIM == 3);
   BL_ASSERT(probtype == 98);
 
@@ -542,7 +542,7 @@ void NavierStokes::init_channel (Box const& vbx,
                       GpuArray<Real, AMREX_SPACEDIM> const& probhi,
                       InitialConditions IC)
 {
-  
+
   BL_ASSERT(AMREX_SPACEDIM == 3);
   const auto domlo = amrex::lbound(domain);
 
@@ -738,7 +738,7 @@ void NavierStokes::init_RayleighTaylor (Box const& vbx,
     // // Initialize the LS function if do_phi
     // if (do_phi) {
     //   scal(i,j,k,IC.IC.phicomp-IC.Density) = y-pertheight;
-    // } 
+    // }
 
   });
 
@@ -787,9 +787,9 @@ void NavierStokes::init_RayleighTaylor (Box const& vbx,
 }
 
 
-// 
+//
 // ls related
-// 
+//
 void NavierStokes::init_RayleighTaylor_LS (Box const& vbx,
                     Array4<Real> const& /*press*/,
                     Array4<Real> const& /*vel*/,
@@ -830,7 +830,7 @@ void NavierStokes::init_RayleighTaylor_LS (Box const& vbx,
     // Initialize the LS function if do_phi
     if (IC.do_phi) {
       scal(i,j,k,IC.phicomp-IC.Density) = y-pertheight;
-    } 
+    }
 
   });
 
@@ -838,9 +838,9 @@ void NavierStokes::init_RayleighTaylor_LS (Box const& vbx,
 #endif
 }
 
-// 
+//
 // ls related
-// 
+//
 void NavierStokes::init_BreakingWave (Box const& vbx,
                     Array4<Real> const& /*press*/,
                     Array4<Real> const& vel,
@@ -904,7 +904,7 @@ void NavierStokes::init_BreakingWave (Box const& vbx,
     // Initialize the LS function if do_phi
     if (IC.do_phi) {
       scal(i,j,k,IC.phicomp-IC.Density) = eta-y;
-    } 
+    }
 
   });
 

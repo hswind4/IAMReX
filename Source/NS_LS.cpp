@@ -33,7 +33,7 @@ phi_to_heavi(const Geometry& geom, int epsilon, MultiFab& phi, MultiFab& heavisi
 {
 
     Print() << "In the phi_to_heavi " << std::endl;
-    
+
     const Real pi     = 3.141592653589793238462643383279502884197;
     Real eps = calculate_eps(geom, epsilon);
 
@@ -66,7 +66,7 @@ heavi_to_rhoormu(MultiFab& heaviside, Real var1, Real var2, MultiFab& outmf)
 {
 
     amrex::Print() << "In the heavi_to_rhomu " << std::endl;
-    
+
     BL_ASSERT(heaviside.nComp() == outmf.nComp());
 
     int ncomp = outmf.nComp();
@@ -147,7 +147,7 @@ Real calculate_eps_two (const Geometry& geom, int reinit_levelset)
 void levelset_diffcomp (Array<std::unique_ptr<MultiFab>,AMREX_SPACEDIM>& phi_cc_grad,
                         MultiFab& phi_ctime,
                         MultiFab& phi1,
-                        MultiFab& phi2, 
+                        MultiFab& phi2,
                         int epsG,
                         int epsG2)
 {

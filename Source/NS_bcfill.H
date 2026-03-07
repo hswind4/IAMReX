@@ -123,11 +123,11 @@ struct velFill
     // dest, dcomp, numcomp: Fill numcomp components of dest starting from dcomp.
     // bcr, bcomp          : bcr[bcomp] specifies BC for component dcomp and so on.
     // orig_comp           : component index for dcomp as in the descriptor set up in NS_setup.cpp
-    
+
     // For X vel, dcomp = 0; numcomp = 1; bcomp = 0; orig_comp = 0;
     // For Y vel, dcomp = 1; numcomp = 1; bcomp = 0; orig_comp = 1;
     // For Z vel, dcomp = 2; numcomp = 1; bcomp = 0; orig_comp = 2;
-    
+
     AMREX_GPU_DEVICE
     void operator() (const amrex::IntVect& iv, amrex::Array4<amrex::Real> const& dest,
                      const int dcomp, const int numcomp,

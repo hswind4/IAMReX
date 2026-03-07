@@ -820,7 +820,7 @@ NavierStokesBase::advance_setup (Real /*time*/,
     //
     // ls related
     // fill the gts of old state data in the beginning
-    // 
+    //
     if (do_phi) {
         // amrex::Print() << "1 " << std::endl;
         const Real prev_time = state[State_Type].prevTime();
@@ -834,11 +834,11 @@ NavierStokesBase::advance_setup (Real /*time*/,
     //
     // ls related
     // update the rho_ptime
-    // 
+    //
     if (do_phi) {
         // amrex::Print() << "2 " << std::endl;
         MultiFab&  S_old    = get_old_data(State_Type);
-        MultiFab::Copy(phi_ptime, S_old, phicomp, 0, 1, S_old.nGrow()); 
+        MultiFab::Copy(phi_ptime, S_old, phicomp, 0, 1, S_old.nGrow());
         phi_to_heavi(geom, epsilon, phi_ptime, heaviside);
         heavi_to_rhoormu(heaviside, rho_w, rho_a, rho_ptime);
         MultiFab::Copy(S_old, rho_ptime, 0, Density, 1, rho_ptime.nGrow());
@@ -2725,7 +2725,7 @@ NavierStokesBase::post_timestep (int crse_iteration)
     if (do_mac_proj && level < finest_level)
         mac_sync();
 
-    // set Density to fluid_rho on all regions 
+    // set Density to fluid_rho on all regions
     if (do_diffused_ib) {
         MultiFab& S_new = get_new_data(State_Type);
         S_new.setVal(fluid_rho, Density, 1, S_new.nGrow());
@@ -2755,7 +2755,7 @@ NavierStokesBase::post_timestep (int crse_iteration)
     if (do_diffused_ib) {
         MultiFab& S_new = get_new_data(State_Type);
         if (level == parent->finestLevel()) {
-            MultiFab::Copy(S_new, pvf, 0, Tracer, 1, pvf.nGrow()); // Note: the ghost cell region of pvf is zero. 
+            MultiFab::Copy(S_new, pvf, 0, Tracer, 1, pvf.nGrow()); // Note: the ghost cell region of pvf is zero.
         }
         else {
             S_new.setVal(0.0, Tracer, 1, S_new.nGrow());
@@ -5374,7 +5374,7 @@ NavierStokesBase::InitialRedistribution ()
 
 //
 // ls related
-// 
+//
 void
 NavierStokesBase::fill_allgts(MultiFab& mf, int type, int scomp, int ncomp, Real time)
 {
@@ -5435,7 +5435,7 @@ void
 NavierStokesBase::reinitialization_consls (Real dt,
                        int  loop_iter, Real epsG, Real epsG2)
 {
-    
+
     if (verbose) amrex::Print() << "In the NavierStokesBase::reinitialization_consls() " << std::endl;
     if (verbose) amrex::Print() << "loop_iter " << loop_iter << std::endl;
 
@@ -5448,7 +5448,7 @@ NavierStokesBase::reinitialization_consls (Real dt,
 
     for (int i=0; i<4; i++) {
 
-        // Step 2: 
+        // Step 2:
         MultiFab::Add(phi_ctime, phi_original, 0, 0, 1, phi_ctime.nGrow());
         phi_ctime.mult(0.5, phi_ctime.nGrow());
 
@@ -5488,7 +5488,7 @@ void
 NavierStokesBase::reinitialization_sussman (Real dt,
                        int  loop_iter)
 {
-    
+
     if (verbose) amrex::Print() << "In the NavierStokesBase::reinitialization_sussman() " << std::endl;
     if (verbose) amrex::Print() << "loop_iter " << loop_iter << std::endl;
 
@@ -5543,7 +5543,7 @@ NavierStokesBase::phi_to_sgn0 (MultiFab& phi)
 {
 
     if(verbose) amrex::Print() << "In the NavierStokesBase::phi_to_sgn0 " << std::endl;
-    
+
     sgn0.setVal(0.0);
 
     const Real pi     = 3.141592653589793238462643383279502884197;
@@ -5585,14 +5585,14 @@ NavierStokesBase::rk_first_reinit (MultiFab& phi_ctime,
 {
 
     if(verbose) amrex::Print() << "NavierStokesBase::rk_first_reinit " << std::endl;
-    
+
     Real eps = calculate_eps(geom, epsilon);
     const GpuArray<Real,AMREX_SPACEDIM> dxGpu = geom.CellSizeArray();
 
     // MultiFab phi1_xface(amrex::convert(grids, IntVect(AMREX_D_DECL(1,0,0))), dmap, 1, 1);
     MultiFab phi1_face(amrex::convert(grids, IntVect(AMREX_D_DECL(1,1,1))), dmap, 1, 1); // A node-based mf actually
     phi1_face.setVal(0.0);
-    
+
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -5608,7 +5608,7 @@ NavierStokesBase::rk_first_reinit (MultiFab& phi_ctime,
             phi1fab(i,j,k) = ( phifab(i,j,k) - phifab(i-1,j,k) )/dxGpu[0];
         });
     }
-    
+
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -5623,7 +5623,7 @@ NavierStokesBase::rk_first_reinit (MultiFab& phi_ctime,
             phi2fab(i,j,k) = ( phi1fab(i+1,j,k) - phi1fab(i,j,k) )/dxGpu[0];
         });
     }
-    
+
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -5650,7 +5650,7 @@ NavierStokesBase::rk_first_reinit (MultiFab& phi_ctime,
             phi3fab(i, j, k) = pow(ddx, 2);
         });
     }
-    
+
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -5710,7 +5710,7 @@ NavierStokesBase::rk_first_reinit (MultiFab& phi_ctime,
             }
         });
     }
-    
+
 #if (AMREX_SPACEDIM==3)
 
 #ifdef AMREX_USE_OMP
@@ -5773,7 +5773,7 @@ NavierStokesBase::rk_first_reinit (MultiFab& phi_ctime,
 
 #endif
 
-    MultiFab::Copy(G0, phi3, 0, 0, 1, 1); // 1 gt 
+    MultiFab::Copy(G0, phi3, 0, 0, 1, 1); // 1 gt
     G0.plus(-1.0, 1); // 1 gt
 
 #ifdef AMREX_USE_OMP
@@ -5826,7 +5826,7 @@ NavierStokesBase::rk_second_reinit (MultiFab& phi_ctime,
                           MultiFab& phi3,
                           MultiFab& sgn0,
                           MultiFab& G0,
-                          Real delta_t, 
+                          Real delta_t,
                           MultiFab& phi_ori)
 {
 
@@ -5955,7 +5955,7 @@ NavierStokesBase::rk_second_reinit (MultiFab& phi_ctime,
             }
         });
     }
-    
+
 #if (AMREX_SPACEDIM==3)
 
 #ifdef AMREX_USE_OMP
@@ -6083,7 +6083,7 @@ NavierStokesBase::mass_fix (MultiFab& phi_ctime,
                           int loop_iter)
 {
     if(verbose) amrex::Print() << "NavierStokesBase::mass_fix " << std::endl;
-    
+
     const Real pi     = 3.141592653589793238462643383279502884197;
     Real eps = calculate_eps(geom, epsilon);
     Real tao = loop_iter * delta_t;

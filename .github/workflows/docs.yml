@@ -1,7 +1,7 @@
 name: IAMReX
 on:
   push:
-    paths: 
+    paths:
       - 'Docs/IAMReX_documentation/source/**'
       - '.github/workflows/docs.yml'
 
@@ -20,7 +20,7 @@ jobs:
         run: |
           echo "Installing python packages for docs..."
           sudo apt-get update
-          sudo apt-get install -y doxygen         
+          sudo apt-get install -y doxygen
           python3 -m pip install --upgrade pip
           python3 -m pip install sphinx sphinx_rtd_theme breathe sphinxcontrib.bibtex docutils
 

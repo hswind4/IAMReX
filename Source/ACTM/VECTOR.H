@@ -5,7 +5,7 @@
 #define VECTOR_H
 class VECTOR{
 public:
-    double x=0.0,y=0.0,z=0.0; 
+    double x=0.0,y=0.0,z=0.0;
     VECTOR() = default;
     VECTOR(double,double,double);
     VECTOR Unit() const;

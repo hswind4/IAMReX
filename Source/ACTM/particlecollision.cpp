@@ -41,15 +41,15 @@ void collision::initializeparticles()
         MyParticles[i].omega=VECTOR(0,0,0);
         /*
         在这里初始化初始位置，半径，密度
-        
-                
+
+
         */
-        double radius = MyParticles[i].radius; 
-        MyParticles[i].volume = PAI * 4.0 / 3.0 * radius * radius * radius; 
-  
-        // 计算质量  
-        double density = MyParticles[i].density; 
-        MyParticles[i].mass = density * MyParticles[i].volume; 
+        double radius = MyParticles[i].radius;
+        MyParticles[i].volume = PAI * 4.0 / 3.0 * radius * radius * radius;
+
+        // 计算质量
+        double density = MyParticles[i].density;
+        MyParticles[i].mass = density * MyParticles[i].volume;
         MyParticles[i].inertia=8*PAI*density*radius*radius*radius*radius*radius/15.0;
     }
 }
@@ -61,7 +61,7 @@ void collision::initializeACTM(llu _nparticles)
 }
 
 void collision::CauculateCoefACTM()
-{ 
+{
     // 计算ACTM参数
     // 多出来那一维度是用来储存和壁面的碰撞系数，
     // 其实把和壁面那一维省略掉用小球和自己的碰撞系数代替也可
@@ -102,7 +102,7 @@ void collision::CalculateForceandMoment()
     VECTOR UnitNormalVector;//从球心指向对方，赋值
     VECTOR UnitTangentVector;//切向力方向的单位向量，赋值
     VECTOR F_g;//重力,赋值
-    VECTOR F_f;//浮力，赋值    
+    VECTOR F_f;//浮力，赋值
     VECTOR F_IB;//IB力，赋值
     VECTOR F_tls;//弹簧振子系统提供的切向力,赋值
     VECTOR oldRelativeDistance;//ksi_k-1，赋值
@@ -115,14 +115,14 @@ void collision::CalculateForceandMoment()
         VECTOR F_tcp;//切向碰撞力
         F_ncp=VECTOR(0,0,0);
         F_tcp=VECTOR(0,0,0);
-        M_cp=VECTOR(0,0,0);   
-        M_IB=VECTOR(0,0,0);             
+        M_cp=VECTOR(0,0,0);
+        M_IB=VECTOR(0,0,0);
         volume = MyParticles[i].volume;
         mass = MyParticles[i].mass;
         radius = MyParticles[i].radius;
-        omega = MyParticles[i].omega;        
+        omega = MyParticles[i].omega;
         X=MyParticles[i].X;
-        V=MyParticles[i].V;       
+        V=MyParticles[i].V;
         F_g=mass*gravity; //受到重力
         F_f=-DensityofFluid*gravity*volume;
         //F=F-    计算浮力
@@ -130,9 +130,9 @@ void collision::CalculateForceandMoment()
         计算IB力，和IB力矩
 
         */
-       //NOTE: 计算球之间的碰撞力              
+       //NOTE: 计算球之间的碰撞力
        for(j=0;j<nparticles;j++)//检验i球和j球的距离
-       {        
+       {
             if(i==j) continue;
             distance=abs(X-MyParticles[j].X)-radius-MyParticles[j].radius;
             if(distance<0.0)
@@ -154,7 +154,7 @@ void collision::CalculateForceandMoment()
                 if(newRelativeDistance!=VECTOR(0,0,0))
                     newRelativeDistance=abs(oldRelativeDistance)/abs(newRelativeDistance)*newRelativeDistance;
                 newRelativeDistance=newRelativeDistance+delta_t*g_tcp;
-                //然后求出弹簧振子力  
+                //然后求出弹簧振子力
                 F_tls=(-MyACTMs[i][j].k_t*newRelativeDistance \
                     -MyACTMs[i][j].d_t*g_tcp);
                 UnitTangentVector=F_tls.Unit();
@@ -178,21 +178,21 @@ void collision::CalculateForceandMoment()
        }
        //壁面碰撞处理
        {
-            if (box.left.exists) 
-            {   
+            if (box.left.exists)
+            {
                 distance=abs(box.left.coordinate - X.x)-radius;
                 j=nparticles;
                 if(distance<0)
                 {
-                    
+
                     UnitNormalVector=VECTOR(-1,0,0);
                     g=V;
                     g_cp=g+radius*(omega ^ UnitNormalVector);
-                    g_ncp=(g_cp*UnitNormalVector)*UnitNormalVector;            
+                    g_ncp=(g_cp*UnitNormalVector)*UnitNormalVector;
                     g_tcp=g_cp-g_ncp;
                     F_ncpthis=(-MyACTMs[i][nparticles].k_n*abs(distance)*UnitNormalVector \
                     -MyACTMs[i][nparticles].d_n*(g_ncp));
-                    F_ncp=F_ncp+F_ncpthis; 
+                    F_ncp=F_ncp+F_ncpthis;
 
                     oldRelativeDistance=RelativeTanDistance[i][j];
                     newRelativeDistance=RelativeTanDistance[i][j]-(RelativeTanDistance[i][j]*UnitNormalVector)*UnitNormalVector;
@@ -210,20 +210,20 @@ void collision::CalculateForceandMoment()
                     if(abs(F_tls)<abs(miu*F_ncpthis)) RelativeTanDistance[i][j]=newRelativeDistance;
                     else RelativeTanDistance[i][j]=-(abs(miu*F_ncpthis)*UnitTangentVector+MyACTMs[i][nparticles].d_t*g_tcp)*(1.0/MyACTMs[i][nparticles].k_t);
                     //处理力矩
-                    M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis);              
-                }  
+                    M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis);
+                }
                 else if(distance>0.0&&RelativeTanDistance[i][j]!=VECTOR(0,0,0))
                 {
                     RelativeTanDistance[i][j]=VECTOR(0,0,0);
                 }
             }
-            if (box.right.exists) 
-            {  
-                distance=abs(box.right.coordinate - X.x)-radius;            
+            if (box.right.exists)
+            {
+                distance=abs(box.right.coordinate - X.x)-radius;
                 j=nparticles+1;
                 if(distance<0)
-                {   
-                    
+                {
+
                     UnitNormalVector=VECTOR(1,0,0);
                     g=V;
                     g_cp=g+radius*(omega ^ UnitNormalVector);
@@ -249,22 +249,22 @@ void collision::CalculateForceandMoment()
                     if(abs(F_tls)<abs(miu*F_ncpthis)) RelativeTanDistance[i][j]=newRelativeDistance;
                     else RelativeTanDistance[i][j]=-(abs(miu*F_ncpthis)*UnitTangentVector+MyACTMs[i][nparticles].d_t*g_tcp)*(1.0/MyACTMs[i][nparticles].k_t);
                     //处理力矩
-                    M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis); 
-                }   
+                    M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis);
+                }
                 else if(distance>0.0&&RelativeTanDistance[i][j]!=VECTOR(0,0,0))
                 {
                     RelativeTanDistance[i][j]=VECTOR(0,0,0);
-                } 
+                }
             }
-            if (box.bottom.exists) 
-            {              
+            if (box.bottom.exists)
+            {
                 j=nparticles+2;
-                distance=abs(box.bottom.coordinate - X.z)-radius;    
+                distance=abs(box.bottom.coordinate - X.z)-radius;
                 UnitNormalVector=VECTOR(0,0,-1);
                 //distance=-X*UnitNormalVector-radius;
-              //  cout<<nowstep*delta_t<<" "<<X.z<<" "<<distance<<endl;       
+              //  cout<<nowstep*delta_t<<" "<<X.z<<" "<<distance<<endl;
                 if(distance<0.0)
-                {                   
+                {
                     UnitNormalVector=VECTOR(0,0,-1);
                     g=V;
                     g_cp=g+radius*(omega ^ UnitNormalVector);
@@ -276,7 +276,7 @@ void collision::CalculateForceandMoment()
                     if(isco==false) {
                     isco=true;
                     stepseparate=10+nowstep;
-                    }               
+                    }
                     oldRelativeDistance=RelativeTanDistance[i][j];
                     newRelativeDistance=RelativeTanDistance[i][j]-(RelativeTanDistance[i][j]*UnitNormalVector)*UnitNormalVector;
                     if(newRelativeDistance!=VECTOR(0,0,0))
@@ -294,25 +294,25 @@ void collision::CalculateForceandMoment()
                     else RelativeTanDistance[i][j]=-(abs(miu*F_ncpthis)*UnitTangentVector+MyACTMs[i][nparticles].d_t*g_tcp)*(1.0/MyACTMs[i][nparticles].k_t);
                     //处理力矩
                     M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis);
-                } 
+                }
                 else if(distance>0.0&&RelativeTanDistance[i][j]!=VECTOR(0,0,0))
                 {
                     RelativeTanDistance[i][j]=VECTOR(0,0,0);
-                }  
+                }
                 if(nowstep==stepseparate){
                     //cout<<MyParticles[i].V.z<<endl;
                     g=V;
                     g_cp=g+radius*(omega ^ UnitNormalVector);
                     ss<<g_cp.x/g_cp.z<<endl;
                     isco=false;
-                    } 
+                    }
             }
-            if (box.top.exists) 
-            {  
+            if (box.top.exists)
+            {
                 j=nparticles+3;
-                distance=abs(box.top.coordinate - X.z)-radius;            
+                distance=abs(box.top.coordinate - X.z)-radius;
                 if(distance<0)
-                {                   
+                {
                     UnitNormalVector=VECTOR(0,0,1);
                     g=V;
                     g_cp=g+radius*(omega ^ UnitNormalVector);
@@ -339,27 +339,27 @@ void collision::CalculateForceandMoment()
                     else RelativeTanDistance[i][j]=-(abs(miu*F_ncpthis)*UnitTangentVector+MyACTMs[i][nparticles].d_t*g_tcp)*(1.0/MyACTMs[i][nparticles].k_t);
                     //处理力矩
                     M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis);
-                }  
+                }
                 else if(distance>0.0&&RelativeTanDistance[i][j]!=VECTOR(0,0,0))
                 {
                     RelativeTanDistance[i][j]=VECTOR(0,0,0);
-                } 
+                }
             }
-            if (box.front.exists) 
-            { 
+            if (box.front.exists)
+            {
                 j=nparticles+4;
                 distance=abs(box.front.coordinate - X.y)-radius;
                 if(distance<0)
                 {
-                    
-                    UnitNormalVector=VECTOR(0,-1,0); 
+
+                    UnitNormalVector=VECTOR(0,-1,0);
                     g=V;
                     g_cp=g+radius*(omega ^ UnitNormalVector);
                     g_ncp=(g_cp*UnitNormalVector)*UnitNormalVector;
                     g_tcp=g_cp-g_ncp;
                     F_ncpthis=(-MyACTMs[i][nparticles].k_n*abs(distance)*UnitNormalVector \
                     -MyACTMs[i][nparticles].d_n*(g_ncp));
-                    
+
                     F_ncp=F_ncp+F_ncpthis;
 
                     oldRelativeDistance=RelativeTanDistance[i][j];
@@ -379,14 +379,14 @@ void collision::CalculateForceandMoment()
                     else RelativeTanDistance[i][j]=-(abs(miu*F_ncpthis)*UnitTangentVector+MyACTMs[i][nparticles].d_t*g_tcp)*(1.0/MyACTMs[i][nparticles].k_t);
                     //处理力矩
                     M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis);
-                }  
+                }
                 else if(distance>0.0&&RelativeTanDistance[i][j]!=VECTOR(0,0,0))
                 {
                     RelativeTanDistance[i][j]=VECTOR(0,0,0);
-                } 
+                }
             }
-            if (box.back.exists) 
-            {  
+            if (box.back.exists)
+            {
                 j=nparticles+5;
                 distance=abs(box.back.coordinate - X.y)-radius;
                 if(distance<0)
@@ -417,11 +417,11 @@ void collision::CalculateForceandMoment()
                     else RelativeTanDistance[i][j]=-(abs(miu*F_ncpthis)*UnitTangentVector+MyACTMs[i][nparticles].d_t*g_tcp)*(1.0/MyACTMs[i][nparticles].k_t);
                     //处理力矩
                     M_cp=M_cp+((radius*UnitNormalVector)^F_tcpthis);
-                }  
+                }
                 else if(distance>0.0&&RelativeTanDistance[i][j]!=VECTOR(0,0,0))
                 {
                     RelativeTanDistance[i][j]=VECTOR(0,0,0);
-                } 
+                }
             }
         }
        //修改i球方程的右端项
@@ -432,16 +432,16 @@ void collision::CalculateForceandMoment()
 
 void collision::ParticleStatusChange()
 {
-    
+
     for(llu i=0;i<nparticles;i++)
-    {        
+    {
         //就更新好了下一时刻的速度和坐标，这样我就可以算力的时候用到的是同一时刻的坐标和速度
         MyParticles[i].a=MyParticles[i].force*(1.0/MyParticles[i].mass);
         MyParticles[i].alpha=MyParticles[i].moment*(1.0/MyParticles[i].inertia);
         nowstep++;
         VECTOR oldX=MyParticles[i].X,oldV=MyParticles[i].V;
         MyParticles[i].V=MyParticles[i].V+MyParticles[i].a*delta_t;
-        MyParticles[i].X=MyParticles[i].X+MyParticles[i].V*delta_t; 
+        MyParticles[i].X=MyParticles[i].X+MyParticles[i].V*delta_t;
        if(oldX.z>0.000125 && MyParticles[i].X.z<0.000125)
         {oldV=oldV+(MyParticles[i].omega^(VECTOR(0,0,-1)*MyParticles[i].radius));ss<<oldV.x/-oldV.z<<" ";}
         MyParticles[i].omega=MyParticles[i].omega+MyParticles[i].alpha*delta_t;
@@ -457,37 +457,37 @@ void collision::output()
     // ss<<endl;
 }
 
-void BoundaryBox::setBoundary(bool leftExists, double leftCoord,  
-                     bool rightExists, double rightCoord,  
-                     bool bottomExists, double bottomCoord,  
-                     bool topExists, double topCoord,  
-                     bool frontExists, double frontCoord,  
+void BoundaryBox::setBoundary(bool leftExists, double leftCoord,
+                     bool rightExists, double rightCoord,
+                     bool bottomExists, double bottomCoord,
+                     bool topExists, double topCoord,
+                     bool frontExists, double frontCoord,
                      bool backExists, double backCoord)
 {
-    left = Boundary(leftExists, leftCoord);  
-    right = Boundary(rightExists, rightCoord);  
-    bottom = Boundary(bottomExists, bottomCoord);  
-    top = Boundary(topExists, topCoord);  
-    front = Boundary(frontExists, frontCoord);  
-    back = Boundary(backExists, backCoord);    
+    left = Boundary(leftExists, leftCoord);
+    right = Boundary(rightExists, rightCoord);
+    bottom = Boundary(bottomExists, bottomCoord);
+    top = Boundary(topExists, topCoord);
+    front = Boundary(frontExists, frontCoord);
+    back = Boundary(backExists, backCoord);
 }
 
 VECTOR CalculateRelativeV(const Particle &a, const Particle &b)
 {
-   // 计算两个球心之间的单位向量 n  
-    VECTOR n = (b.X - a.X).Unit(); // 假设 X 表示位置  
-  
-    // 计算两个小球之间的相对速度 g  
-    VECTOR g = a.V - b.V;  
-  
-    // 计算 R_a * (omega_a ^ n) 和 R_b * (omega_b ^ n)  
-    VECTOR temp1 = a.omega ^ n;  
-    VECTOR temp2 = b.omega ^ n;  
-    VECTOR result1 = a.radius * temp1;  
-    VECTOR result2 = b.radius * temp2;  
-  
-    // 计算最终结果  
-    VECTOR ans = g + result1 + result2;  
-  
-    return ans;     
+   // 计算两个球心之间的单位向量 n
+    VECTOR n = (b.X - a.X).Unit(); // 假设 X 表示位置
+
+    // 计算两个小球之间的相对速度 g
+    VECTOR g = a.V - b.V;
+
+    // 计算 R_a * (omega_a ^ n) 和 R_b * (omega_b ^ n)
+    VECTOR temp1 = a.omega ^ n;
+    VECTOR temp2 = b.omega ^ n;
+    VECTOR result1 = a.radius * temp1;
+    VECTOR result2 = b.radius * temp2;
+
+    // 计算最终结果
+    VECTOR ans = g + result1 + result2;
+
+    return ans;
 }

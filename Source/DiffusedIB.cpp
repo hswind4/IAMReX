@@ -120,7 +120,7 @@ void calculate_phi_nodal(MultiFab& phi_nodal, kernel& current_kernel)
         auto const& pnfab = phi_nodal.array(mfi);
         auto dx = ParticleProperties::dx;
         auto plo = ParticleProperties::plo;
-        
+
         if (geometry_type == 1) {
             // Sphere geometry
             amrex::ParallelFor(bx, [=]
@@ -157,23 +157,23 @@ void calculate_phi_nodal(MultiFab& phi_nodal, kernel& current_kernel)
                     Real xp2 = xp * xp;
                     Real yp2 = yp * yp;
                     Real zp2 = zp * zp;
-                    
+
                     Real a2 = a * a;
                     Real b2 = b * b;
                     Real c2 = c * c;
-                    
+
                     Real numerator = (xp2 / a2 + yp2 / b2 + zp2 / c2) - 1.0;
-                    
+
                     Real xp4 = xp2 * xp2;
                     Real yp4 = yp2 * yp2;
                     Real zp4 = zp2 * zp2;
-                    
+
                     Real a4 = a2 * a2;
                     Real b4 = b2 * b2;
                     Real c4 = c2 * c2;
-                    
+
                     Real denominator = 2.0 * std::sqrt(xp4 / a4 + yp4 / b4 + zp4 / c4);
-                    
+
                     // Do not normalize here!
                     pnfab(i,j,k) = numerator / (denominator + 1.e-12);
 
@@ -261,7 +261,7 @@ Real cal_momentum(Real rho, Real radius, int geometry_type = 1, int idir = 0, Re
         Real b = (radius2 > 0.0) ? radius2 : radius;
         Real c = (radius3 > 0.0) ? radius3 : radius;
         Real m = 4.0 * Math::pi<Real>() * rho * a * b * c / 3.0;
-        
+
         // Moment of inertia depends on rotation axis
         Real I;
         if (idir == 0) {
@@ -314,8 +314,8 @@ void deltaFunction(Real xf, Real xp, Real h, Real& value, DELTA_FUNCTION_TYPE ty
 /*                    mParticle member function                  */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 //loop all particels
-void mParticle::InteractWithEuler(MultiFab &EulerVel, 
-                                  MultiFab &EulerForce, 
+void mParticle::InteractWithEuler(MultiFab &EulerVel,
+                                  MultiFab &EulerForce,
                                   Real dt,
                                   DELTA_FUNCTION_TYPE type)
 {
@@ -325,7 +325,7 @@ void mParticle::InteractWithEuler(MultiFab &EulerVel,
     auto InteractWithEulerStart = ParallelDescriptor::second();
 
     MultiFab EulerForceTmp(EulerForce.boxArray(), EulerForce.DistributionMap(), 3, EulerForce.nGrow());
-    //clean preStep's IB_porperties 
+    //clean preStep's IB_porperties
     for(auto& kernel : particle_kernels) {
         kernel.ib_force.scale(0.0);
         kernel.ib_moment.scale(0.0);
@@ -336,7 +336,7 @@ void mParticle::InteractWithEuler(MultiFab &EulerVel,
     BL_ASSERT(loop > 0);
     while(loop > 0){
         if(verbose) amrex::Print() << "[Particle] Ns loop index : " << loop << "\n";
-        
+
         EulerForce.setVal(0.0);
 
         for(kernel& kernel : particle_kernels){
@@ -466,7 +466,7 @@ void mParticle::InitParticles(const Vector<Real>& x,
         Real phiK = 0;
         for(int marker_index = 0; marker_index < Ml; marker_index++){
             Real Hk = -1.0 + 2.0 * (marker_index) / ( Ml - 1.0);
-            Real thetaK = std::acos(Hk);    
+            Real thetaK = std::acos(Hk);
             if(marker_index == 0 || marker_index == (Ml - 1)){
                 phiK = 0;
             }else {
@@ -479,8 +479,8 @@ void mParticle::InitParticles(const Vector<Real>& x,
         particle_kernels.emplace_back(mKernel);
 
         if (verbose) amrex::Print() << "h: " << h << ", Ml: " << Ml << ", D: " << Math::powi<3>(h) << " gravity : " << gravity << "\n"
-                                    << "Kernel : " << index << ": Location (" << x[index] << ", " << y[index] << ", " << z[index] 
-                                    << "), Velocity : (" << mKernel.velocity[0] << ", " << mKernel.velocity[1] << ", "<< mKernel.velocity[2] 
+                                    << "Kernel : " << index << ": Location (" << x[index] << ", " << y[index] << ", " << z[index]
+                                    << "), Velocity : (" << mKernel.velocity[0] << ", " << mKernel.velocity[1] << ", "<< mKernel.velocity[2]
                                     << "), Radius: " << mKernel.radius << ", Radius2: " << mKernel.radius2 << ", Radius3: " << mKernel.radius3 << ", Ml: " << Ml << ", dv: " << dv << ", Rho: " << mKernel.rho << "\n";
     }
     //collision box generate
@@ -585,9 +585,9 @@ void mParticle::VelocityInterpolation(MultiFab &EulerVel,
     const int EulerVelocityIndex = ParticleProperties::euler_velocity_index;
 
     for(mParIter pti(*mContainer, LOCAL_LEVEL); pti.isValid(); ++pti){
-        
+
         const Box& box = pti.validbox();
-        
+
         auto& particles = pti.GetArrayOfStructs();
         auto *p_ptr = particles.data();
         const Long np = pti.numParticles();
@@ -598,7 +598,7 @@ void mParticle::VelocityInterpolation(MultiFab &EulerVel,
         auto* Wp = attri[P_ATTR::W_Marker].data();
         const auto& E = EulerVel.array(pti);
 
-        amrex::ParallelFor(np, [=] 
+        amrex::ParallelFor(np, [=]
         AMREX_GPU_DEVICE (int i) noexcept{
             VelocityInterpolation_cir(i, p_ptr[i], Up[i], Vp[i], Wp[i], E, EulerVelocityIndex, box.loVect(), box.hiVect(), plo, dx, type);
         });
@@ -690,8 +690,8 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
         amrex::ParallelFor(np, [=]
         AMREX_GPU_DEVICE (int i) noexcept{
             ForceSpreading_cic(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
-                               fxP_ptr[i], fyP_ptr[i], fzP_ptr[i], 
-                               mxP_ptr[i], myP_ptr[i], mzP_ptr[i], 
+                               fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
+                               mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
                                Uarray, force_index, dv, plo, dxi, type);
         });
     }
@@ -786,10 +786,10 @@ void mParticle::ResetLargrangianPoints()
 
 void mParticle::UpdateParticles(int iStep,
                                 Real time,
-                                const MultiFab& Euler_old, 
+                                const MultiFab& Euler_old,
                                 const MultiFab& Euler,
-                                MultiFab& phi_nodal, 
-                                MultiFab& pvf, 
+                                MultiFab& phi_nodal,
+                                MultiFab& pvf,
                                 Real dt)
 {
     if (verbose) amrex::Print() << "mParticle::UpdateParticles\n";
@@ -798,10 +798,10 @@ void mParticle::UpdateParticles(int iStep,
 
     //Particle Collision calculation
     DoParticleCollision(ParticleProperties::collision_model);
-    
+
     MultiFab AllParticlePVF(pvf.boxArray(), pvf.DistributionMap(), pvf.nComp(), pvf.nGrow());
     AllParticlePVF.setVal(0.0);
-    
+
     //continue condition 6DOF
     for(auto& kernel : particle_kernels){
 
@@ -821,10 +821,10 @@ void mParticle::UpdateParticles(int iStep,
         MultiFab pvf_old(pvf.boxArray(), pvf.DistributionMap(), ncomp, ngrow);
         MultiFab::Copy(pvf_old, pvf, 0, 0, ncomp, ngrow);
 
-        // bool at_least_one_free_trans_motion = ( kernel.TL[0] == 2 ) || 
+        // bool at_least_one_free_trans_motion = ( kernel.TL[0] == 2 ) ||
         //                                       ( kernel.TL[1] == 2 ) ||
         //                                       ( kernel.TL[2] == 2 );
-        // bool at_least_one_free_rot_motion   = ( kernel.RL[0] == 2 ) || 
+        // bool at_least_one_free_rot_motion   = ( kernel.RL[0] == 2 ) ||
         //                                       ( kernel.RL[1] == 2 ) ||
         //                                       ( kernel.RL[2] == 2 );
 
@@ -867,9 +867,9 @@ void mParticle::UpdateParticles(int iStep,
                     else if (kernel.TL[idir] == 2) {
                         if(!ParticleProperties::Uhlmann){
                             kernel.velocity[idir] = kernel.velocity_old[idir]
-                                                + ((kernel.sum_u_new[idir] - kernel.sum_u_old[idir]) * ParticleProperties::euler_fluid_rho / dt 
+                                                + ((kernel.sum_u_new[idir] - kernel.sum_u_old[idir]) * ParticleProperties::euler_fluid_rho / dt
                                                 - kernel.ib_force[idir] * ParticleProperties::euler_fluid_rho
-                                                + m_gravity[idir] * (kernel.rho - ParticleProperties::euler_fluid_rho) * kernel.Vp 
+                                                + m_gravity[idir] * (kernel.rho - ParticleProperties::euler_fluid_rho) * kernel.Vp
                                                 + kernel.Fcp[idir]) * dt / kernel.rho / kernel.Vp ;
                         }else{
                             //Uhlmann
@@ -915,7 +915,7 @@ void mParticle::UpdateParticles(int iStep,
             ParallelDescriptor::Bcast(&kernel.velocity_old[0],3,ParallelDescriptor::IOProcessorNumber());
             ParallelDescriptor::Bcast(&kernel.omega[0],3,ParallelDescriptor::IOProcessorNumber());
             ParallelDescriptor::Bcast(&kernel.omega_old[0],3,ParallelDescriptor::IOProcessorNumber());
-        
+
             loop--;
 
             if (loop > 0) {
@@ -924,7 +924,7 @@ void mParticle::UpdateParticles(int iStep,
             }
 
         }
-        
+
         RecordOldValue(kernel);
         MultiFab::Add(AllParticlePVF, pvf, 0, 0, 1, 0); // do not copy ghost cell values
     }
@@ -937,7 +937,7 @@ void mParticle::UpdateParticles(int iStep,
 
     int particle_write_freq = ParticleProperties::write_freq;
     if (iStep % particle_write_freq == 0) {
-        for(auto kernel: particle_kernels) 
+        for(auto kernel: particle_kernels)
             WriteIBForceAndMoment(iStep, time, dt, kernel);
     }
 
@@ -949,16 +949,16 @@ void mParticle::DoParticleCollision(int model)
     if(particle_kernels.size() < 2 ) return ;
 
     if (verbose) amrex::Print() << "\tmParticle::DoParticleCollision\n";
-    
+
     if(ParallelDescriptor::MyProc() == ParallelDescriptor::IOProcessorNumber()){
         for(const auto& kernel : particle_kernels){
             m_Collision.InsertParticle(kernel.location, kernel.velocity, kernel.radius, kernel.rho);
         }
-        
+
         m_Collision.takeModel(model);
 
         for(auto & particle_kernel : particle_kernels){
-            particle_kernel.Fcp = m_Collision.Particles.front().preForece 
+            particle_kernel.Fcp = m_Collision.Particles.front().preForece
                                 * particle_kernel.Vp * particle_kernel.rho * m_gravity.vectorLength();
             m_Collision.Particles.pop_front();
         }
@@ -968,10 +968,10 @@ void mParticle::DoParticleCollision(int model)
     }
 }
 
-void mParticle::ComputeLagrangianForce(Real dt, 
+void mParticle::ComputeLagrangianForce(Real dt,
                                        const kernel& kernel)
 {
-    
+
     if (verbose) amrex::Print() << "\tmParticle::ComputeLagrangianForce\n";
 
     Real Ub = kernel.velocity[0];
@@ -1025,8 +1025,8 @@ void mParticle::WriteParticleFile(int index)
 
 void mParticle::WriteIBForceAndMoment(int step, amrex::Real time, amrex::Real dt, kernel& current_kernel)
 {
-    
-    if(amrex::ParallelDescriptor::MyProc() != ParallelDescriptor::IOProcessorNumber()) return; 
+
+    if(amrex::ParallelDescriptor::MyProc() != ParallelDescriptor::IOProcessorNumber()) return;
 
     std::string file("IB_Particle_" + std::to_string(current_kernel.id) + ".csv");
     std::ofstream out_ib_force;
@@ -1042,11 +1042,11 @@ void mParticle::WriteIBForceAndMoment(int step, amrex::Real time, amrex::Real dt
     if(!out_ib_force.is_open()){
         amrex::Print() << "[Particle] write particle file error , step: " << step;
     }else{
-        out_ib_force << head << step << "," << time << "," 
+        out_ib_force << head << step << "," << time << ","
                      << current_kernel.location[0] << "," << current_kernel.location[1] << "," << current_kernel.location[2] << ","
                      << current_kernel.velocity[0] << "," << current_kernel.velocity[1] << "," << current_kernel.velocity[2] << ","
                      << current_kernel.omega[0] << "," << current_kernel.omega[1] << "," << current_kernel.omega[2] << ","
-                     << current_kernel.ib_force[0] << "," << current_kernel.ib_force[1] << "," << current_kernel.ib_force[2] << "," 
+                     << current_kernel.ib_force[0] << "," << current_kernel.ib_force[1] << "," << current_kernel.ib_force[2] << ","
                      << current_kernel.ib_moment[0] << "," << current_kernel.ib_moment[1] << "," << current_kernel.ib_moment[2] << ","
                      << current_kernel.Fcp[0] << "," << current_kernel.Fcp[1] << "," << current_kernel.Fcp[2] << ","
                      << current_kernel.Tcp[0] << "," << current_kernel.Tcp[1] << "," << current_kernel.Tcp[2] << ","
@@ -1102,7 +1102,7 @@ void Particles::create_particles(const Geometry &gm,
             particleTileTmp.push_back_real(Marker_attr);
         }
     }
-    particle->mContainer->Redistribute(); // Still needs to redistribute here! 
+    particle->mContainer->Redistribute(); // Still needs to redistribute here!
 
     ParticleProperties::plo = gm.ProbLoArray();
     ParticleProperties::phi = gm.ProbHiArray();
@@ -1122,8 +1122,8 @@ void Particles::init_particle(Real gravity, Real h)
     if(particle != nullptr){
         isInitial = true;
         particle->InitParticles(
-            ParticleProperties::_x, 
-            ParticleProperties::_y, 
+            ParticleProperties::_x,
+            ParticleProperties::_y,
             ParticleProperties::_z,
             ParticleProperties::_rho,
             ParticleProperties::Vx,
@@ -1152,13 +1152,13 @@ void Particles::init_particle(Real gravity, Real h)
 void Particles::Restart(Real gravity, Real h, int iStep)
 {
     amrex::Print() << "[Particle] : restart Particle's kernel, step :" << iStep << "\n"
-                   << "\tstart read particle csv file , default name is IB_Particle_x.csv\n" 
+                   << "\tstart read particle csv file , default name is IB_Particle_x.csv\n"
                    << "\tdo not delete those file before \"restart\"\n\n";
     delete particle;
     particle = new mParticle;
             particle->InitParticles(
-            ParticleProperties::_x, 
-            ParticleProperties::_y, 
+            ParticleProperties::_x,
+            ParticleProperties::_y,
             ParticleProperties::_z,
             ParticleProperties::_rho,
             ParticleProperties::Vx,
@@ -1253,7 +1253,7 @@ void Particles::Initialize()
     std::string particle_inputfile;
     std::string particle_init_file;
     pp.get("input",particle_inputfile);
-    
+
     if(!particle_inputfile.empty()){
         ParmParse p_file(particle_inputfile);
         p_file.query("init", particle_init_file);
@@ -1285,10 +1285,10 @@ void Particles::Initialize()
         p_file.query("Uhlmann",     ParticleProperties::Uhlmann);
         p_file.query("collision_model", ParticleProperties::collision_model);
         p_file.query("write_freq",  ParticleProperties::write_freq);
-        
+
         ParmParse ns("ns");
         ns.get("fluid_rho",      ParticleProperties::euler_fluid_rho);
-        
+
         ParmParse level_parse("amr");
         level_parse.get("max_level", ParticleProperties::euler_finest_level);
 

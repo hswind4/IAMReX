@@ -12,26 +12,26 @@ class Particle;
 class collision;
 class ACTM;
 VECTOR CalculateRelativeV(const Particle& a, const Particle& b); //计算接触点相对速度 A.8a
-class BoundaryBox {  
-public:  
-    // 边界的结构体定义  
-    struct Boundary {  
-        bool exists; // 边界是否存在  
-        double coordinate; // 边界的坐标位置  
-  
-        Boundary(bool e = false, double c = 0.0) : exists(e), coordinate(c) {}  
-    };  
-  
-    // 三维区域的六个边界  
-    Boundary left, right, bottom, top, front, back;    
-    // 设置边界的函数  
-    void setBoundary(bool leftExists, double leftCoord,  
-                     bool rightExists, double rightCoord,  
-                     bool bottomExists, double bottomCoord,  
-                     bool topExists, double topCoord,  
-                     bool frontExists, double frontCoord,  
+class BoundaryBox {
+public:
+    // 边界的结构体定义
+    struct Boundary {
+        bool exists; // 边界是否存在
+        double coordinate; // 边界的坐标位置
+
+        Boundary(bool e = false, double c = 0.0) : exists(e), coordinate(c) {}
+    };
+
+    // 三维区域的六个边界
+    Boundary left, right, bottom, top, front, back;
+    // 设置边界的函数
+    void setBoundary(bool leftExists, double leftCoord,
+                     bool rightExists, double rightCoord,
+                     bool bottomExists, double bottomCoord,
+                     bool topExists, double topCoord,
+                     bool frontExists, double frontCoord,
                      bool backExists, double backCoord);
-    // 计算点到边界的距离 
+    // 计算点到边界的距离
 };
 
 class collision{
@@ -50,9 +50,9 @@ public:
     vector<vector<ACTM>>MyACTMs;//
     vector<vector<VECTOR>>RelativeTanDistance;//切向相对位移
     BoundaryBox box;
-  
+
     stringstream ss;
-    collision( double _e_t, double _e_n, double _delta_t, double _gravity,double _miu, double _DensityofFluid);   
+    collision( double _e_t, double _e_n, double _delta_t, double _gravity,double _miu, double _DensityofFluid);
     void setBoundary(BoundaryBox);
     void setstep(int);//设置时间步长
     void setnparticles(llu);//设置小球个数
@@ -64,7 +64,7 @@ public:
     void output();
 };
 
-  
+
 class Particle
 {
 private:

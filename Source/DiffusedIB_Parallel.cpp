@@ -133,7 +133,7 @@ void calculate_phi_nodal(MultiFab& phi_nodal, kernel& current_kernel)
         auto const& pnfab = phi_nodal.array(mfi);
         auto dx = ParticleProperties::dx;
         auto plo = ParticleProperties::plo;
-        
+
         if (geometry_type == 1) {
             // Sphere geometry
             ParallelFor(bx, [=]
@@ -170,23 +170,23 @@ void calculate_phi_nodal(MultiFab& phi_nodal, kernel& current_kernel)
                     Real xp2 = xp * xp;
                     Real yp2 = yp * yp;
                     Real zp2 = zp * zp;
-                    
+
                     Real a2 = a * a;
                     Real b2 = b * b;
                     Real c2 = c * c;
-                    
+
                     Real numerator = (xp2 / a2 + yp2 / b2 + zp2 / c2) - 1.0;
-                    
+
                     Real xp4 = xp2 * xp2;
                     Real yp4 = yp2 * yp2;
                     Real zp4 = zp2 * zp2;
-                    
+
                     Real a4 = a2 * a2;
                     Real b4 = b2 * b2;
                     Real c4 = c2 * c2;
-                    
+
                     Real denominator = 2.0 * std::sqrt(xp4 / a4 + yp4 / b4 + zp4 / c4);
-                    
+
                     // Do not normalize here!
                     pnfab(i,j,k) = numerator / (denominator + 1.e-12);
 
@@ -274,7 +274,7 @@ Real cal_momentum(Real rho, Real radius, int geometry_type = 1, int idir = 0, Re
         Real b = (radius2 > 0.0) ? radius2 : radius;
         Real c = (radius3 > 0.0) ? radius3 : radius;
         Real m = 4.0 * Math::pi<Real>() * rho * a * b * c / 3.0;
-        
+
         // Moment of inertia depends on rotation axis
         Real I;
         if (idir == 0) {

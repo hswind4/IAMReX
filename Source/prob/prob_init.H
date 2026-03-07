@@ -52,7 +52,7 @@ struct InitialConditions
   // ls related
   // total time for rsv problem
   amrex::Real totalTimeRsv = 4.0;
-    
+
   //
   // ls related
   //

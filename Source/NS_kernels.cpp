@@ -82,7 +82,7 @@ void cc_to_cc_grad(Array<std::unique_ptr<MultiFab>,AMREX_SPACEDIM>& phi_cc_grad,
             AMREX_D_TERM(const auto& gx = phi_cc_grad[0]->array(mfi);,
                          const auto& gy = phi_cc_grad[1]->array(mfi);,
                          const auto& gz = phi_cc_grad[2]->array(mfi););
-#if (AMREX_SPACEDIM == 2)            
+#if (AMREX_SPACEDIM == 2)
             ParallelFor(bx, ncomp, [gx, gy, mag]
             AMREX_GPU_DEVICE (int i, int j, int k, int n ) noexcept
             {
@@ -151,7 +151,7 @@ void cc_grad_to_cc_div(MultiFab& phi_cc_div,
                      const auto& gy = phi_cc_grad[1]->array(mfi);,
                      const auto& gz = phi_cc_grad[2]->array(mfi););
 
-#if (AMREX_SPACEDIM == 2)            
+#if (AMREX_SPACEDIM == 2)
         ParallelFor(bx, ncomp, [s, gx, gy, dxi, dyi]
         AMREX_GPU_DEVICE (int i, int j, int k, int n ) noexcept
         {
@@ -198,7 +198,7 @@ void cc_to_cc_lap(MultiFab& phi_cc_lap, MultiFab& phi, const Geometry& geom)
         const auto& s = phi_cc_lap.array(mfi);
         const auto& s_in = phi.array(mfi);
 
-#if (AMREX_SPACEDIM == 2)            
+#if (AMREX_SPACEDIM == 2)
         ParallelFor(bx, ncomp, [s, s_in, dxi, dyi]
         AMREX_GPU_DEVICE (int i, int j, int k, int n ) noexcept
         {

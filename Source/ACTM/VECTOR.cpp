@@ -33,19 +33,19 @@ VECTOR VECTOR::operator-() const
     return VECTOR(-x,-y,-z);
 }
 
-// 矢量与标量的乘法  
-VECTOR VECTOR::operator*(double scalar) const {  
-    return VECTOR(x * scalar, y * scalar, z * scalar);  
+// 矢量与标量的乘法
+VECTOR VECTOR::operator*(double scalar) const {
+    return VECTOR(x * scalar, y * scalar, z * scalar);
 }
 //点乘
 double VECTOR::operator*(const VECTOR &V) const
 {
-    return x * V.x + y * V.y + z * V.z; 
+    return x * V.x + y * V.y + z * V.z;
 }
 
 VECTOR VECTOR::operator^(const VECTOR &V) const
-{  
-    return VECTOR(y * V.z - z * V.y, z * V.x - x * V.z, x * V.y - y * V.x);  
+{
+    return VECTOR(y * V.z - z * V.y, z * V.x - x * V.z, x * V.y - y * V.x);
 }
 bool VECTOR::operator==(const VECTOR &V) const
 {
@@ -63,8 +63,8 @@ double abs(const VECTOR &vec)
 }
 
 // 矢量与标量的乘法
-VECTOR operator*(double scalar, const VECTOR& vec) {  
-    return VECTOR(vec.x * scalar, vec.y * scalar, vec.z * scalar);  
+VECTOR operator*(double scalar, const VECTOR& vec) {
+    return VECTOR(vec.x * scalar, vec.y * scalar, vec.z * scalar);
 }
 
 VECTOR::VECTOR(double _x, double _y, double _z)
@@ -76,11 +76,11 @@ VECTOR::VECTOR(double _x, double _y, double _z)
 
 VECTOR VECTOR::Unit() const
 {
-    double mag = abs(*this);  
+    double mag = abs(*this);
     return (*this) * (1.0 / (mag ? mag : 1.0));
 }
 
-std::ostream& operator<<(std::ostream& os, const VECTOR& vec) {  
-    os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";  
-    return os;  
+std::ostream& operator<<(std::ostream& os, const VECTOR& vec) {
+    os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+    return os;
 }

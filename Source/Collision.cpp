@@ -27,7 +27,7 @@ void ParticleCollision::SetGeometry(amrex::RealVect gm_lo, amrex::RealVect gm_hi
     mesh_size = l;
     // Cells = new std::vector<CollisionCell>(Nx * Ny * Nz);
 
-    // amrex::Print() << "[Collision] : size (" << Nx << "," << Ny << "," << Nz << ")\n";   
+    // amrex::Print() << "[Collision] : size (" << Nx << "," << Ny << "," << Nz << ")\n";
 }
 
 void ParticleCollision::InsertParticle(amrex::RealVect location, amrex::RealVect velocity, amrex::Real radius, amrex::Real rho)

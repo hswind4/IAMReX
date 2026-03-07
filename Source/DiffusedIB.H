@@ -84,7 +84,7 @@ struct kernel{
 
     amrex::Gpu::DeviceVector<Real> phiK;
     amrex::Gpu::DeviceVector<Real> thetaK;
-    
+
     IntVect TL{0, 0, 0}, RL{0, 0, 0};
 };
 
@@ -92,7 +92,7 @@ class mParIter : public ParIter<0, 0, numAttri>{
 public:
     using amrex::ParIter<0, 0, numAttri>::ParIter;
     using RealVector = amrex::ParIter<0, 0, numAttri>::ContainerType::RealVector;
- 
+
     [[nodiscard]] const std::array<RealVector, numAttri>& GetAttribs () const {
         return GetStructOfArrays().GetRealData();
     }
@@ -200,8 +200,8 @@ public:
                             const Vector<Real>& z,
                             Real rho_s,
                             Real radius,
-                            Real rho_f, 
-                            int force_index, 
+                            Real rho_f,
+                            int force_index,
                             int velocity_index,
                             int finest_level);
 

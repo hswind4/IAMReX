@@ -18,7 +18,7 @@ jobs:
           ls /home/runner/work
           echo "------------"
           ls /home/runner/work/IAMReX
-          echo "------------"  
+          echo "------------"
       - name: Install MPI
         run: |
           sudo apt update
@@ -27,7 +27,7 @@ jobs:
         run: |
           cd /home/runner/work/IAMReX
           git clone https://github.com/AMReX-Codes/amrex.git
-          git clone https://github.com/AMReX-Fluids/AMReX-Hydro.git         
+          git clone https://github.com/AMReX-Fluids/AMReX-Hydro.git
       - name: Run IAMReX tests
         run: |
           cd /home/runner/work/IAMReX/IAMReX

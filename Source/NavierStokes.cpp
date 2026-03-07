@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 1997 - 2023 Berkeley Lab; 2023 - 2025 Yadong Zeng<zdsjtu@gmail.com> & ZhuXu Li<1246206018@qq.com>
-// 
+//
 // SPDX-License-Identifier: LicenseRef-OpenSource
 // Modified from IAMR, originally developed at Lawrence Berkeley National Lab.
 // Original source: https://github.com/AMReX-Fluids/IAMR
@@ -68,7 +68,7 @@ NavierStokes::Initialize ()
     //
     if (do_phi)
         phicomp = NUM_STATE++;
-    if (verbose) 
+    if (verbose)
         amrex::Print() << "do_phi, phicomp, NUM_STATE " << do_phi << " " << phicomp << " " << NUM_STATE << std::endl;
 
     //
@@ -106,7 +106,7 @@ NavierStokes::Initialize_bcs ()
       for ( int nc = 0; nc < ntrac; nc++ )
     m_bc_values[ori][Tracer+nc] = 0.0;
       if (do_temp)
-	  m_bc_values[ori][Temp] = 1.0;
+      m_bc_values[ori][Temp] = 1.0;
     //
     // ls related
     //
@@ -350,7 +350,7 @@ NavierStokes::Initialize_diffusivities ()
     if (do_phi)
     {
         visc_coef[phicomp] = -1;
-    }    
+    }
 }
 
 void
@@ -616,7 +616,7 @@ NavierStokes::advance (Real time,
     }
     else{
         amrex::Abort("Wrong isolver");
-    }    
+    }
 
     //
     // Clean up after the predicted value at t^n+1.
@@ -1041,7 +1041,7 @@ NavierStokes::sum_integrated_quantities ()
         else
         {
             amrex::Abort("Failed to open mass.txt for writing");
-        }        
+        }
     }
 }
 
@@ -2228,7 +2228,7 @@ NavierStokes::advance_semistaggered_twophase_ls (Real time,
     //
     // ls related
     // note: in the above scalar_advection function, we still advect rho.
-    // 
+    //
     if (do_phi) {
         amrex::Print() << "After scalar_advection " << std::endl;
         // const Real  prev_time = state[State_Type].prevTime();
@@ -2259,7 +2259,7 @@ NavierStokes::advance_semistaggered_twophase_ls (Real time,
 
         if (do_mom_diff == 0) {
             // update the rho_ctime and density in S_new
-            phi_to_heavi(geom, epsilon, phi_ctime, heaviside); 
+            phi_to_heavi(geom, epsilon, phi_ctime, heaviside);
             heavi_to_rhoormu(heaviside, rho_w, rho_a, rho_ctime);
             MultiFab::Copy(S_new, rho_ctime, 0, Density, 1, rho_ctime.nGrow());
             // update phi_half
@@ -2348,10 +2348,10 @@ NavierStokes::advance_semistaggered_twophase_ls (Real time,
             velocity_advection(dt);
         //
         // ls related
-        // 
+        //
         if (do_phi) {
             //
-            // Add the advective and other terms to get scalars at t^{n+1} except 
+            // Add the advective and other terms to get scalars at t^{n+1} except
             // the level set function.
             scalar_update(dt,first_scalar+1,phicomp-1);
         }
@@ -2401,7 +2401,7 @@ NavierStokes::advance_semistaggered_twophase_ls (Real time,
             //
             if (projector) {
                 const int finest_level = parent->finestLevel();
-                int solve_coarse_level = iteration % 2; 
+                int solve_coarse_level = iteration % 2;
                 if (verbose)
                 {
                     // Print() << "solve_coarse_level " << solve_coarse_level << std::endl;
@@ -2511,7 +2511,7 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
     //
     // ls related
     // note: in the above scalar_advection function, we still advect rho.
-    // 
+    //
     if (do_phi) {
         amrex::Print() << "After scalar_advection " << std::endl;
         // const Real  prev_time = state[State_Type].prevTime();
@@ -2542,7 +2542,7 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
 
         if (do_mom_diff == 0) {
             // update the rho_ctime and density in S_new
-            phi_to_heavi(geom, epsilon, phi_ctime, heaviside); 
+            phi_to_heavi(geom, epsilon, phi_ctime, heaviside);
             heavi_to_rhoormu(heaviside, rho_w, rho_a, rho_ctime);
             MultiFab::Copy(S_new, rho_ctime, 0, Density, 1, rho_ctime.nGrow());
             // update phi_half
@@ -2651,10 +2651,10 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
             velocity_advection(dt);
         //
         // ls related
-        // 
+        //
         if (do_phi) {
             //
-            // Add the advective and other terms to get scalars at t^{n+1} except 
+            // Add the advective and other terms to get scalars at t^{n+1} except
             // the level set function.
             scalar_update(dt,first_scalar+1,phicomp-1);
         }
@@ -2682,7 +2682,7 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
         // Add the advective and other terms to get velocity at t^{n+1}.
         //
         velocity_update(dt);
-        
+
 #ifdef AMREX_PARTICLES
         if (level == Particles::ParticleFinestLevel())//parent->finestLevel())
         {
@@ -2690,7 +2690,7 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
             // S_new.setVal(1.0, 0, 1, S_new.nGrow()); // u = 1
             // S_new.setVal(2.0, 1, 1, S_new.nGrow()); // v = 2
             // S_new.setVal(3.0, 2, 1, S_new.nGrow()); // w = 3
-            MultiFab EulerForce(S_new.boxArray(), S_new.DistributionMap(), 3, S_new.nGrow());            
+            MultiFab EulerForce(S_new.boxArray(), S_new.DistributionMap(), 3, S_new.nGrow());
             Particles::get_particles()->InteractWithEuler(S_new, EulerForce, dt); // parent->levelSteps(0), time
         }
         //amrex::Abort("Stop here!");
@@ -2716,7 +2716,7 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
             //
             if (projector) {
                 const int finest_level = parent->finestLevel();
-                int solve_coarse_level = iteration % 2; 
+                int solve_coarse_level = iteration % 2;
                 if (verbose)
                 {
                     Print() << "solve_coarse_level " << solve_coarse_level << std::endl;
@@ -2760,7 +2760,7 @@ NavierStokes::advance_semistaggered_fsi_diffusedib (Real time,
 
 //
 // phase field method
-// 
+//
 Real
 NavierStokes::advance_semistaggered_twophase_phasefield (Real time,
                        Real dt,
@@ -2826,10 +2826,10 @@ NavierStokes::advance_semistaggered_twophase_phasefield (Real time,
     //
     // pm related
     // note: in the above scalar_advection function, we still advect rho.
-    // 
+    //
     if (do_phi) {
 
-        // SOLVE AND UPDATE THE PHASE FIELD EQUATION HERE 
+        // SOLVE AND UPDATE THE PHASE FIELD EQUATION HERE
         // BY REPLACING THE FOLLOWING LEVEL SET METHOD! - by ZDSJTU
 
         amrex::Print() << "After scalar_advection " << std::endl;
@@ -2861,7 +2861,7 @@ NavierStokes::advance_semistaggered_twophase_phasefield (Real time,
 
         if (do_mom_diff == 0) {
             // update the rho_ctime and density in S_new
-            phi_to_heavi(geom, epsilon, phi_ctime, heaviside); 
+            phi_to_heavi(geom, epsilon, phi_ctime, heaviside);
             heavi_to_rhoormu(heaviside, rho_w, rho_a, rho_ctime);
             MultiFab::Copy(S_new, rho_ctime, 0, Density, 1, rho_ctime.nGrow());
             // update phi_half
@@ -2894,10 +2894,10 @@ NavierStokes::advance_semistaggered_twophase_phasefield (Real time,
         velocity_advection(dt);
     //
     // pm related
-    // 
+    //
     if (do_phi) {
         //
-        // Add the advective and other terms to get scalars at t^{n+1} except 
+        // Add the advective and other terms to get scalars at t^{n+1} except
         // the level set function.
         scalar_update(dt,first_scalar+1,phicomp-1);
     }
@@ -2941,7 +2941,7 @@ NavierStokes::advance_semistaggered_twophase_phasefield (Real time,
         //
         if (projector) {
             const int finest_level = parent->finestLevel();
-            int solve_coarse_level = iteration % 2; 
+            int solve_coarse_level = iteration % 2;
             if (verbose)
             {
                 // Print() << "solve_coarse_level " << solve_coarse_level << std::endl;

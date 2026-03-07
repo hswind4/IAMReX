@@ -298,10 +298,10 @@ NavierStokes::variableSetUp ()
     //
     // ls related
     // I still use the set_scalar_bc here. May need improvement.
-    // 
+    //
     if (do_phi) {
        set_scalar_bc(bc,phys_bc,advection_scheme);
-       desc_lst.setComponent(State_Type,phicomp,"phi",bc,state_bf);       
+       desc_lst.setComponent(State_Type,phicomp,"phi",bc,state_bf);
     }
 
     is_diffusive.resize(NUM_STATE);
@@ -322,7 +322,7 @@ NavierStokes::variableSetUp ()
     else {
         amrex::Print() << "Using non-conservative scheme with do_mom_diff = " << do_mom_diff << "\n";
     }
-        
+
 
     if (do_mom_diff == 1)
       for (int d = 0; d < AMREX_SPACEDIM; d++)
