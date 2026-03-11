@@ -648,22 +648,22 @@ void VelocityInterpolationRKPM_cir(
     GpuArray<Real, AMREX_SPACEDIM> const& dx,
     int EulerVIndex)
 {
-    const Real lx = (p.pos(0) - plo[0]) / dx[0]; // x
-    const Real ly = (p.pos(1) - plo[1]) / dx[1]; // y
-    const Real lz = (p.pos(2) - plo[2]) / dx[2]; // z
-
-    const int i = static_cast<int>(Math::floor(lx)); // i
-    const int j = static_cast<int>(Math::floor(ly)); // j
-    const int k = static_cast<int>(Math::floor(lz)); // k
+    amrex::ignore_unused(p, plo, dx);
+    // Use RKPM pre-computed center index (cell_index=13 is the (0,0,0) center
+    // of the 3x3x3 stencil) instead of floor(pos/dx) to avoid cell-boundary
+    // rounding issues that break symmetry.
+    const int i = rkpm_data[13].index[0];
+    const int j = rkpm_data[13].index[1];
+    const int k = rkpm_data[13].index[2];
 
     U = 0;
     V = 0;
     W = 0;
 
     int cell_index = 0;
-    for(int ii = -1; ii < 2; ii++){
-        for(int jj = -1; jj < 2; jj++){
-            for(int kk = -1; kk < 2; kk ++){
+    for (int ii = -1; ii < 2; ii++) {
+        for (int jj = -1; jj < 2; jj++) {
+            for (int kk = -1; kk < 2; kk++) {
                 auto rkpm = rkpm_data[cell_index++];
                 U += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex    );
                 V += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 1);
@@ -838,13 +838,11 @@ void ForceSpreadingRKPM_cir(
     GpuArray<Real,AMREX_SPACEDIM> const& dx,
     int EulerForceIndex)
 {
-    Real lx = (p.pos(0) - plo[0]) / dx[0];
-    Real ly = (p.pos(1) - plo[1]) / dx[1];
-    Real lz = (p.pos(2) - plo[2]) / dx[2];
-
-    int i = static_cast<int>(Math::floor(lx));
-    int j = static_cast<int>(Math::floor(ly));
-    int k = static_cast<int>(Math::floor(lz));
+    amrex::ignore_unused(plo, dx);
+    // Use RKPM pre-computed center index instead of floor(pos/dx)
+    int i = rkpm_data[13].index[0];
+    int j = rkpm_data[13].index[1];
+    int k = rkpm_data[13].index[2];
 
     fxP *= dv;
     fyP *= dv;
@@ -856,13 +854,14 @@ void ForceSpreadingRKPM_cir(
     mzP = moment[2];
 
     int cell_index = 0;
-    for(int ii = -1; ii < 2; ii++){
-        for(int jj = -1; jj < 2; jj++){
-            for(int kk = -1; kk < 2; kk ++){
+    for (int ii = -1; ii < 2; ii++) {
+        for (int jj = -1; jj < 2; jj++) {
+            for (int kk = -1; kk < 2; kk++) {
                 auto rkpm = rkpm_data[cell_index++];
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), Real(rkpm.weight * fxP));
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), Real(rkpm.weight * fyP));
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), Real(rkpm.weight * fzP));
+                // Include Vcell for adjoint consistency with interpolation
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), Real(rkpm.weight * rkpm.Vcell * fxP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), Real(rkpm.weight * rkpm.Vcell * fyP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), Real(rkpm.weight * rkpm.Vcell * fzP));
             }
         }
     }
