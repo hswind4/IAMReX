@@ -858,10 +858,9 @@ void ForceSpreadingRKPM_cir(
         for (int jj = -1; jj < 2; jj++) {
             for (int kk = -1; kk < 2; kk++) {
                 auto rkpm = rkpm_data[cell_index++];
-                // Include Vcell for adjoint consistency with interpolation
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), Real(rkpm.weight * rkpm.Vcell * fxP));
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), Real(rkpm.weight * rkpm.Vcell * fyP));
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), Real(rkpm.weight * rkpm.Vcell * fzP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), Real(rkpm.weight * fxP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), Real(rkpm.weight * fyP));
+                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), Real(rkpm.weight * fzP));
             }
         }
     }
