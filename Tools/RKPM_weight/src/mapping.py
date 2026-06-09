@@ -111,9 +111,16 @@ def build_lag_to_eul_map(
     """
     lag_to_eul_map = {}
 
-    i_offset = int(sx * nxc / Lx)
-    j_offset = int(sy * nyc / Ly)
-    k_offset = int(sz * nzc / Lz)    
+    # Global index offset = sx/dx. Use round (not int/truncate) so that a
+    # grid-aligned origin (sx an integer multiple of dx, enforced in main.py)
+    # maps exactly and is robust to floating-point representation of e.g. 649.0.
+    # If sx is NOT a whole number of cells this offset still truncates the
+    # fractional part -- but main.py now snaps the origin so it is exact, which
+    # makes the local RKPM grid coincide cell-for-cell with the solver grid and
+    # keeps Sum w*(x_euler - x_lag) = 0 in the solver frame.
+    i_offset = round(sx * nxc / Lx)
+    j_offset = round(sy * nyc / Ly)
+    k_offset = round(sz * nzc / Lz)
 
     for lag_id in range(len(lagrangian_points)):
         S_I = all_S_I[lag_id]  # 支持域内的欧拉点及体积信息

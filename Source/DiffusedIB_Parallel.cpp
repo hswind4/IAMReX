@@ -646,30 +646,29 @@ void VelocityInterpolationRKPM_cir(
     Array4<Real const> const& E,
     GpuArray<Real, AMREX_SPACEDIM> const& plo,
     GpuArray<Real, AMREX_SPACEDIM> const& dx,
-    int EulerVIndex)
+    int EulerVIndex,
+    int stencil_size)
 {
     amrex::ignore_unused(p, plo, dx);
-    // Use RKPM pre-computed center index (cell_index=13 is the (0,0,0) center
-    // of the 3x3x3 stencil) instead of floor(pos/dx) to avoid cell-boundary
-    // rounding issues that break symmetry.
-    const int i = rkpm_data[13].index[0];
-    const int j = rkpm_data[13].index[1];
-    const int k = rkpm_data[13].index[2];
 
     U = 0;
     V = 0;
     W = 0;
 
-    int cell_index = 0;
-    for (int ii = -1; ii < 2; ii++) {
-        for (int jj = -1; jj < 2; jj++) {
-            for (int kk = -1; kk < 2; kk++) {
-                auto rkpm = rkpm_data[cell_index++];
-                U += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex    );
-                V += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 1);
-                W += rkpm.weight * rkpm.Vcell * E(i + ii, j + jj, k + kk, EulerVIndex + 2);
-            }
-        }
+    // Apply every stencil weight to the exact Euler cell it was generated for,
+    // using each entry's own stored (i,j,k) index. This makes no assumption
+    // about the stencil being an ordered 3x3x3 cube (or its center sitting at
+    // entry 13) and is correct for any support shape / ordering produced by the
+    // RKPM generator. Padding slots carry weight 0 with a valid index, so the
+    // fixed-size loop is always memory-safe.
+    for (int c = 0; c < stencil_size; ++c) {
+        const auto& rkpm = rkpm_data[c];
+        const int i = rkpm.index[0];
+        const int j = rkpm.index[1];
+        const int k = rkpm.index[2];
+        U += rkpm.weight * rkpm.Vcell * E(i, j, k, EulerVIndex    );
+        V += rkpm.weight * rkpm.Vcell * E(i, j, k, EulerVIndex + 1);
+        W += rkpm.weight * rkpm.Vcell * E(i, j, k, EulerVIndex + 2);
     }
 }
 
@@ -710,7 +709,7 @@ void mParticle::VelocityInterpolation(MultiFab &EulerVel,
                 [=] AMREX_GPU_DEVICE (const int i) {
                 const auto id = p_ptr[i].id() - 1;
                 VelocityInterpolationRKPM_cir(p_ptr[i], Up[i], Vp[i], Wp[i],
-                                              rkpm_ptr + id * STENCIL, E, plo, dx, EulerVelocityIndex);
+                                              rkpm_ptr + id * STENCIL, E, plo, dx, EulerVelocityIndex, STENCIL);
             });
         }else {
             ParallelFor(np,
@@ -836,13 +835,10 @@ void ForceSpreadingRKPM_cir(
     Array4<Real> const &E,
     GpuArray<Real,AMREX_SPACEDIM> const& plo,
     GpuArray<Real,AMREX_SPACEDIM> const& dx,
-    int EulerForceIndex)
+    int EulerForceIndex,
+    int stencil_size)
 {
     amrex::ignore_unused(plo, dx);
-    // Use RKPM pre-computed center index instead of floor(pos/dx)
-    int i = rkpm_data[13].index[0];
-    int j = rkpm_data[13].index[1];
-    int k = rkpm_data[13].index[2];
 
     fxP *= dv;
     fyP *= dv;
@@ -853,16 +849,18 @@ void ForceSpreadingRKPM_cir(
     myP = moment[1];
     mzP = moment[2];
 
-    int cell_index = 0;
-    for (int ii = -1; ii < 2; ii++) {
-        for (int jj = -1; jj < 2; jj++) {
-            for (int kk = -1; kk < 2; kk++) {
-                auto rkpm = rkpm_data[cell_index++];
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex    ), Real(rkpm.weight * fxP));
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 1), Real(rkpm.weight * fyP));
-                HostDevice::Atomic::Add(&E(i + ii, j + jj, k + kk, EulerForceIndex + 2), Real(rkpm.weight * fzP));
-            }
-        }
+    // Spread to the exact Euler cell each weight was generated for, using the
+    // entry's own (i,j,k) index (mirror of VelocityInterpolationRKPM_cir, so the
+    // interpolation and spreading operators stay exact transposes). Padding
+    // slots carry weight 0 with a valid index, keeping the loop memory-safe.
+    for (int c = 0; c < stencil_size; ++c) {
+        const auto& rkpm = rkpm_data[c];
+        const int i = rkpm.index[0];
+        const int j = rkpm.index[1];
+        const int k = rkpm.index[2];
+        HostDevice::Atomic::Add(&E(i, j, k, EulerForceIndex    ), Real(rkpm.weight * rkpm.Vcell * fxP));
+        HostDevice::Atomic::Add(&E(i, j, k, EulerForceIndex + 1), Real(rkpm.weight * rkpm.Vcell * fyP));
+        HostDevice::Atomic::Add(&E(i, j, k, EulerForceIndex + 2), Real(rkpm.weight * rkpm.Vcell * fzP));
     }
 }
 
@@ -904,7 +902,7 @@ void mParticle::ForceSpreading(MultiFab & EulerForce,
                 ForceSpreadingRKPM_cir(p_ptr[i], loc_ptr[0], loc_ptr[1], loc_ptr[2],
                                 fxP_ptr[i], fyP_ptr[i], fzP_ptr[i],
                                 mxP_ptr[i], myP_ptr[i], mzP_ptr[i],
-                                rkpm_ptr + p_id * STENCIL, dv, Uarray, plo, dxi, force_index);
+                                rkpm_ptr + p_id * STENCIL, dv, Uarray, plo, dxi, force_index, STENCIL);
             });
         }else {
             ParallelFor(np,
@@ -1315,8 +1313,20 @@ void mParticle::ResolveWithRPKM(std::string RKPM_file) {
     }
     Gpu::HostVector<MAP_INFO> h_rkpm_flat((max_key + 1) * RKPM_STENCIL_SIZE);
     for (const auto& [key, vec] : RKPM_MAP) {
-        for (int j = 0; j < int(vec.size()); ++j) {
+        const int n = int(vec.size());
+        for (int j = 0; j < n; ++j) {
             h_rkpm_flat[key * RKPM_STENCIL_SIZE + j] = vec[j];
+        }
+        // Pad unused slots with a zero-weight entry that carries a VALID cell
+        // index (copied from the first real entry). The interpolation/spreading
+        // loops run over the fixed RKPM_STENCIL_SIZE and dereference each entry's
+        // index; without a valid padding index they would read cell (0,0,0),
+        // which is out of range for the particle's box.
+        MAP_INFO pad = (n > 0) ? vec[0] : MAP_INFO{};
+        pad.weight = 0.0;
+        pad.Vcell  = 0.0;
+        for (int j = n; j < RKPM_STENCIL_SIZE; ++j) {
+            h_rkpm_flat[key * RKPM_STENCIL_SIZE + j] = pad;
         }
     }
     d_rkpm_flat.resize(h_rkpm_flat.size());

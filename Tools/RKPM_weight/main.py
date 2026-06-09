@@ -19,6 +19,29 @@ def main():
     readpc = 0
     center = (2,2.25,2.25)
 
+    # --- Grid alignment (critical) -------------------------------------------
+    # The solver applies these RKPM weights on its finest-level Euler grid whose
+    # cell centers sit at (n+0.5)*dx measured from the GLOBAL origin (0,0,0).
+    # mapping.py maps local cell i -> global index i + int(sx/dx); that int()
+    # silently drops the fractional part of sx/dx, gluing the local grid to a
+    # global grid shifted by up to ~0.87 cells. The shift makes the discrete
+    # first moment Sum w*(x_euler - x_lag) a nonzero constant, which destroys
+    # torque conservation (spurious CT at 0/90 deg, asymmetric CT) and biases
+    # drag. Fix: snap the box origin so sx,sy,sz are exact integer multiples of
+    # dx. REQUIREMENT: dx = Lx/nxc must equal the solver's finest-level dx
+    # (= (prob_hi-prob_lo)/(n_cell * 2**max_level)).
+    dx_grid = Lx / nxc
+    dy_grid = Ly / nyc
+    dz_grid = Lz / nzc
+    sx = round(sx / dx_grid) * dx_grid
+    sy = round(sy / dy_grid) * dy_grid
+    sz = round(sz / dz_grid) * dz_grid
+    print(f"[align] dx = ({dx_grid:.8f}, {dy_grid:.8f}, {dz_grid:.8f})")
+    print(f"[align] snapped origin sx,sy,sz = ({sx:.8f}, {sy:.8f}, {sz:.8f}) "
+          f"-> cells ({sx/dx_grid:.3f}, {sy/dy_grid:.3f}, {sz/dz_grid:.3f}) "
+          f"(must be whole numbers)")
+    # -------------------------------------------------------------------------
+
     eulerian_points, Ne, lagrangian_points, nearest_grid_points, delta_I, eta_I, theta_I, all_S_I, V_lag = SI_generated.generate_grid(
         sx, sy, sz, Lx, Ly, Lz, nxc, nyc, nzc, center, readpc
     )
