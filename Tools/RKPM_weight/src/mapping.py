@@ -6,121 +6,61 @@ RKPM 3D 映射构建模块
 2. 拉格朗日点到欧拉网格映射 (force spreading)
 3. 欧拉网格到拉格朗日点映射 (velocity interpolation)
 
-针对高性能计算环境优化，支持HDF5、NPZ和内存映射格式。
+欧拉点本身就是求解器最细网格的全局单元中心，因此全局单元索引直接由坐标算出
+i = floor((x - prob_lo) / dx_finest)，不再使用局部子区域的索引偏置
+（旧的 int(sx/dx) 截断会在原点非整数倍 dx 时引入歧义）。
 """
 
 import numpy as np
-from typing import Dict, List, Tuple, Any, Optional, Union
-import os
-import pickle
-from collections import defaultdict
+from typing import Dict, List, Union
 
 
-def extract_grid_coordinates(eulerian_points: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    从欧拉网格点坐标中提取x、y、z坐标数组
-    
-    输入参数：
-        eulerian_points: (N, 3) 所有欧拉网格点坐标
-    
-    输出：
-        x_coords: 唯一的x坐标值，已排序
-        y_coords: 唯一的y坐标值，已排序  
-        z_coords: 唯一的z坐标值，已排序
-    """
-    x_coords = np.unique(eulerian_points[:, 0])
-    y_coords = np.unique(eulerian_points[:, 1])
-    z_coords = np.unique(eulerian_points[:, 2])
-    
-    # 确保坐标数组已排序
-    x_coords = np.sort(x_coords)
-    y_coords = np.sort(y_coords)
-    z_coords = np.sort(z_coords)
-    
-    return x_coords, y_coords, z_coords
-
-
-def get_grid_indices(point: np.ndarray, x_coords: np.ndarray, y_coords: np.ndarray, z_coords: np.ndarray) -> Tuple[int, int, int]:
-    """
-    将欧拉点坐标转换为网格索引(i,j,k)
-    
-    输入参数：
-        point: (3,) 欧拉点坐标 [x, y, z]
-        x_coords: x坐标数组
-        y_coords: y坐标数组
-        z_coords: z坐标数组
-    
-    输出：
-        (i, j, k): 网格索引元组
-    """
-    x, y, z = point
-    
-    # 使用searchsorted找到最近的网格索引
-    i = np.searchsorted(x_coords, x, side='right') - 1
-    j = np.searchsorted(y_coords, y, side='right') - 1
-    k = np.searchsorted(z_coords, z, side='right') - 1
-    
-    # 确保索引在有效范围内
-    i = max(0, min(i, len(x_coords) - 2))
-    j = max(0, min(j, len(y_coords) - 2))
-    k = max(0, min(k, len(z_coords) - 2))
-    
-    return int(i), int(j), int(k)
-
-def build_lagrangian_id_to_coord_map(lagrangian_points: np.ndarray) -> Dict[int, Tuple[float, float, float]]:
+def build_lagrangian_id_to_coord_map(lagrangian_points: np.ndarray) -> Dict[int, tuple]:
     """
     构建拉格朗日点ID到坐标的映射
-    
+
     输入参数：
         lagrangian_points: (Ne, 3) 所有拉格朗日点坐标
-    
+
     输出：
         id_to_coord_map: {id: (xp, yp, zp)}
     """
     id_to_coord_map = {}
-    
+
     for lag_id, coord in enumerate(lagrangian_points):
         id_to_coord_map[lag_id] = tuple(coord)
-    
+
     return id_to_coord_map
 
 def build_lag_to_eul_map(
     lagrangian_points: np.ndarray,
     all_S_I: List[np.ndarray],
     all_modified_w: List[List[float]],
-    x_coords: np.ndarray,
-    y_coords: np.ndarray,
-    z_coords: np.ndarray,
-    sx: float, sy: float, sz: float,
-    Lx: float, Ly: float, Lz: float,
-    nxc: int, nyc: int, nzc: int,
+    prob_lo: np.ndarray,
+    dx_finest: np.ndarray,
     V_lag: float
 ) -> Dict[int, List[Dict[str, Union[int, float]]]]:
     """
     构建拉格朗日点到欧拉网格的映射 (Force Spreading用)
 
+    全局单元索引直接由坐标算出 i = floor((x - prob_lo) / dx_finest)。
+    all_S_I 中的欧拉点即最细网格的全局单元中心，故 floor 恰好还原其全局单元号，
+    无需局部->全局的偏置。
+
     输入参数：
-        lagrangian_points: (Ne, 3) 所有拉格朗日点坐标
+        lagrangian_points: (Ne, 3) 所有拉格朗日点坐标（世界坐标）
         all_S_I: 每个拉格朗日点的支持域内欧拉点及体积信息
         all_modified_w: 所有拉格朗日点的修正窗口函数值列表
-        epsilon: (Ne) ε修正因子数组
-        x_coords, y_coords, z_coords: 网格坐标数组
+        prob_lo: 求解域下界 (3,)
+        dx_finest: 最细网格单元尺寸 (3,)
+        V_lag: 单个拉格朗日点的体积
 
     输出：
         lag_to_eul_map: {lag_id: [{"i": int, "j": int, "k": int, "w": float, "Vcell": float, "eps": float}, ...]}
     """
+    prob_lo = np.asarray(prob_lo, dtype=float)
+    dx_finest = np.asarray(dx_finest, dtype=float)
     lag_to_eul_map = {}
-
-    # Global index offset = sx/dx. Use round (not int/truncate) so that a
-    # grid-aligned origin (sx an integer multiple of dx, enforced in main.py)
-    # maps exactly and is robust to floating-point representation of e.g. 649.0.
-    # If sx is NOT a whole number of cells this offset still truncates the
-    # fractional part -- but main.py now snaps the origin so it is exact, which
-    # makes the local RKPM grid coincide cell-for-cell with the solver grid and
-    # keeps Sum w*(x_euler - x_lag) = 0 in the solver frame.
-    i_offset = round(sx * nxc / Lx)
-    j_offset = round(sy * nyc / Ly)
-    k_offset = round(sz * nzc / Lz)
 
     for lag_id in range(len(lagrangian_points)):
         S_I = all_S_I[lag_id]  # 支持域内的欧拉点及体积信息
@@ -129,18 +69,19 @@ def build_lag_to_eul_map(
         eulerian_data = []
 
         for m, (x_mn, y_mn, z_mn, Vcell) in enumerate(S_I):
-            # 获取网格索引
-            point = np.array([x_mn, y_mn, z_mn])
-            i, j, k = get_grid_indices(point, x_coords, y_coords, z_coords)
+            # 全局单元索引 = floor((单元中心 - prob_lo) / dx)
+            i = int(np.floor((x_mn - prob_lo[0]) / dx_finest[0]))
+            j = int(np.floor((y_mn - prob_lo[1]) / dx_finest[1]))
+            k = int(np.floor((z_mn - prob_lo[2]) / dx_finest[2]))
 
             # 获取权重
             w = modified_w[m]
 
             # 添加到映射中
             eulerian_data.append({
-                "i": i + i_offset,
-                "j": j + j_offset,
-                "k": k + k_offset,
+                "i": i,
+                "j": j,
+                "k": k,
                 "w": float(w),
                 "Vcell": 1.0,
                 "eps": float(V_lag) / float(Vcell)
@@ -164,7 +105,7 @@ def build_lag_to_eul_map(
     return lag_to_eul_map
 
 def save_mappings_txt(
-    id_to_coord_map: Dict[int, Tuple[float, float, float]],
+    id_to_coord_map: Dict[int, tuple],
     lag_to_eul_map: Dict[int, List[Dict[str, Union[int, float]]]],
     filename: str
 ) -> None:
