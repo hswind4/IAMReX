@@ -45,8 +45,8 @@ Bubble
 ```
 
 
-* bubble is the case name,
-* cpu/gpu is the running platform,
+* bubble is the case name.
+* cpu/gpu is the running platform.
 * 2d/3d is the case dimension.
 * The inputs file contains the configuration and parameter combinations of the simulation, which is of course indicated by the name of the directory (cpu2d_skip0_Auto_mgs16_1_regrid4).
 * The log contains the runtime and function calls, memory and other information, which is the main object of our analysis.
